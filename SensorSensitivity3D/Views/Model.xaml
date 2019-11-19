@@ -1,0 +1,59 @@
+﻿<UserControl x:Class="SensorSensitivity3D.Views.Model"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ddes="http://schemas.devdept.com/winfx/2008/xaml/control"
+             xmlns:ddgr="http://schemas.devdept.com/winfx/2008/xaml/graphics"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <ddes:Model >
+        <ddes:Model.ProgressBar>
+            <ddes:ProgressBar Lighting="False"/>
+        </ddes:Model.ProgressBar>
+        <ddes:Model.Viewports>
+            <ddes:Viewport DisplayMode="Rendered" InitialView="Other"  >
+                <ddes:Viewport.Background>
+                    <ddgr:BackgroundSettings BottomColor="#FFE7E7E7" StyleMode="LinearGradient" TopColor="#FFE7E7E7"/>
+                </ddes:Viewport.Background>
+                <ddes:Viewport.CoordinateSystemIcon>
+                    <ddes:CoordinateSystemIcon Lighting="False"/>
+                </ddes:Viewport.CoordinateSystemIcon>
+                <ddes:Viewport.Camera>
+                    <ddes:Camera Distance="380" 
+                                 ProjectionMode="Perspective" 
+                                 Rotation="0.0184343496665325,
+                                 0.0395325904349721, 
+                                 0.422216022800062, 
+                                 0.905445182844754" 
+                                 Target="0, 0, 45" ZoomFactor="2"/>
+                </ddes:Viewport.Camera>
+                <ddes:Viewport.Grids>
+                    <ddes:Grid ColorAxisY="#7F008000" ColorAxisX="#7FFF0000" Lighting="False" MajorLineColor="#7F5A5A5A" MajorLinesEvery="10" Step="10" Visible="True"/>
+                </ddes:Viewport.Grids>
+                <ddes:Viewport.OriginSymbol>
+                    <ddes:OriginSymbol Lighting="False"/>
+                </ddes:Viewport.OriginSymbol>
+                <ddes:Viewport.Rotate>
+                    <ddes:RotateSettings Enabled="True"/>
+                </ddes:Viewport.Rotate>
+                <ddes:Viewport.ToolBars>
+                    <ddes:ToolBar Position="VerticalMiddleLeft">
+                        <ddes:ToolBar.Buttons>
+                            <ddes:HomeToolBarButton/>
+                            <ddes:MagnifyingGlassToolBarButton/>
+                            <ddes:ZoomWindowToolBarButton/>
+                            <ddes:ZoomToolBarButton/>
+                            <ddes:PanToolBarButton/>
+                            <ddes:RotateToolBarButton/>
+                            <ddes:ZoomFitToolBarButton/>
+                        </ddes:ToolBar.Buttons>
+                    </ddes:ToolBar>
+                </ddes:Viewport.ToolBars>
+                <ddes:Viewport.ViewCubeIcon>
+                    <ddes:ViewCubeIcon Lighting="False"/>
+                </ddes:Viewport.ViewCubeIcon>
+            </ddes:Viewport>
+        </ddes:Model.Viewports>
+    </ddes:Model>
+</UserControl>

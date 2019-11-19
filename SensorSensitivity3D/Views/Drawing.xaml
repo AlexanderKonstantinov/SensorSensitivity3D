@@ -1,0 +1,173 @@
+﻿<UserControl x:Class="SensorSensitivity3D.Views.Drawing"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
+             xmlns:dd="urn:gong-wpf-dragdrop"
+             xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.DataContext>
+        <viewModels:DrawingViewModel />
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <helpers:InvNullToVisibilityConverter x:Key="InvNullToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid
+        dd:DragDrop.IsDropTarget="True"
+        dd:DragDrop.DropHandler="{Binding}">
+        <ListBox 
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Center">
+
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                <Border BorderThickness="0">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="Transparent"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <StackPanel>
+
+                <telerik:RadButton
+                    Style="{StaticResource RightPanelIconButton}"
+                    Width="Auto"
+                    VerticalAlignment="Center"
+                    Content="Загрузить модель из файла"
+                    Command="{Binding LoadModelCommand}"/>
+
+
+            </StackPanel>
+
+            <!--Visibility="{Binding Model, Converter={StaticResource NullToVisibilityConverter}}"-->
+            <Grid 
+                Visibility="{Binding Drawing, Converter={StaticResource NullToVisibilityConverter}}"
+                Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <CheckBox
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    VerticalAlignment="Center"
+                    Style="{DynamicResource SliderCheckBox}" 
+                    Content="Название модели"
+                    IsChecked="True"/>
+
+                <telerik:RadButton
+                    Style="{StaticResource RightPanelIconButton}"
+                    Grid.Row="0" Grid.Column="2"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left"
+                    Margin="10 0"
+                    Command="{Binding EditModelCommand}">
+                    <Image Source="../Resources/Icons/pencil.png"/>
+                </telerik:RadButton>
+
+                <Label 
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Content="Xmin"
+                    Style="{StaticResource LeftPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    Content="{Binding Drawing.XMin}"
+                    Style="{StaticResource RightPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="0"
+                    Grid.Row="2"
+                    Content="Xmax"
+                    Style="{StaticResource LeftPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="1"
+                    Grid.Row="2"
+                    Content="{Binding Drawing.XMax}"
+                    Style="{StaticResource RightPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="0"
+                    Grid.Row="3"
+                    Content="Ymin"
+                    Style="{StaticResource LeftPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="1"
+                    Grid.Row="3"
+                    Content="{Binding Drawing.YMin}"
+                    Style="{StaticResource RightPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="0"
+                    Grid.Row="4"
+                    Content="Ymax"
+                    Style="{StaticResource LeftPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="1"
+                    Grid.Row="4"
+                    Content="{Binding Drawing.YMax}"
+                    Style="{StaticResource RightPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="0"
+                    Grid.Row="5"
+                    Content="Zmin"
+                    Style="{StaticResource LeftPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="1"
+                    Grid.Row="5"
+                    Content="{Binding Drawing.ZMin}"
+                    Style="{StaticResource RightPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="0"
+                    Grid.Row="6"
+                    Content="Zmax"
+                    Style="{StaticResource LeftPropertyGridLabel}"/>
+
+                <Label 
+                    Grid.Column="1"
+                    Grid.Row="6"
+                    Content="{Binding Drawing.ZMax}"
+                    Style="{StaticResource RightPropertyGridLabel}"/>
+
+            </Grid>
+        </ListBox>
+    </Grid>
+</UserControl>
