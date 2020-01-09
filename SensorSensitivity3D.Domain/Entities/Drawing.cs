@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
-using SensorSensitivity3D.Domain.Entities.Base;
+using SensorSensitivity3D.Domain.Base;
 
 namespace SensorSensitivity3D.Domain.Entities
 {
@@ -7,7 +7,7 @@ namespace SensorSensitivity3D.Domain.Entities
     {
         public int ConfigurationId { get; set; }
 
-        public string ModelPath { get; set; }
+        public string Path { get; set; }
         public double XMin { get; set; }
         public double XMax { get; set; }
         public double YMin { get; set; }
@@ -20,7 +20,7 @@ namespace SensorSensitivity3D.Domain.Entities
         
         public Drawing(string path)
         {
-            ModelPath = path;
+            Path = path;
         }
     }
 }

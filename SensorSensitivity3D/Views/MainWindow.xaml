@@ -7,13 +7,18 @@
     xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:ddgr="http://schemas.devdept.com/winfx/2008/xaml/graphics"
+    
     xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
     xmlns:views="clr-namespace:SensorSensitivity3D.Views"
+    xmlns:geophoneUserControls="clr-namespace:SensorSensitivity3D.Views.GeophoneUserControls"
+    xmlns:models="clr-namespace:SensorSensitivity3D.Domain.Models;assembly=SensorSensitivity3D.Domain"
+    
     xmlns:ddes="http://schemas.devdept.com/winfx/2008/xaml/control"
     x:Class="SensorSensitivity3D.Views.MainWindow"
-    mc:Ignorable="d" Height="450" Width="800" Title="Зоны локации"
-    MinWidth="800" MinHeight="600" Icon="../Resources/Icons/main_icon.png" Loaded="Window_Loaded"
-    >
+    mc:Ignorable="d" Title="Зоны локации"
+    d:DesignHeight="650" d:DesignWidth="900"
+    MinWidth="850" MinHeight="650" 
+    Icon="pack://application:,,,/Resources/Icons/main_icon.png" >
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
@@ -35,7 +40,7 @@
             Panel.ZIndex="1000"
             HorizontalAlignment="Center"
             VerticalAlignment="Center" >
-
+            
             <telerik:RadListBox 
                 ItemsSource="{Binding Configurations}" 
                 BorderThickness="0"
@@ -85,7 +90,7 @@
                                 Margin="30 0"
                                 ToolTip="Загрузить">
                                 <Image 
-                                        Source="../Resources/Icons/arrow_down.png"
+                                        Source="pack://application:,,,/Resources/Icons/arrow_down.png"
                                         Stretch="Fill"/>
                             </telerik:RadButton>
 
@@ -95,7 +100,7 @@
                                 Grid.Column="2" 
                                 ToolTip="Удалить">
                                 <Image 
-                                        Source="../Resources/Icons/trash.png"
+                                        Source="pack://application:,,,/Resources/Icons/trash.png"
                                         Stretch="Fill"/>
                             </telerik:RadButton>
 
@@ -117,7 +122,7 @@
             <Border
                 Panel.ZIndex="1000"
                 Grid.Column="3"
-                Width="326"
+                Width="350"
                 BorderThickness="1 0 0 0"
                 BorderBrush="#FF5E6770"
                 Visibility="{Binding RightPanelVisibility}">
@@ -129,19 +134,24 @@
                 </Border.Effect>
 
                 <telerik:RadTabControl
+                    UIElement.PreviewMouseUp="RightPanel_PreviewMouseUp"
                     x:Name="RightPanel"
                     FontSize="16"
                     telerik:StyleManager.Theme="Green" 
                     DisplayMemberPath="Content" 
                     ScrollMode="Viewport" 
 
-                    BorderThickness="0">
+                    BorderThickness="0" >
                     <telerik:RadTabItem Header="Модель" >
                         <views:Drawing DataContext="{Binding DrawingViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     </telerik:RadTabItem>
-                    <telerik:RadTabItem Header="Геофоны" >
-                        <views:Geophones DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    
+                    <telerik:RadTabItem
+                        x:Name="GeophoneTabItem"
+                        Header="Геофоны" >
+                        <geophoneUserControls:Geophones DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="-3,0,3.6,0.2"/>
                     </telerik:RadTabItem>
+                    
                     <telerik:RadTabItem Header="Зоны локации" />
                 </telerik:RadTabControl>
             </Border>
@@ -158,13 +168,13 @@
                 <Image Stretch="UniformToFill">
                     <Image.Style>
                         <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="../Resources/Icons/double_arrow_right.png"></Setter>
+                            <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"></Setter>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding RightPanelVisibility}" Value="Visibility">
-                                    <Setter Property="Source" Value="../Resources/Icons/double_arrow_right.png"/>
+                                    <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding RightPanelVisibility}" Value="Collapsed">
-                                    <Setter Property="Source" Value="../Resources/Icons/double_arrow_left.png"/>
+                                    <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_left.png"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -194,17 +204,17 @@
                         <telerik:RadMenuItem.Icon>
                             <Image 
                                 Stretch="Fill"
-                                Source="../Resources/Icons/gears.png"
+                                Source="pack://application:,,,/Resources/Icons/gears.png"
                                 HorizontalAlignment="Stretch"/>
                         </telerik:RadMenuItem.Icon>
                         <telerik:RadMenuItem  Header="Сохранить конфигурацию">
                             <telerik:RadMenuItem.Icon>
-                                <Image Width="15" Height="15" Source="../Resources/Icons/floppy_disk.png" />
+                                <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/floppy_disk.png" />
                             </telerik:RadMenuItem.Icon>
                         </telerik:RadMenuItem>
                         <telerik:RadMenuItem  Header="Загрузить конфигурацию">
                             <telerik:RadMenuItem.Icon>
-                                <Image Width="15" Height="15" Source="../Resources/Icons/arrow_down.png" />
+                                <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/arrow_down.png" />
                             </telerik:RadMenuItem.Icon>
                         </telerik:RadMenuItem>
                     </telerik:RadMenuItem>
@@ -212,23 +222,21 @@
                 </telerik:RadMenu>
             </Canvas>
 
-            <!--<views:Model VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4"
-                         DataContext="{Binding ModelViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>-->
-
-            <viewModels:CustomModel 
-                x:Name="Model" 
+            <models:CustomModel 
+                x:Name="Model"
+                CustomEntityList="{Binding EntityList}"
+                AutoRefresh="True"
                 Margin="{Binding 
                 ElementName=RightPanel, 
                 Path=IsVisible, 
                 Converter={StaticResource MarginConverter},
                 Mode=OneWay,
                 UpdateSourceTrigger=PropertyChanged}"
-                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4"
-                DataContext="{Binding ModelViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                <viewModels:CustomModel.ProgressBar>
+                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4">
+                <models:CustomModel.ProgressBar>
                     <ddes:ProgressBar Lighting="False"/>
-                </viewModels:CustomModel.ProgressBar>
-                <viewModels:CustomModel.Viewports>
+                </models:CustomModel.ProgressBar>
+                <models:CustomModel.Viewports>
                     <ddes:Viewport DisplayMode="Rendered">
                         <ddes:Viewport.Background>
                             <ddgr:BackgroundSettings 
@@ -251,12 +259,6 @@
                                 Target="0, 0, 45"
                                 ZoomFactor="2"/>
                         </ddes:Viewport.Camera>
-                        <ddes:Viewport.Grids>
-                            <ddes:Grid ColorAxisY="#7F008000" ColorAxisX="#7FFF0000" Lighting="False" MajorLineColor="#7F5A5A5A" MajorLinesEvery="10" Step="10" Visible="True"/>
-                        </ddes:Viewport.Grids>
-                        <ddes:Viewport.OriginSymbol>
-                            <ddes:OriginSymbol Lighting="False"/>
-                        </ddes:Viewport.OriginSymbol>
                         <ddes:Viewport.Rotate>
                             <ddes:RotateSettings Enabled="True"/>
                         </ddes:Viewport.Rotate>
@@ -287,8 +289,8 @@
                                                HighlightColor="#8db9ca"/>
                         </ddes:Viewport.ViewCubeIcon>
                     </ddes:Viewport>
-                </viewModels:CustomModel.Viewports>
-            </viewModels:CustomModel>
+                </models:CustomModel.Viewports>
+            </models:CustomModel>
         </Grid>
     </Grid>
 </Window>

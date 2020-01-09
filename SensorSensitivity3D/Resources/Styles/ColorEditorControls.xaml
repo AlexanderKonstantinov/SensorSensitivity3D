@@ -1,0 +1,44 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:t="http://schemas.telerik.com/2008/xaml/presentation">
+
+    <Style x:Key="ColorButton" TargetType="{x:Type t:RadButton}" BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="ToolTip" Value="Изменить цвет" />
+
+        <Style.Triggers>
+            <Trigger Property="Background" Value="Transparent">
+                <Setter Property="Content">
+                    <Setter.Value>
+                        <Image Source="../Icons/color_circle.png" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Padding" Value="0"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <Style x:Key="ColorEditorPopup" TargetType="Popup" BasedOn="{StaticResource BasePopup}">
+        <Setter Property="PopupAnimation" Value="Fade"/>
+        <Setter Property="Placement" Value="Mouse"/>
+        <Setter Property="AllowsTransparency" Value="True"/>
+        <Setter Property="StaysOpen" Value="False"/>
+    </Style>
+
+    <Style x:Key="ColorEditor" TargetType="t:RadColorEditor" BasedOn="{StaticResource BaseRadColorEditor}">
+        <Setter Property="Width" Value="400"/>
+        <Setter Property="Height" Value="220"/>
+        <Setter Property="Background" Value="White"/>
+    </Style>
+
+    <Style x:Key="ColorEditorButton" TargetType="t:RadButton" BasedOn="{StaticResource BaseRadButton}">
+        <Setter Property="Width" Value="70"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Margin" Value="0 0 10 10"/>
+    </Style>
+
+</ResourceDictionary>

@@ -28,6 +28,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -37,6 +38,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>main_icon.ico</ApplicationIcon>
@@ -113,6 +115,7 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="Telerik.Windows.Controls, Version=2019.2.618.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.Windows.Controls.Data, Version=2019.2.618.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL" />
     <Reference Include="Telerik.Windows.Controls.Input, Version=2019.2.618.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL" />
     <Reference Include="Telerik.Windows.Controls.Navigation, Version=2019.2.618.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL" />
     <Reference Include="Telerik.Windows.Data, Version=2019.2.618.45, Culture=neutral, PublicKeyToken=5803cfa389c90ce7, processorArchitecture=MSIL" />
@@ -128,36 +131,49 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Helpers\EventHandlers.cs" />
-    <Compile Include="Helpers\MarginConverter.cs" />
+    <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
-    <Compile Include="ViewModels\CustomModel.cs" />
     <Compile Include="ViewModels\DrawingViewModel.cs" />
-    <Compile Include="ViewModels\GeophonesViewModel.cs" />
+    <Compile Include="ViewModels\GeophoneViewModels\GeophonesViewModel.cs" />
+    <Compile Include="ViewModels\GeophoneViewModels\GeophoneViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="ViewModels\ModelViewModel.cs" />
     <Compile Include="ViewModels\ZonesViewModel.cs" />
     <Compile Include="Views\Drawing.xaml.cs">
       <DependentUpon>Drawing.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Geophones.xaml.cs">
+    <Compile Include="Views\GeophoneUserControls\Geophones.xaml.cs">
       <DependentUpon>Geophones.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Model.xaml.cs">
-      <DependentUpon>Model.xaml</DependentUpon>
-    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Helpers\NullToVisibilityConverter.cs" />
-    <Compile Include="Helpers\ObjectProperty.cs" />
-    <Compile Include="Helpers\RelayCommand.cs" />
+    <Compile Include="Helpers\ControlConverters.cs" />
+    <Compile Include="Infrastructure\RelayCommand.cs" />
+    <Compile Include="Views\GeophoneUserControls\Geophone.xaml.cs">
+      <DependentUpon>Geophone.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Panels\PanelHeader.xaml.cs">
+      <DependentUpon>PanelHeader.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Resources\Styles\BaseStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\Styles\Buttons.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Resources\Styles\ColorEditorControls.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Styles\PropertyGridControls.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Styles\TextConrols.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -171,7 +187,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\Geophones.xaml">
+    <Page Include="Views\GeophoneUserControls\Geophones.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -179,9 +195,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\Model.xaml">
-      <Generator>MSBuild:Compile</Generator>
+    <Page Include="Views\GeophoneUserControls\Geophone.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Panels\PanelHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
@@ -236,6 +256,10 @@
       <Project>{5ebfd4a6-08e9-4434-a228-5f561bb04081}</Project>
       <Name>SensorSensitivity3D.Domain</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SensorSensitivity3D.Services\SensorSensitivity3D.Services.csproj">
+      <Project>{e5864f22-bb41-472c-b545-c2dbc23c195c}</Project>
+      <Name>SensorSensitivity3D.Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\main_icon.png" />
@@ -246,6 +270,26 @@
   <ItemGroup>
     <Resource Include="main_icon.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\target.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\db_upload.png" />
+    <Resource Include="Resources\Icons\file_upload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\xml.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\color_circle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\wrench.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\rollback.png" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

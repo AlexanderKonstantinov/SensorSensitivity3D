@@ -22,12 +22,14 @@ namespace SensorSensitivity3D.Views
 
             _viewModel = new MainViewModel(Model);
             DataContext = _viewModel;
-            
+
+            //GeophoneTabItem.Content = new Geophones();
+
             //var factory = new Context.ContextFactory();
 
             //using (var dataContext = factory.CreateDbContext(null))
             //{
-            //    //dataContext.Sensors.Add(new MyEntity { MyColumn = "aaa" });
+            //    //dataContext.Geophone.Add(new MyEntity { MyColumn = "aaa" });
             //    //dataContext.MyTable.Add(new MyEntity { MyColumn = "bbb" });
             //    //dataContext.MyTable.Add(new MyEntity { MyColumn = "ccc" });
 
@@ -42,9 +44,12 @@ namespace SensorSensitivity3D.Views
             //}
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void RightPanel_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            IInputElement focusableElement = FocusManagerHelper.GetFocusedElement(this);
 
+            if (focusableElement is RadSplitButton)
+                RightPanel.Focus();
         }
     }
 }

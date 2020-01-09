@@ -1,30 +1,42 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using devDept.Eyeshot;
+using devDept.Eyeshot.Entities;
+using devDept.Eyeshot.Translators;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.Win32;
 using SensorSensitivity3D.Domain.Entities;
-using SensorSensitivity3D.Helpers;
+using SensorSensitivity3D.Infrastructure;
 
 namespace SensorSensitivity3D.ViewModels
 {
+
     public class DrawingViewModel : BaseViewModel, IDropTarget
     {
-        public event Action<string> DrawingLoaded; 
-        
+        private readonly Model Model;
+        private ReadAutodesk _readAutodesk;
+
+        public Entity[] DrawingEntities => _readAutodesk.Entities;
+
         public Drawing Drawing { get; set; }
-        public readonly Model _model;
         
+
+
         public DrawingViewModel() { }
 
         public DrawingViewModel(Drawing drawing, Model model)
         {
             Drawing = drawing;
-            _model = model;
+            Model = model;
+
+            ReadAutodesk(Drawing.Path);
         }
+
 
 
         #region Commands
@@ -44,22 +56,36 @@ namespace SensorSensitivity3D.ViewModels
             };
 
             if (openFileDialog.ShowDialog() == true)
-            {
-                DrawingLoaded?.Invoke(openFileDialog.FileName);
-                UpdateDrawing(openFileDialog.FileName);
-                OnPropertyChanged(nameof(Drawing));
-            }
+                ReadAutodesk(openFileDialog.FileName);
         }
 
-        private void UpdateDrawing(string path)
+        private void ReadAutodesk(string drawingPath)
         {
-            Drawing.ModelPath = path;
-            Drawing.XMin = _model.Entities.BoxMin.X;
-            Drawing.XMax = _model.Entities.BoxMax.X;
-            Drawing.YMin = _model.Entities.BoxMin.Y;
-            Drawing.YMax = _model.Entities.BoxMax.Y;
-            Drawing.ZMin = _model.Entities.BoxMin.Z;
-            Drawing.ZMax = _model.Entities.BoxMax.Z;
+            if (!File.Exists(drawingPath))
+                return;
+            
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
+            new Action(delegate { }));
+
+            _readAutodesk = new ReadAutodesk(drawingPath);
+            _readAutodesk.DoWork();
+            
+            UpdateDrawing();
+            _readAutodesk.AddToScene(Model);
+        }
+
+        public void UpdateDrawing()
+        {
+            Drawing.Path = _readAutodesk.Path;
+            Drawing.Name = new FileInfo(_readAutodesk.Path).Name;
+            Drawing.XMin = _readAutodesk.Min.X;
+            Drawing.XMax = _readAutodesk.Max.X;
+            Drawing.YMin = _readAutodesk.Min.Y;
+            Drawing.YMax = _readAutodesk.Max.Y;
+            Drawing.ZMin = _readAutodesk.Min.Z;
+            Drawing.ZMax = _readAutodesk.Max.Z;
+
+            OnPropertyChanged(nameof(Drawing));
         }
 
         private bool CanExecuteLoadModelCommand(object o)

@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSensitivity3D", "Sens
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSensitivity3D.Domain", "SensorSensitivity3D.Domain\SensorSensitivity3D.Domain.csproj", "{5EBFD4A6-08E9-4434-A228-5F561BB04081}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SensorSensitivity3D.Services", "SensorSensitivity3D.Services\SensorSensitivity3D.Services.csproj", "{E5864F22-BB41-472C-B545-C2DBC23C195C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{5EBFD4A6-08E9-4434-A228-5F561BB04081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EBFD4A6-08E9-4434-A228-5F561BB04081}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EBFD4A6-08E9-4434-A228-5F561BB04081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5864F22-BB41-472C-B545-C2DBC23C195C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5864F22-BB41-472C-B545-C2DBC23C195C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5864F22-BB41-472C-B545-C2DBC23C195C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5864F22-BB41-472C-B545-C2DBC23C195C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

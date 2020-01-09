@@ -1,20 +1,179 @@
 ﻿<ResourceDictionary 
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation">
-
+    xmlns:t="http://schemas.telerik.com/2008/xaml/presentation">
 
     <Style 
         x:Key="RightPanelIconButton" 
-        TargetType="{x:Type telerik:RadButton}">
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Width" Value="30"/>
         <Setter Property="Height" Value="30"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="telerik:StyleManager.Theme" Value="Fluent"/>
-
-        <Setter Property="Focusable" Value="False"/>
-
     </Style>
+
+    <Style 
+        x:Key="ResetGeophoneButton" 
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="ToolTip" Value="Сбросить"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Visibility" Value="Hidden" />
+
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="True">
+                <Setter Property="Visibility" Value="Visible" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="ColorStackPanel" 
+        TargetType="{x:Type StackPanel}">
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="18"/>
+
+        <Style.Triggers>
+            <Trigger Property="Background" Value="Red">
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="GeophonesHeaderButton" 
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="5" />
+    </Style>  
+    
+    <Style 
+        x:Key="OnOffToggleButton" 
+        TargetType="{x:Type t:RadToggleButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadToggleButton}">
         
+        <Setter Property="Height" Value="16"/>
+        <Setter Property="Width" Value="16"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="2 5"/>
+        <Setter Property="Grid.Column" Value="1"/>
+    </Style>
+
+    <Style 
+        x:Key="GeophoneVisibilityButton"
+        TargetType="{x:Type t:RadToggleButton}"
+        BasedOn="{StaticResource ResourceKey=OnOffToggleButton}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter Property="ToolTip" Value="Показать геофон" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="ToolTip" Value="Скрыть геофон" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="GeophoneSphereVisibilityButton"
+        TargetType="{x:Type t:RadToggleButton}"
+        BasedOn="{StaticResource ResourceKey=OnOffToggleButton}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter Property="ToolTip" Value="Показать зону чувствительности" />
+
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="ToolTip" Value="Скрыть зону чувствительности" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="GeophoneToggleButton" 
+        TargetType="{x:Type t:RadToggleButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadToggleButton}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="Width" Value="Auto"/>
+        <Setter Property="MinWidth" Value="95"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0 5"/>
+
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border 
+                        Padding="5"
+                        BorderBrush="{TemplateBinding BorderBrush}"   
+                        Background="{TemplateBinding Background}">
+                        <ContentPresenter HorizontalAlignment="Center"                  
+                                              VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter Property="Background" Value="#F0A0A0" />
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="Background" Value="#80c080" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="GeophoneGoodButton"
+        TargetType="{x:Type t:RadToggleButton}"
+        BasedOn="{StaticResource ResourceKey=GeophoneToggleButton}">
+        <Style.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter Property="ToolTip" Value="Включить" />
+
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+                <Setter Property="ToolTip" Value="Выключить" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="BackButton"
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="BorderThickness" Value="0" />        
+    </Style>
+
+    <Style 
+        x:Key="BackPanelAcceptButton"
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+
+        <Setter Property="Background" Value="#66b366" />
+        <Setter Property="Padding" Value="10 0" />
+        <Setter Property="Margin" Value="10 20 0 0" />
+        <Setter Property="Height" Value="25" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
 </ResourceDictionary>

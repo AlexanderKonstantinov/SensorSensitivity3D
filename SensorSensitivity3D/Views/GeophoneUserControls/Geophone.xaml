@@ -1,0 +1,208 @@
+﻿<UserControl x:Class="SensorSensitivity3D.Views.GeophoneUserControls.Geophone"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SensorSensitivity3D.Views.Panels"
+             xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
+             xmlns:s="clr-namespace:System;assembly=mscorlib"
+            
+             xmlns:geophoneViewModels="clr-namespace:SensorSensitivity3D.ViewModels.GeophoneViewModels"
+
+             mc:Ignorable="d" 
+             Background="White"
+             d:DesignHeight="650" d:DesignWidth="350">
+
+    <UserControl.DataContext>
+        <geophoneViewModels:GeophoneViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <helpers:BoolToStringConverter x:Key="BoolToStateConverter" TrueValue="исправен" FalseValue="не исправен" />
+        <helpers:BoolToStringConverter x:Key="BoolToDisplayConverter" TrueValue="отображать" FalseValue="не отображать" />
+        <helpers:StringToColorConverter x:Key="StringToColorConverter" />
+        <helpers:DrawingColorToMediaColorConverter x:Key="DrawingColorToMediaColorConverter" />
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        
+        <s:Boolean x:Key="TrueValue">True</s:Boolean>
+        <s:Boolean x:Key="FalseValue">False</s:Boolean>
+    </UserControl.Resources>
+
+    <Grid Grid.Row="1" Margin="20 10">
+            <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <local:PanelHeader Grid.Row="0" Grid.ColumnSpan="2" />
+
+        <TextBlock 
+            Grid.Row="1"
+            Grid.Column="0"
+            Text="Наименование" 
+            Style="{StaticResource TitleTextBlock}"/>
+            
+        <ScrollViewer 
+            Grid.Row="1"
+            Grid.Column="1" 
+            VerticalScrollBarVisibility="Hidden"
+            HorizontalScrollBarVisibility="Hidden">
+            <TextBox 
+                Grid.Row="0"
+                Text="{Binding EditedGeophone.Name, UpdateSourceTrigger=PropertyChanged}" 
+                Style="{StaticResource EditTextBox}" />
+        </ScrollViewer>
+
+        <TextBlock 
+            Grid.Row="2" 
+            Grid.Column="0" 
+            Text="Номер скважины" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox x:Name="valid" 
+            Grid.Row="2"
+            Grid.Column="1" 
+            Text="{Binding EditedGeophone.HoleNumber, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+
+        <TextBlock 
+            Grid.Row="3"
+            Grid.Column="0" 
+            Text="X, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="3"
+            Grid.Column="1" 
+            Text="{Binding EditedGeophone.X, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+
+        <TextBlock 
+            Grid.Row="4"
+            Grid.Column="0" 
+            Text="Y, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox 
+            Grid.Row="4"
+            Grid.Column="1" 
+            Text="{Binding EditedGeophone.Y, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+
+        <TextBlock 
+            Grid.Row="5"
+            Grid.Column="0" 
+            Text="Z, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox 
+            Grid.Row="5"
+            Grid.Column="1" 
+            Panel.ZIndex="1"
+            Text="{Binding EditedGeophone.Z, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+
+        <TextBlock 
+            Grid.Row="6"
+            Grid.Column="0"
+            Text="Видимость геофона" Style="{StaticResource TitleTextBlock}"/>
+        <t:RadToggleButton 
+            Grid.Column="1"
+            Grid.Row="6"
+            HorizontalAlignment="Right"
+            Style="{StaticResource ResourceKey=GeophoneToggleButton}"
+            IsChecked="{Binding EditedGeophone.GIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Content="{Binding EditedGeophone.GIsVisible, Converter={StaticResource BoolToDisplayConverter}}"/>
+
+        <TextBlock 
+            Grid.Row="7"
+            Grid.Column="0"
+            Text="Видимость зоны чувствительности"
+            Style="{StaticResource TitleTextBlock}"/>
+        <t:RadToggleButton 
+            Grid.Column="1"
+            Grid.Row="7"
+            HorizontalAlignment="Right"
+            Style="{StaticResource ResourceKey=GeophoneToggleButton}"
+            IsChecked="{Binding EditedGeophone.SIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Content="{Binding EditedGeophone.SIsVisible, Converter={StaticResource BoolToDisplayConverter}}"/>
+
+        <TextBlock 
+            Grid.Row="8"
+            Grid.Column="0"
+            Text="Цвет геофона" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <t:RadButton
+            Grid.Row="8"
+            Grid.Column="1"
+            Style="{StaticResource ColorButton}"
+            Command="{Binding SelectGeophoneCommand}"
+            CommandParameter="{x:Null}"
+            Background="{Binding EditedGeophone.Color, Converter={StaticResource StringToColorConverter}}"/>
+
+
+        <TextBlock 
+                Grid.Row="9"
+                Grid.Column="0" 
+                Text="Состояние" 
+                Style="{StaticResource TitleTextBlock}"/>
+        <t:RadToggleButton
+            Grid.Row="9"
+            Grid.Column="1" 
+            HorizontalAlignment="Right"
+            Panel.ZIndex="1"
+            Style="{StaticResource ResourceKey=GeophoneToggleButton}"
+            IsChecked="{Binding EditedGeophone.IsGood, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Content="{Binding EditedGeophone.IsGood, Converter={StaticResource BoolToStateConverter}}"/>
+
+        <TextBlock 
+            Grid.Row="10"
+            Grid.Column="0"
+            Text="Предел чувствительности,м" Style="{StaticResource TitleTextBlock}"/>
+        <TextBox 
+            Grid.Row="10"
+            Grid.Column="1"
+            Text="{Binding EditedGeophone.R, UpdateSourceTrigger=PropertyChanged}"  Style="{StaticResource EditTextBox}"/>
+
+        <StackPanel
+            Grid.ColumnSpan="3"
+            Grid.Row="11"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal" >
+            
+            <t:RadButton 
+                Content="Добавить"
+                ToolTip="Добавить геофон"
+                Style="{StaticResource BackPanelAcceptButton}"
+                Command="{Binding AddGeophoneCommand}"
+                CommandParameter="{StaticResource FalseValue}"/>
+
+            <t:RadButton 
+                Content="Добавить +"
+                ToolTip="Добавить геофон и продолжить"
+                Style="{StaticResource BackPanelAcceptButton}"
+                Command="{Binding AddGeophoneCommand}"
+                CommandParameter="{StaticResource TrueValue}"/>
+
+            <t:RadButton 
+                Content="Сохранить"
+                ToolTip="Сохранить изменения"
+                Visibility="{Binding OriginalGeophone, Converter={StaticResource NullToVisibilityConverter}}"
+                Command="{Binding SaveGeophoneCommand}"
+                Style="{StaticResource BackPanelAcceptButton}"/>
+            
+        </StackPanel>            
+    </Grid>
+</UserControl>

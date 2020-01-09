@@ -16,7 +16,6 @@
 
     <UserControl.Resources>
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-        <helpers:InvNullToVisibilityConverter x:Key="InvNullToVisibilityConverter" />
     </UserControl.Resources>
 
     <Grid
@@ -82,7 +81,7 @@
                     Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                     VerticalAlignment="Center"
                     Style="{DynamicResource SliderCheckBox}" 
-                    Content="Название модели"
+                    Content="{Binding Drawing.Name}"
                     IsChecked="True"/>
 
                 <telerik:RadButton
@@ -104,9 +103,8 @@
                 <Label 
                     Grid.Column="1"
                     Grid.Row="1"
-                    Content="{Binding Drawing.XMin}"
+                    Content="{Binding Drawing.XMin}"                    
                     Style="{StaticResource RightPropertyGridLabel}"/>
-
                 <Label 
                     Grid.Column="0"
                     Grid.Row="2"

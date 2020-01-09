@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using SensorSensitivity3D.Domain.Entities.Base;
+using SensorSensitivity3D.Domain.Base;
 
 namespace SensorSensitivity3D.Domain.Entities
 {
@@ -8,6 +8,6 @@ namespace SensorSensitivity3D.Domain.Entities
         public string Color { get; set; }
         public bool IsVisible { get; set; }
 
-        public virtual ICollection<SensorZone> SensorZones { get; set; }
+        public virtual ICollection<GeophoneZones> GeophoneZones { get; set; }
     }
 }
