@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -12,16 +11,19 @@ using GongSolutions.Wpf.DragDrop;
 using Microsoft.Win32;
 using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Infrastructure;
+using SensorSensitivity3D.Services;
 
 namespace SensorSensitivity3D.ViewModels
 {
 
     public class DrawingViewModel : BaseViewModel, IDropTarget
     {
+        private readonly DrawingService DrawingService;
+
         private readonly Model Model;
         private ReadAutodesk _readAutodesk;
 
-        public Entity[] DrawingEntities => _readAutodesk.Entities;
+        public Entity[] DrawingEntities => _readAutodesk?.Entities;
 
         public Drawing Drawing { get; set; }
         
@@ -29,11 +31,14 @@ namespace SensorSensitivity3D.ViewModels
 
         public DrawingViewModel() { }
 
-        public DrawingViewModel(Drawing drawing, Model model)
+        public DrawingViewModel(Model model, Configuration config)
         {
-            Drawing = drawing;
             Model = model;
 
+            DrawingService = new DrawingService();
+            Drawing = DrawingService.GetDrawing(config.Id);
+            
+            //TODO Проверка наличия файла 
             ReadAutodesk(Drawing.Path);
         }
 
@@ -43,8 +48,7 @@ namespace SensorSensitivity3D.ViewModels
         
         private RelayCommand _loadModelCommand;
         public ICommand LoadModelCommand
-            => _loadModelCommand
-               ?? (_loadModelCommand = new RelayCommand(ExecuteLoadModelCommand, CanExecuteLoadModelCommand));
+            => _loadModelCommand ??= new RelayCommand(ExecuteLoadModelCommand, CanExecuteLoadModelCommand);
         
         private void ExecuteLoadModelCommand(object obj)
         {
@@ -63,15 +67,18 @@ namespace SensorSensitivity3D.ViewModels
         {
             if (!File.Exists(drawingPath))
                 return;
-            
+
             Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
-            new Action(delegate { }));
+                new Action(delegate { }));
 
             _readAutodesk = new ReadAutodesk(drawingPath);
             _readAutodesk.DoWork();
-            
+
             UpdateDrawing();
             _readAutodesk.AddToScene(Model);
+
+            foreach (var e in Model.Entities)
+                e.Selectable = false;
         }
 
         public void UpdateDrawing()
@@ -93,8 +100,7 @@ namespace SensorSensitivity3D.ViewModels
 
         private RelayCommand _editModelCommand;
         public ICommand EditModelCommand
-            => _editModelCommand
-               ?? (_editModelCommand = new RelayCommand(ExecuteEditModelCommand, CanExecuteEditModelCommand));
+            => _editModelCommand ??= new RelayCommand(ExecuteEditModelCommand, CanExecuteEditModelCommand);
 
         private void ExecuteEditModelCommand(object obj)
         {

@@ -120,14 +120,12 @@ namespace SensorSensitivity3D.Domain.Models
         /// </summary>
         public int R { get; set; }
 
-        public GeophoneModel()
-        {
-
-        }
+        public GeophoneModel() { }
+            
 
 
         public override string ToString()
-            => DisplayName;
+            => $"{DisplayName}\nX: {X}\nY: {Y}\nZ: {Z}\nR: {R}";
 
         private bool CheckGeophoneChanging() =>
             !(OriginalGeophone is null) &&

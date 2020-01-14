@@ -24,8 +24,8 @@ namespace SensorSensitivity3D.Views.GeophoneUserControls
             => ColorEditorPopup.IsOpen = false;
 
 
-        private void GeophonePanelShow(object sender, RoutedEventArgs e)
-        => GeophonePanel.Visibility = Visibility.Visible;
+        //private void GeophonePanelShow(object sender, RoutedEventArgs e)
+        //=> GeophonePanel.Visibility = Visibility.Visible;
                    
 
         private void GeophonesPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)

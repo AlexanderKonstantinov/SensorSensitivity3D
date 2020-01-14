@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace SensorSensitivity3D.Views.GeophoneUserControls
 {
@@ -11,5 +13,14 @@ namespace SensorSensitivity3D.Views.GeophoneUserControls
         {
             InitializeComponent();
         }
+
+        private void ColorButton_Click(object sender, RoutedEventArgs e)
+            => ColorEditorPopupGeophonePanel.IsOpen = true;
+
+        private void ColorEditor_MouseLeave(object sender, MouseEventArgs e)
+            => ColorEditorPopupGeophonePanel.IsOpen = false;
+
+        private void ColorEditorOk_Click(object sender, RoutedEventArgs e)
+            => ColorEditorPopupGeophonePanel.IsOpen = false;
     }
 }

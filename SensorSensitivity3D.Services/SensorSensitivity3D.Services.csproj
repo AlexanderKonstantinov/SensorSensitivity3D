@@ -43,10 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigService.cs" />
+    <Compile Include="DrawingService.cs" />
     <Compile Include="GeophoneConversionService.cs" />
+    <Compile Include="GeophoneService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SensorSensitivity3D.DAL\SensorSensitivity3D.DAL.csproj">
+      <Project>{15a810ae-7a68-4136-a503-36019a823038}</Project>
+      <Name>SensorSensitivity3D.DAL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SensorSensitivity3D.Domain\SensorSensitivity3D.Domain.csproj">
       <Project>{5EBFD4A6-08E9-4434-A228-5F561BB04081}</Project>
       <Name>SensorSensitivity3D.Domain</Name>

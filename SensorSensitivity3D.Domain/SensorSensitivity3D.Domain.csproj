@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="devDept.Eyeshot.Control.Wpf.v12, Version=12.0.239.0, Culture=neutral, PublicKeyToken=5385d83d2fb4d7d9, processorArchitecture=MSIL" />
+    <Reference Include="devDept.Geometry.v12, Version=12.0.239.0, Culture=neutral, PublicKeyToken=9440825e8b4733bc" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -55,7 +56,6 @@
     <Compile Include="Entities\Configuration.cs" />
     <Compile Include="Entities\Drawing.cs" />
     <Compile Include="Entities\Geophone.cs" />
-    <Compile Include="Entities\GeophoneZones.cs" />
     <Compile Include="Entities\Zone.cs" />
     <Compile Include="Models\CustomEntityList.cs" />
     <Compile Include="Models\CustomModel.cs" />

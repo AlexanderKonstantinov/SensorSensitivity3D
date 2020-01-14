@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.Linq;
 using System.Windows;
-using System.Windows.Media.Imaging;
+using System.Windows.Input;
 using devDept.Eyeshot;
 using SensorSensitivity3D.ViewModels;
 using Telerik.Windows.Controls;
@@ -19,10 +17,10 @@ namespace SensorSensitivity3D.Views
         public MainWindow()
         {
             InitializeComponent();
-
+            
             _viewModel = new MainViewModel(Model);
             DataContext = _viewModel;
-
+            
             //GeophoneTabItem.Content = new Geophones();
 
             //var factory = new Context.ContextFactory();
@@ -50,6 +48,19 @@ namespace SensorSensitivity3D.Views
 
             if (focusableElement is RadSplitButton)
                 RightPanel.Focus();
+        }
+
+        private void OnLoadConfig(object sender, RoutedEventArgs e)
+        {
+            ConfigList.Visibility = Visibility.Collapsed;
+            ModelContainer.Visibility = Visibility.Visible;
+            Model.Focus();
+        }
+
+        private void Model_OnMouseMove(object sender, MouseEventArgs e)
+        {
+            EntityPopup.IsOpen = false;
+            EntityPopup.IsOpen = !string.IsNullOrEmpty(EntityInfo.Text);
         }
     }
 }

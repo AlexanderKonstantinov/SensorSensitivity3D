@@ -148,10 +148,32 @@
             Grid.Row="8"
             Grid.Column="1"
             Style="{StaticResource ColorButton}"
-            Command="{Binding SelectGeophoneCommand}"
-            CommandParameter="{x:Null}"
+            Click="ColorButton_Click"
             Background="{Binding EditedGeophone.Color, Converter={StaticResource StringToColorConverter}}"/>
+        <Popup     
+            Grid.Row="8"
+            Grid.Column="1"
+            x:Name="ColorEditorPopupGeophonePanel"             
+            Style="{StaticResource ColorEditorPopup}" >
+            <Grid MouseLeave="ColorEditor_MouseLeave">
+                <t:RadColorEditor                         
+                    x:Name="ColorEditorGeophonePanel"   
+                    InitialColor="{Binding EditedGeophone.Color, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
+                    Style="{StaticResource ColorEditor}" />
 
+                <StackPanel
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom">
+                    <t:RadButton
+                        Content="Ок" 
+                        Style="{StaticResource ColorEditorButton}"
+                        Click="ColorEditorOk_Click"
+                        Command="{Binding ChangeColorCommand}"
+                        CommandParameter="{Binding ElementName=ColorEditorGeophonePanel, Path=SelectedColor}"/>
+                </StackPanel>
+            </Grid>
+        </Popup>
 
         <TextBlock 
                 Grid.Row="9"
@@ -181,7 +203,14 @@
             Grid.Row="11"
             HorizontalAlignment="Right"
             Orientation="Horizontal" >
-            
+
+            <t:RadButton
+                Style="{StaticResource ResetGeophoneButton}"                            
+                Command="{Binding ResetGeophoneCommand}" 
+                Margin="10 20 0 0" >
+                <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />
+            </t:RadButton>
+
             <t:RadButton 
                 Content="Добавить"
                 ToolTip="Добавить геофон"

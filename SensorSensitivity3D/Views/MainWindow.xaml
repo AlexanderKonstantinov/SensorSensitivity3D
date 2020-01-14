@@ -4,7 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
-    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:ddgr="http://schemas.devdept.com/winfx/2008/xaml/graphics"
     
@@ -22,6 +22,7 @@
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
+        <helpers:NullToBooleanConverter x:Key="NullToBooleanConverter" />
     </Window.Resources>
 
     <Window.DataContext>
@@ -41,33 +42,34 @@
             HorizontalAlignment="Center"
             VerticalAlignment="Center" >
             
-            <telerik:RadListBox 
+            <t:RadListBox
+                x:Name="ConfigList"
                 ItemsSource="{Binding Configurations}" 
                 BorderThickness="0"
                 Background="Transparent"
-                telerik:StyleManager.Theme="Fluent">
+                Style="{StaticResource BaseRadListBox}">
 
-                <telerik:RadListBox.ItemContainerStyle>
-                    <Style TargetType="{x:Type telerik:RadListBoxItem}">
+                <t:RadListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type t:RadListBoxItem}">
                         <Setter Property="Margin" Value="0 5" />
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="Template">
                             <Setter.Value>
-                                <ControlTemplate TargetType="{x:Type telerik:RadListBoxItem}">
+                                <ControlTemplate TargetType="{x:Type t:RadListBoxItem}">
                                     <ContentPresenter />
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
                     </Style>
-                </telerik:RadListBox.ItemContainerStyle>
+                </t:RadListBox.ItemContainerStyle>
 
-                <telerik:RadListBox.ItemsPanel>
+                <t:RadListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical" />
                     </ItemsPanelTemplate>
-                </telerik:RadListBox.ItemsPanel>
+                </t:RadListBox.ItemsPanel>
 
-                <telerik:RadListBox.ItemTemplate>
+                <t:RadListBox.ItemTemplate>
                     <DataTemplate>
                         <Grid Panel.ZIndex="1000" >
                             <Grid.ColumnDefinitions>
@@ -76,42 +78,45 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{Binding Field1}" 
+                            <TextBlock Text="{Binding Name}" 
                                        FontFamily="Segoe UI" 
                                        FontSize="16" 
                                        Padding="0 0 0 3"
                                        Grid.Column="0" 
                                        VerticalAlignment="Bottom" />
 
-                            <telerik:RadButton
+                            <t:RadButton
                                 Style="{StaticResource RightPanelIconButton}"
-                                BorderThickness="0"
                                 Grid.Column="1"
                                 Margin="30 0"
-                                ToolTip="Загрузить">
+                                ToolTip="Загрузить"
+                                Click="OnLoadConfig"
+                                Command="{Binding DataContext.SelectConfigCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                CommandParameter="{Binding}">
                                 <Image 
                                         Source="pack://application:,,,/Resources/Icons/arrow_down.png"
                                         Stretch="Fill"/>
-                            </telerik:RadButton>
+                            </t:RadButton>
 
-                            <telerik:RadButton
+                            <t:RadButton
                                 Style="{StaticResource RightPanelIconButton}"
-                                BorderThickness="0"
                                 Grid.Column="2" 
                                 ToolTip="Удалить">
                                 <Image 
                                         Source="pack://application:,,,/Resources/Icons/trash.png"
                                         Stretch="Fill"/>
-                            </telerik:RadButton>
+                            </t:RadButton>
 
                         </Grid>
                     </DataTemplate>
-                </telerik:RadListBox.ItemTemplate>
+                </t:RadListBox.ItemTemplate>
 
-            </telerik:RadListBox>
+            </t:RadListBox>
         </StackPanel>
 
-        <Grid>
+        <Grid 
+            x:Name="ModelContainer"
+            Visibility="Hidden">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition />
@@ -133,30 +138,30 @@
                         ShadowDepth="5" />
                 </Border.Effect>
 
-                <telerik:RadTabControl
+                <t:RadTabControl
                     UIElement.PreviewMouseUp="RightPanel_PreviewMouseUp"
                     x:Name="RightPanel"
                     FontSize="16"
-                    telerik:StyleManager.Theme="Green" 
+                    t:StyleManager.Theme="Green" 
                     DisplayMemberPath="Content" 
                     ScrollMode="Viewport" 
 
                     BorderThickness="0" >
-                    <telerik:RadTabItem Header="Модель" >
+                    <t:RadTabItem Header="Модель" >
                         <views:Drawing DataContext="{Binding DrawingViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </telerik:RadTabItem>
+                    </t:RadTabItem>
                     
-                    <telerik:RadTabItem
+                    <t:RadTabItem
                         x:Name="GeophoneTabItem"
                         Header="Геофоны" >
-                        <geophoneUserControls:Geophones DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="-3,0,3.6,0.2"/>
-                    </telerik:RadTabItem>
+                        <geophoneUserControls:Geophones DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </t:RadTabItem>
                     
-                    <telerik:RadTabItem Header="Зоны локации" />
-                </telerik:RadTabControl>
+                    <t:RadTabItem Header="Зоны локации" />
+                </t:RadTabControl>
             </Border>
 
-            <telerik:RadButton
+            <t:RadButton
                 Grid.Column="2"
                 HorizontalAlignment="Right"
                 Style="{StaticResource RightPanelIconButton}"
@@ -180,7 +185,7 @@
                         </Style>
                     </Image.Style>
                 </Image>
-            </telerik:RadButton>
+            </t:RadButton>
 
             <Canvas 
                 ZIndex="1000"
@@ -189,50 +194,63 @@
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top">
 
-                <telerik:RadMenu 
+                <t:RadMenu 
                     Padding="0"
                     Margin="0"
                     Canvas.Top="5"
                     Canvas.Left="5"
                     Panel.ZIndex="1000"
                     Background="Transparent" 
-                    telerik:StyleManager.Theme="Fluent">
-                    <telerik:RadMenuItem
+                    t:StyleManager.Theme="Fluent">
+                    <t:RadMenuItem
                         Width="30"
                         Height="30"
                         DropDownPlacement="Bottom">
-                        <telerik:RadMenuItem.Icon>
+                        <t:RadMenuItem.Icon>
                             <Image 
                                 Stretch="Fill"
                                 Source="pack://application:,,,/Resources/Icons/gears.png"
                                 HorizontalAlignment="Stretch"/>
-                        </telerik:RadMenuItem.Icon>
-                        <telerik:RadMenuItem  Header="Сохранить конфигурацию">
-                            <telerik:RadMenuItem.Icon>
+                        </t:RadMenuItem.Icon>
+                        <t:RadMenuItem  Header="Сохранить конфигурацию">
+                            <t:RadMenuItem.Icon>
                                 <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/floppy_disk.png" />
-                            </telerik:RadMenuItem.Icon>
-                        </telerik:RadMenuItem>
-                        <telerik:RadMenuItem  Header="Загрузить конфигурацию">
-                            <telerik:RadMenuItem.Icon>
+                            </t:RadMenuItem.Icon>
+                        </t:RadMenuItem>
+                        <t:RadMenuItem  Header="Загрузить конфигурацию">
+                            <t:RadMenuItem.Icon>
                                 <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/arrow_down.png" />
-                            </telerik:RadMenuItem.Icon>
-                        </telerik:RadMenuItem>
-                    </telerik:RadMenuItem>
+                            </t:RadMenuItem.Icon>
+                        </t:RadMenuItem>
+                    </t:RadMenuItem>
 
-                </telerik:RadMenu>
+                </t:RadMenu>
             </Canvas>
+
+            <Popup 
+                x:Name="EntityPopup"
+                PopupAnimation="Fade"
+                Placement="Mouse"
+                StaysOpen="True"
+                AllowsTransparency="True" >
+                <TextBlock x:Name="EntityInfo" FontSize="14" FontWeight="DemiBold" Text="{Binding SelectedEntityInfo}"/>
+            </Popup>
 
             <models:CustomModel 
                 x:Name="Model"
                 CustomEntityList="{Binding EntityList}"
                 AutoRefresh="True"
+                ActionMode="SelectVisibleByPick"
+                SelectionColor="OrangeRed"
+                MouseMove="Model_OnMouseMove"
                 Margin="{Binding 
                 ElementName=RightPanel, 
                 Path=IsVisible, 
                 Converter={StaticResource MarginConverter},
                 Mode=OneWay,
                 UpdateSourceTrigger=PropertyChanged}"
-                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4">
+                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4" >
+
                 <models:CustomModel.ProgressBar>
                     <ddes:ProgressBar Lighting="False"/>
                 </models:CustomModel.ProgressBar>

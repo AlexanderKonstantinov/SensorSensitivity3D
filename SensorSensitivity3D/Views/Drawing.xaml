@@ -15,7 +15,7 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
     </UserControl.Resources>
 
     <Grid

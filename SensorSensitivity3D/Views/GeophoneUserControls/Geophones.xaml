@@ -274,7 +274,10 @@
                                 Style="{StaticResource RightPanelIconButton}" 
                                 ToolTip="Перейти"
                                 HorizontalAlignment="Right"
-                                Command="{Binding }">
+                                Command="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                AncestorType={x:Type UserControl}}, 
+                                Path=DataContext.GoToGeophoneCommand}"
+                                CommandParameter="{Binding}">
                                 <Image Source="pack://application:,,,/Resources/Icons/target.png" />
                             </telerik:RadButton>
 
@@ -296,7 +299,8 @@
                                 ToolTip="Удалить"
                                 HorizontalAlignment="Right"
                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, 
-                                AncestorType={x:Type UserControl}}, Path=RemoveGeophoneCommand}"
+                                AncestorType={x:Type UserControl}}, 
+                                Path=DataContext.RemoveGeophoneCommand}"
                                 CommandParameter="{Binding}">
                                 <Image Source="pack://application:,,,/Resources/Icons/trash.png" />
                             </telerik:RadButton>

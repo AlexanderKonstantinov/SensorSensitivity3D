@@ -3,7 +3,12 @@
                     xmlns:t="http://schemas.telerik.com/2008/xaml/presentation">
 
     <t:FluentTheme x:Key="Theme" />
-    
+
+    <Style TargetType="t:RadListBox" x:Key="BaseRadListBox">
+        <Setter Property="t:StyleManager.Theme" Value="{StaticResource Theme}"/>
+        <Setter Property="Focusable" Value="False"/>
+    </Style>
+
     <Style TargetType="t:RadButton" x:Key="BaseRadButton">
         <Setter Property="t:StyleManager.Theme" Value="{StaticResource Theme}"/>
         <Setter Property="Focusable" Value="False"/>
