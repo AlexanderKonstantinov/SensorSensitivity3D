@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using devDept.Eyeshot;
-using devDept.Eyeshot.Entities;
 using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
@@ -18,16 +12,21 @@ namespace SensorSensitivity3D.ViewModels
 {
     public class MainViewModel : BaseViewModel
     {
-        private int _curSelectedEntityIndex;
-        public string SelectedEntityInfo { get; set; }
-        //private ToolTip _entityToolTip = new ToolTip{ Style = Telerik};
-
         private readonly ConfigService _configService;
 
+        public Visibility RightPanelVisibility { get; set; } = Visibility.Visible;
+
+
+        public DrawingViewModel DrawingViewModel { get; set; }
+        public GeophonesViewModel GeophonesViewModel { get; set; }
+        public GeophoneViewModel GeophoneViewModel { get; set; }
+
+
         public ObservableCollection<Configuration> Configurations { get; set; }
+        public Configuration SelectedConfig { get; set; }
+                        
         
         private readonly CustomModel _model;
-
         private CustomEntityList _entityList;
         public CustomEntityList EntityList
         {
@@ -39,20 +38,13 @@ namespace SensorSensitivity3D.ViewModels
             }
         }
 
-        public Visibility RightPanelVisibility { get; set; } = Visibility.Visible;
-
-        public Configuration SelectedConfig { get; set; }
-
-        public DrawingViewModel DrawingViewModel { get; set; }
-
-        public GeophonesViewModel GeophonesViewModel { get; set; }
-        public GeophoneViewModel GeophoneViewModel { get; set; }
+        private int _selectedEntityIndex;
+        public string SelectedEntityInfo { get; set; }
 
 
         public MainViewModel() { }
 
         
-
         public MainViewModel(CustomModel model)
         {
             _configService = new ConfigService();
@@ -62,22 +54,24 @@ namespace SensorSensitivity3D.ViewModels
             _model = model;
             _entityList = new CustomEntityList();
 
+            _selectedEntityIndex = -1;
+
             _model.MouseMove += (o, a) =>
             {
-                if (_curSelectedEntityIndex >= 0 && _curSelectedEntityIndex < _model.Entities.Count)
-                    _model.Entities[_curSelectedEntityIndex].Selected = false;
+                if (_selectedEntityIndex >= 0 && _selectedEntityIndex < _model.Entities.Count)
+                    _model.Entities[_selectedEntityIndex].Selected = false;
                 
                 var position = a.GetPosition(_model);
 
-                _curSelectedEntityIndex = _model.GetEntityUnderMouseCursor(new Point((int) position.X, (int) position.Y));
+                _selectedEntityIndex = _model.GetEntityUnderMouseCursor(new Point((int) position.X, (int) position.Y));
                 
-                if (_curSelectedEntityIndex == -1)
+                if (_selectedEntityIndex == -1)
                 {
                     SelectedEntityInfo = null;
                 }
-                else
+                else if (_model.Entities[_selectedEntityIndex].Selectable)
                 {
-                    _model.Entities[_curSelectedEntityIndex].Selected = true;
+                    _model.Entities[_selectedEntityIndex].Selected = true;
                     SelectedEntityInfo = GeophonesViewModel.TrySelectedGeophone()?.ToString();
                 }
 
@@ -134,7 +128,7 @@ namespace SensorSensitivity3D.ViewModels
 
         protected override void OnDispose()
         {
-            throw new NotImplementedException();
+            Configurations?.Clear();
         }
     }
 }

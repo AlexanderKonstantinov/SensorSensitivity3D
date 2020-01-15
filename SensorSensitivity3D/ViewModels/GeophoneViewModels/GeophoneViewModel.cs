@@ -10,19 +10,19 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
     {
         private readonly GeophoneConversionService _geophoneConversionService;
 
+
         /// <summary>
         /// Вызывается при возвращении к панели с геофонами
         /// </summary>
         public event Action<Geophone> Back;
-
         public bool IsGeophonePanel { get; set; }
+        public string PanelTitle { get; private set; }
+                     
 
         public Geophone OriginalGeophone { get; private set; }
         public Geophone EditedGeophone { get; set; }
 
-        public string PanelTitle { get; private set; }
-
-
+        
         public GeophoneViewModel() { }
 
         public GeophoneViewModel(GeophoneConversionService service)
@@ -40,11 +40,8 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         public void ActivateGeophoneViewModel(Geophone originalGeophone, Geophone editedGeophone, string panelTitle)
         {
             PanelTitle = panelTitle;
-
             OriginalGeophone = originalGeophone;
-
             EditedGeophone = editedGeophone;
-
             IsGeophonePanel = true;
         }
 
@@ -56,7 +53,6 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         private void ExecuteBackCommand(object obj)
         {
             Back?.Invoke(null);
-
             IsGeophonePanel = false;
         }
 
@@ -68,7 +64,6 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         private void ExecuteChangeColorCommand(object o)
         {
             EditedGeophone.Color = o.ToString();
-
             OnPropertyChanged(nameof(EditedGeophone));
         }
 
@@ -117,7 +112,6 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         private void ExecuteResetGeophoneCommand(object obj)
         {
             EditedGeophone = _geophoneConversionService.Copy(EditedGeophone, OriginalGeophone);
-
             OnPropertyChanged(nameof(EditedGeophone));
         }
 
