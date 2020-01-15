@@ -1,5 +1,5 @@
 ﻿
-using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using SensorSensitivity3D.DAL.Repositories;
 using SensorSensitivity3D.Domain.Entities;
 
@@ -12,8 +12,8 @@ namespace SensorSensitivity3D.Services
         static GeophoneService() 
             => GeophoneRepository = new GeophoneRepository();
 
-        public ObservableCollection<Geophone> GetConfigGeophones(int configId)
-            => new ObservableCollection<Geophone>(GeophoneRepository.GetConfigGeophones(configId));
+        public IEnumerable<Geophone> GetConfigGeophones(int configId)
+            => GeophoneRepository.GetConfigGeophones(configId);
 
         public Geophone GetGeophone(int id)
             => GeophoneRepository.GetGeophone(id);

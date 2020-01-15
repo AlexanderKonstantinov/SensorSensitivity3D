@@ -1,4 +1,5 @@
-﻿using SensorSensitivity3D.Domain.Base;
+﻿using devDept.Eyeshot.Entities;
+using SensorSensitivity3D.Domain.Base;
 using SensorSensitivity3D.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,9 @@ namespace SensorSensitivity3D.Domain.Models
     public class GeophoneModel : NamedEntity, INotifyPropertyChanged
     {
         public Geophone OriginalGeophone { get; set; }
+
+        public Entity GeophoneEntity { get; set; }
+        public Entity GeophoneSphereEntity { get; set; }
 
         public string DisplayName => $"{Name} ({HoleNumber})";
 
@@ -75,6 +79,8 @@ namespace SensorSensitivity3D.Domain.Models
                 _gIsVisible = value;
                 OnPropertyChanged(nameof(GIsVisible));
                 IsChanged = CheckGeophoneChanging();
+
+                GeophoneEntity.Visible = value;
             }
         }
 
@@ -87,6 +93,8 @@ namespace SensorSensitivity3D.Domain.Models
                 _sIsVisible = value;
                 OnPropertyChanged(nameof(SIsVisible));
                 IsChanged = CheckGeophoneChanging();
+
+                GeophoneSphereEntity.Visible = value;
             }
         }
 
@@ -99,19 +107,17 @@ namespace SensorSensitivity3D.Domain.Models
                 _color = value;
                 OnPropertyChanged(nameof(Color));
                 IsChanged = CheckGeophoneChanging();
+
+                GeophoneSphereEntity.Color = ColorTranslator.FromHtml(value);
             }
         }
 
         public void ResetGeophoneSettings()
         {
-            _sIsVisible = OriginalGeophone.SIsVisible;
-            _gIsVisible = OriginalGeophone.GIsVisible;
-            _isGood = OriginalGeophone.IsGood;
-            _color = OriginalGeophone.Color;
-            OnPropertyChanged(nameof(SIsVisible));
-            OnPropertyChanged(nameof(GIsVisible));
-            OnPropertyChanged(nameof(IsGood));
-            OnPropertyChanged(nameof(Color));
+            SIsVisible = OriginalGeophone.SIsVisible;
+            GIsVisible = OriginalGeophone.GIsVisible;
+            IsGood = OriginalGeophone.IsGood;
+            Color = OriginalGeophone.Color;
             IsChanged = false;
         }
 
@@ -122,7 +128,20 @@ namespace SensorSensitivity3D.Domain.Models
 
         public GeophoneModel() { }
             
-
+        public GeophoneModel(Geophone g)
+        {
+            OriginalGeophone = g;
+            _name = g.Name;
+            _holeNumber = g.HoleNumber;
+            X = g.X;
+            Y = g.Y;
+            Z = g.Z;
+            _isGood = g.IsGood;
+            _gIsVisible = g.GIsVisible;
+            _sIsVisible = g.SIsVisible;
+            _color = g.Color;
+            R = g.R;
+        }
 
         public override string ToString()
             => $"{DisplayName}\nX: {X}\nY: {Y}\nZ: {Z}\nR: {R}";

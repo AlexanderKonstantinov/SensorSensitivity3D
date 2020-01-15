@@ -1,5 +1,4 @@
 ﻿using SensorSensitivity3D.Domain.Entities;
-using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
 using System;
@@ -9,6 +8,8 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 {
     public class GeophoneViewModel : BaseViewModel
     {
+        private readonly GeophoneConversionService _geophoneConversionService;
+
         /// <summary>
         /// Вызывается при возвращении к панели с геофонами
         /// </summary>
@@ -19,17 +20,24 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         public Geophone OriginalGeophone { get; private set; }
         public Geophone EditedGeophone { get; set; }
 
-        public string PanelTitle { get; }
+        public string PanelTitle { get; private set; }
 
 
         public GeophoneViewModel() { }
 
+        public GeophoneViewModel(GeophoneConversionService service)
+        {
+            _geophoneConversionService = service;
+        }
+
         /// <summary>
-        /// Конструктор
+        /// Активировать панель редактирования или добавления нового геофона,
+        /// сделав её видимой и инициализировав привязываемые объекты
         /// </summary>
         /// <param name="originalGeophone">Оригинальный геофон</param>
         /// <param name="editedGeophone">Геофон для редактирования, полученный на основании модели</param>
-        public GeophoneViewModel(Geophone originalGeophone, Geophone editedGeophone, string panelTitle)
+        /// <param name="panelTitle">Заголовок панели</param>
+        public void ActivateGeophoneViewModel(Geophone originalGeophone, Geophone editedGeophone, string panelTitle)
         {
             PanelTitle = panelTitle;
 
@@ -71,7 +79,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteSaveGeophoneCommand(object obj)
         {
-            OriginalGeophone = GeophoneConversionService.Copy(OriginalGeophone, EditedGeophone);
+            OriginalGeophone = _geophoneConversionService.Copy(OriginalGeophone, EditedGeophone);
 
             Back?.Invoke(OriginalGeophone);
 
@@ -91,7 +99,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         {
             var addYet = (bool) obj;
 
-            OriginalGeophone = GeophoneConversionService.CopyConstructor(EditedGeophone);
+            OriginalGeophone = _geophoneConversionService.CopyConstructor(EditedGeophone);
 
             Back?.Invoke(OriginalGeophone);
 
@@ -108,7 +116,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteResetGeophoneCommand(object obj)
         {
-            EditedGeophone = GeophoneConversionService.Copy(EditedGeophone, OriginalGeophone);
+            EditedGeophone = _geophoneConversionService.Copy(EditedGeophone, OriginalGeophone);
 
             OnPropertyChanged(nameof(EditedGeophone));
         }

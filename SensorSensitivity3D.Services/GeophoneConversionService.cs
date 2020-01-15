@@ -3,50 +3,44 @@ using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Domain.Models;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace SensorSensitivity3D.Services
 {
-    public static class GeophoneConversionService
+    public class GeophoneConversionService
     {
         /// <summary>
         /// Создание моделей и сущностей представления геофонов
         /// </summary>
         /// <param name="config">Объект конфигурации, содержащий данные по геофонам</param>
-        /// <param name="Geophones">Коллекция геофонов, отображаемая в интерфейсе</param>
+        /// <param name="geophoneModels">Коллекция геофонов, отображаемая в интерфейсе</param>
         /// <param name="originalGeophones">Словарь, связывающий оригинальные геофоны и их представления</returns>
         /// <param name="geophoneEntities">Словарь с геофонами и сущностями геофонов,
         /// отображаемыми в компоненте</param>
         /// <param name="geophoneSphereEntities">Словарь с геофонами и сущностями сфер чувствительности,
         /// отображаемыми в компоненте</param>
         /// <returns>Все созданные сущности, отображаемые в компоненте</returns>
-        public static IEnumerable<Entity> InitGeophoneEntities(
-            IList<Geophone> geophones,
-            out List<GeophoneModel> Geophones,
-            out Dictionary<GeophoneModel, Geophone> _geophoneDic,
-            out Dictionary<GeophoneModel, Entity> geophoneEntities,
-            out Dictionary<GeophoneModel, Entity> geophoneSphereEntities)
+        public IEnumerable<Entity> InitGeophoneEntities(IEnumerable<Geophone> geophones, out List<GeophoneModel> geophoneModels)
         {
-            var count = geophones.Count;
+            var count = geophones.Count();
 
-            Geophones = new List<GeophoneModel>(count);
-            _geophoneDic = new Dictionary<GeophoneModel, Geophone>(count);
-            geophoneEntities = new Dictionary<GeophoneModel, Entity>(count);
-            geophoneSphereEntities = new Dictionary<GeophoneModel, Entity>(count);
+            geophoneModels = new List<GeophoneModel>(count);
             var entities = new List<Entity>(count * 2);
 
             foreach (var g in geophones)
             {
-                var geophoneModel = GeophoneToGeophoneModel(g);
+                var geophoneModel = new GeophoneModel(g);
 
                 var meshG = CreateGeophoneEntity(g);
-                var meshR = CreateGeophoneSphereEntity(g);
+                var meshS = CreateGeophoneSphereEntity(g);
 
-                Geophones.Add(geophoneModel);
-                _geophoneDic.Add(geophoneModel, g);
-                geophoneEntities.Add(geophoneModel, meshG);
-                geophoneSphereEntities.Add(geophoneModel, meshR);
+                geophoneModel.GeophoneEntity = meshG;
+                geophoneModel.GeophoneSphereEntity = meshS;
+
+                geophoneModels.Add(geophoneModel);
+
                 entities.Add(meshG);
-                entities.Add(meshR);
+                entities.Add(meshS);
             }
 
             return entities;
@@ -57,7 +51,7 @@ namespace SensorSensitivity3D.Services
         /// </summary>
         /// <param name="geophone">геофон с параметрами</param>
         /// <returns></returns>
-        public static Entity CreateGeophoneEntity(Geophone geophone)
+        public Entity CreateGeophoneEntity(Geophone geophone)
         {
             var mesh = Mesh.CreateSphere(3, 20, 20, Mesh.natureType.Smooth);
             mesh.Color = ColorTranslator.FromHtml(geophone.Color);
@@ -73,7 +67,7 @@ namespace SensorSensitivity3D.Services
         /// </summary>
         /// <param name="geophone">геофон с параметрами</param>
         /// <returns></returns>
-        public static Entity CreateGeophoneSphereEntity(Geophone geophone)
+        public Entity CreateGeophoneSphereEntity(Geophone geophone)
         {
             var mesh = Mesh.CreateSphere(geophone.R > 0 ? geophone.R : 1, 30, 30, Mesh.natureType.Smooth);
             mesh.Color = ColorTranslator.FromHtml(geophone.Color);
@@ -85,7 +79,7 @@ namespace SensorSensitivity3D.Services
         }
 
 
-        public static Geophone GeophoneModelToGeophone(GeophoneModel model)
+        public Geophone GeophoneModelToGeophone(GeophoneModel model)
             => new Geophone
             {
                 HoleNumber = model.HoleNumber,
@@ -100,7 +94,7 @@ namespace SensorSensitivity3D.Services
                 Z = model.Z
             };
 
-        public static Geophone CopyConstructor(Geophone g)
+        public Geophone CopyConstructor(Geophone g)
             => new Geophone
             {
                 HoleNumber = g.HoleNumber,
@@ -121,7 +115,7 @@ namespace SensorSensitivity3D.Services
         /// /// <param name="target"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static Geophone Copy(Geophone target, Geophone source)
+        public Geophone Copy(Geophone target, Geophone source)
         {
             target.HoleNumber = source.HoleNumber;
             target.Name = source.Name;
@@ -143,7 +137,7 @@ namespace SensorSensitivity3D.Services
         /// /// <param name="target"></param>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static GeophoneModel Copy(GeophoneModel target, Geophone source)
+        public GeophoneModel Copy(GeophoneModel target, Geophone source)
         {
             target.OriginalGeophone = source;
             target.HoleNumber = source.HoleNumber;
@@ -160,7 +154,7 @@ namespace SensorSensitivity3D.Services
             return target;
         }
 
-        public static GeophoneModel GeophoneToGeophoneModel(Geophone g)
+        public GeophoneModel GeophoneToGeophoneModel(Geophone g)
             => new GeophoneModel
             {
                 OriginalGeophone = g,

@@ -6,7 +6,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
-             
+                 xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+
              xmlns:geophoneUserControls="clr-namespace:SensorSensitivity3D.Views.GeophoneUserControls"
              xmlns:geophoneViewModels="clr-namespace:SensorSensitivity3D.ViewModels.GeophoneViewModels"
                           
@@ -29,19 +30,21 @@
             <Grid MouseLeave="ColorEditor_MouseLeave">
                 <telerik:RadColorEditor                         
                     x:Name="ColorEditor"   
-                    InitialColor="{Binding SelectedColor, Mode=OneTime, UpdateSourceTrigger=PropertyChanged}"
-                    SelectedColor="{Binding SelectedColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    Style="{StaticResource ColorEditor}" />
+                    Style="{StaticResource ColorEditor}" >
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedColorChanged">
+                            <i:InvokeCommandAction 
+                                Command="{Binding ChangeColorCommand}"
+                                CommandParameter="{Binding SelectedColor, ElementName=ColorEditor}"/>
+                            </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </telerik:RadColorEditor>
 
                 <StackPanel
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Bottom">
-                    <telerik:RadButton
-                        Content="Ок" 
-                        Style="{StaticResource ColorEditorButton}"
-                        Click="ColorEditorOk_Click"
-                        Command="{Binding ChangeColorCommand}" />
                 </StackPanel>
             </Grid>
         </Popup>
@@ -84,14 +87,12 @@
             <telerik:RadToggleButton                                     
                 Grid.Column="1"
                 Style="{StaticResource ResourceKey=GeophoneVisibilityButton}"
-                IsChecked="{Binding GeophonesIsVisible, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" 
-                Command="{Binding GeophoneVisibilityCommand}" />
+                IsChecked="{Binding GeophonesIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  />
 
             <telerik:RadToggleButton                                     
                 Grid.Column="2"
                 Style="{StaticResource ResourceKey=GeophoneVisibilityButton}"
-                IsChecked="{Binding GeophoneSpheresIsVisible, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" 
-                Command="{Binding GeophoneSphereVisibilityCommand}" />
+                IsChecked="{Binding GeophoneSpheresIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
             <telerik:RadButton
                 Grid.Column="3"
@@ -155,16 +156,16 @@
                 x:Name="GeophoneListBox"
                 Grid.ColumnSpan="8"
                 Grid.Row="2"
-                telerik:StyleManager.Theme="Fluent"  
                 FontSize="15"
+                SelectionMode="Single"
                 ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.CanContentScroll="True"
                 ItemsSource="{Binding GeophoneModels, UpdateSourceTrigger=PropertyChanged}"
                 BorderThickness="0"
                 Background="Transparent" >
 
-                <telerik:RadListBox.Style>
-                    <Style TargetType="telerik:RadListBox">
+                <telerik:RadListBox.Style >
+                    <Style TargetType="telerik:RadListBox" BasedOn="{StaticResource BaseRadListBox}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsScrollIntoViewEnabled, ElementName=GeophoneListBox}"
                                          Value="True">
@@ -185,10 +186,37 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type telerik:RadListBoxItem}">
-                                    <ContentPresenter />
+
+                                    
+                                    <Border x:Name="GeophoneListItem" BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" >
+                                        <ContentPresenter />
+
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseEnter">
+                                                <i:InvokeCommandAction 
+                                                    Command="{Binding DataContext.SelectGeophoneCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}"
+                                                    CommandParameter="{Binding}"/>
+                                            </i:EventTrigger>
+
+                                            <i:EventTrigger EventName="MouseLeave">
+                                                <i:InvokeCommandAction 
+                                                    Command="{Binding DataContext.UnselectGeophoneCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}"
+                                                    CommandParameter="{Binding}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="GeophoneListItem" Property="Background" Value="#FED1BF"/>
+                                            </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="False">
+                                            <Setter TargetName="GeophoneListItem" Property="Background" Value="Transparent"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
-                        </Setter>
+                        </Setter>                        
                     </Style>
                 </telerik:RadListBox.ItemContainerStyle>
 
@@ -225,23 +253,19 @@
                                 Grid.Column="1"
                                 Style="{StaticResource ResourceKey=GeophoneVisibilityButton}"
                                 IsChecked="{Binding GIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                Command="{Binding DataContext.GeophoneVisibilityCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}"
-                                CommandParameter="{Binding}" >
-                            </telerik:RadToggleButton>
+                                Command="{Binding DataContext.ChangeGeophonesVisibilityCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}" />
+
 
                             <telerik:RadToggleButton                                     
                                     Grid.Column="2"
                                     Style="{StaticResource ResourceKey=GeophoneSphereVisibilityButton}"
                                     IsChecked="{Binding SIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                    Command="{Binding DataContext.GeophoneSphereVisibilityCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}"
-                                    CommandParameter="{Binding}" />
+                                    Command="{Binding DataContext.ChangeGeophonesVisibilityCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}" />
 
                             <telerik:RadButton
                                 Grid.Column="3"
                                 Style="{StaticResource ColorButton}"
                                 Click="ColorButton_Click"
-                                Command="{Binding DataContext.SelectGeophoneCommand, RelativeSource={RelativeSource AncestorType=telerik:RadListBox}}"
-                                CommandParameter="{Binding}"
                                 Background="{Binding Color}"/>
 
                             <telerik:RadToggleButton                                     
@@ -271,13 +295,13 @@
 
                             <telerik:RadButton
                                 Grid.Column="7"
-                                Style="{StaticResource RightPanelIconButton}" 
-                                ToolTip="Перейти"
+                                Style="{StaticResource GoToGeophoneButton}" 
                                 HorizontalAlignment="Right"
                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, 
                                 AncestorType={x:Type UserControl}}, 
-                                Path=DataContext.GoToGeophoneCommand}"
+                                Path=DataContext.GoToGeophoneCommand}" 
                                 CommandParameter="{Binding}">
+
                                 <Image Source="pack://application:,,,/Resources/Icons/target.png" />
                             </telerik:RadButton>
 
@@ -288,8 +312,7 @@
                                 HorizontalAlignment="Right"
                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, 
                                 AncestorType={x:Type UserControl}}, 
-                                Path=DataContext.EditGeophoneCommand}"
-                                CommandParameter="{Binding}">
+                                Path=DataContext.EditGeophoneCommand}" >
                                 <Image Source="pack://application:,,,/Resources/Icons/edit.png" />
                             </telerik:RadButton>
 
@@ -300,8 +323,7 @@
                                 HorizontalAlignment="Right"
                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, 
                                 AncestorType={x:Type UserControl}}, 
-                                Path=DataContext.RemoveGeophoneCommand}"
-                                CommandParameter="{Binding}">
+                                Path=DataContext.RemoveGeophoneCommand}" >
                                 <Image Source="pack://application:,,,/Resources/Icons/trash.png" />
                             </telerik:RadButton>
 

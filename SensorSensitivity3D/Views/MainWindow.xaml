@@ -22,7 +22,6 @@
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
-        <helpers:NullToBooleanConverter x:Key="NullToBooleanConverter" />
     </Window.Resources>
 
     <Window.DataContext>

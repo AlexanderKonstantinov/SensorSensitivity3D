@@ -112,7 +112,7 @@ namespace SensorSensitivity3D.ViewModels
                 _model,
                 EntityList,
                 SelectedConfig);
-            
+                                   
             _model.ZoomFit();
             _model.Invalidate();
         }
