@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SensorSensitivity3D.DAL.Repositories;
@@ -18,5 +19,8 @@ namespace SensorSensitivity3D.Services
 
         public Configuration GetConfiguration(int id)
             => ConfigRepository.GetConfiguration(id);
+
+        public bool EditConfiguration(Configuration config)
+            => ConfigRepository.EditConfiguration(config);
     }
 }

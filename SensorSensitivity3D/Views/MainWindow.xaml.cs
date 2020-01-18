@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using devDept.Eyeshot;
+using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.ViewModels;
 using Telerik.Windows.Controls;
 
@@ -18,7 +19,9 @@ namespace SensorSensitivity3D.Views
         {
             InitializeComponent();
             
+            Model.CustomEntityList = new CustomEntityList();
             _viewModel = new MainViewModel(Model);
+
             DataContext = _viewModel;
             
             //GeophoneTabItem.Content = new Geophones();

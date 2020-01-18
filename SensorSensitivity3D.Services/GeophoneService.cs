@@ -1,7 +1,11 @@
 ﻿
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using devDept.Eyeshot.Entities;
 using SensorSensitivity3D.DAL.Repositories;
 using SensorSensitivity3D.Domain.Entities;
+using SensorSensitivity3D.Domain.Models;
 
 namespace SensorSensitivity3D.Services
 {
@@ -9,19 +13,29 @@ namespace SensorSensitivity3D.Services
     {
         private static readonly GeophoneRepository GeophoneRepository;
 
-        static GeophoneService() 
-            => GeophoneRepository = new GeophoneRepository();
+        public ObservableCollection<GeophoneModel> GeophoneModels { get; set; }
 
-        public IEnumerable<Geophone> GetConfigGeophones(int configId)
-            => GeophoneRepository.GetConfigGeophones(configId);
+        static GeophoneService()
+        {
+            GeophoneRepository = new GeophoneRepository();
+
+            GeophoneModels
+        } 
+
+        public IEnumerable<GeophoneModel> GetConfigGeophones(int configId)
+            => GeophoneRepository.GetConfigGeophones(configId)
+                .Select(g => new GeophoneModel(g));
 
         public Geophone GetGeophone(int id)
             => GeophoneRepository.GetGeophone(id);
 
-        public bool AddGeophone(Geophone geophone)
-            => GeophoneRepository.AddGeophone(geophone);
+        public bool AddGeophone(GeophoneModel geophone)
+            => GeophoneRepository.AddGeophone(geophone.OriginalGeophone);
 
-        public bool RemoveGeophone(int id)
-            => GeophoneRepository.RemoveGeophone(id);
+        public bool RemoveGeophone(GeophoneModel geophone)
+            => GeophoneRepository.RemoveGeophone(geophone.OriginalGeophone.Id);
+
+
+        public IEnumerable<Entity> GetGeophoneEntities()
     }
 }

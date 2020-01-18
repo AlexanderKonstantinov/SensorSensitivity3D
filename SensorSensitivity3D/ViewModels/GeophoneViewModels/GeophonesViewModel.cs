@@ -3,23 +3,19 @@ using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using SensorSensitivity3D.Domain.Enums;
+
+using static SensorSensitivity3D.Services.ModelInteractionService;
 
 namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 {
     public class GeophonesViewModel : BaseViewModel
     {
         private readonly GeophoneService _geophoneService; 
-        private readonly GeophoneConversionService _geophoneConversionService; 
-        
-
-        private readonly CustomModel _model;
-        private readonly CustomEntityList _entityList;
-
 
         public ObservableCollection<GeophoneModel> GeophoneModels { get; set; }
 
@@ -71,20 +67,22 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         public GeophoneViewModel GeophoneViewModel { get; set; }
         
-
-        public GeophonesViewModel() { }
-
-        public GeophonesViewModel(
-            CustomModel model,
-            CustomEntityList entityList,
-            Configuration config)
+        public GeophonesViewModel(GeophoneService geophoneService, int configId)
         {
-            _geophoneService = new GeophoneService();
-            _geophoneConversionService = new GeophoneConversionService();
+            _geophoneService = geophoneService;
 
-            var entities = _geophoneConversionService.InitGeophoneEntities(
-                _geophoneService.GetConfigGeophones(config.Id),
-                out var geophoneModels);
+            GeophoneModels = new ObservableCollection<GeophoneModel>
+            (
+                _geophoneService.GetConfigGeophones(configId).Select(g => new GeophoneModel(g))
+            );
+
+            var entities = GeophoneModels
+                .Select(g => g.GeophoneEntity)
+                .Concat(GeophoneModels.Select(g => g.GeophoneSphereEntity));
+
+            AddEntities(entities);
+
+            
 
             _model = model;
             _entityList = entityList;
@@ -92,8 +90,8 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
             GeophoneModels = new ObservableCollection<GeophoneModel>(geophoneModels);
 
-            GeophoneViewModel = new GeophoneViewModel();
-            GeophoneViewModel.Back += UpdateGeophoneCollection;
+            GeophoneViewModel = new GeophoneViewModel(_model, _entityList);
+            GeophoneViewModel.Back += SaveNewGeophone;
 
             var firstGeophone = GeophoneModels.FirstOrDefault();
             GeophonesColor =
@@ -110,11 +108,21 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private RelayCommand _addGeophoneCommand;
         public ICommand AddGeophoneCommand
-            => _addGeophoneCommand ??= new RelayCommand((o)
-                =>
-            {
-                GeophoneViewModel.ActivateGeophoneViewModel(null, new Geophone(), "Добавить геофон");
-            });
+            => _addGeophoneCommand ??= new RelayCommand(ExecuteAddGeophoneCommand);
+
+        public void ExecuteAddGeophoneCommand(object o)
+        {
+            SelectedGeophone = new GeophoneModel();
+
+            GeophoneModels.Add(SelectedGeophone);
+
+            _entityList.Add(SelectedGeophone.GeophoneEntity);
+            _entityList.Add(SelectedGeophone.GeophoneSphereEntity);
+
+            ExecuteSelectGeophoneCommand(SelectedGeophone);
+
+            GeophoneViewModel.ActivateGeophoneViewModel("Добавить геофон", SelectedGeophone);
+        }
 
         private RelayCommand _editGeophoneCommand;
         public ICommand EditGeophoneCommand
@@ -122,10 +130,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteEditGeophoneCommand(object obj)
         {
-            GeophoneViewModel.ActivateGeophoneViewModel(
-                SelectedGeophone.OriginalGeophone,
-                _geophoneConversionService.GeophoneModelToGeophone(SelectedGeophone),
-                "Редактировать геофон");
+            GeophoneViewModel.ActivateGeophoneViewModel("Редактировать геофон", SelectedGeophone);
         }
 
 
@@ -180,10 +185,20 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         private void ExecuteResetGeophoneCommand(object obj)
         {
             if (obj is GeophoneModel geophoneModel)
+            {
                 geophoneModel.ResetGeophoneSettings();
+                _entityList.RemoveRange(new [] {
+                    geophoneModel.GeophoneEntity,
+                    geophoneModel.GeophoneSphereEntity
+                });
+            }
             else
+            {
                 foreach (var g in GeophoneModels)
                     g.ResetGeophoneSettings();
+
+                _entityList.RemoveRange(GeophoneModels.Select(g => g.GeophoneEntity).Concat(GeophoneModels.Select(g => g.GeophoneSphereEntity)));
+            }
 
             GeophonesColor = TRANSPARENT;
             _model.Invalidate();
@@ -235,6 +250,9 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteUnselectGeophoneCommand(object obj)
         {
+            if (GeophoneViewModel.IsGeophonePanel)
+                return;
+
             if (SelectedGeophone != null)
             {
                 SelectedGeophone.GeophoneEntity.Selected = SelectedGeophone.GeophoneSphereEntity.Selected = false;
@@ -283,48 +301,29 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         /// обновление изображения
         /// </summary>
         /// <param name="editedGeophone"></param>
-        private void UpdateGeophoneCollection(Geophone editedGeophone)
+        private void SaveNewGeophone(GeophoneOperation operation)
         {
-            if (editedGeophone is null)
-                return;
+            ExecuteUnselectGeophoneCommand(SelectedGeophone);
 
-            var meshG = _geophoneConversionService.CreateGeophoneEntity(editedGeophone);
-            var meshS = _geophoneConversionService.CreateGeophoneSphereEntity(editedGeophone);
 
-            var geophoneModel = GeophoneModels.FirstOrDefault(g => g.OriginalGeophone.Equals(editedGeophone));
+            switch (operation)
+            {
+                case GeophoneOperation.Save:
+                    //TODO обработать
+                    if (!_geophoneService.AddGeophone(SelectedGeophone.OriginalGeophone))
+                        return;
+                    break;
+                case GeophoneOperation.SaveAndContinueAdding:
+                    ExecuteAddGeophoneCommand(null);
+                    break;
+                default:
+                    GeophoneModels.Remove(SelectedGeophone);
+                    _entityList.Remove(SelectedGeophone.GeophoneEntity);
+                    _entityList.Remove(SelectedGeophone.GeophoneSphereEntity);
+                    break;
+            }
             
-            // Пользователь добавил новый геофон
-            if (geophoneModel is null)
-            {
-                //TODO обработать
-                if (!_geophoneService.AddGeophone(editedGeophone))
-                    return;
-
-                geophoneModel = _geophoneConversionService.GeophoneToGeophoneModel(editedGeophone);
-
-                geophoneModel.GeophoneEntity = meshG;
-                geophoneModel.GeophoneSphereEntity = meshS;                   
-
-                GeophoneModels.Add(geophoneModel);
-
-                _entityList.Add(meshG);
-                _entityList.Add(meshS);
-            }
-
-            // Пользователь отредактировал геофон
-            else
-            {
-                geophoneModel = _geophoneConversionService.Copy(geophoneModel, editedGeophone);
-
-                _entityList.Remove(geophoneModel.GeophoneEntity);
-                _entityList.Remove(geophoneModel.GeophoneSphereEntity);
-
-                _entityList.Add(meshG);
-                _entityList.Add(meshS);
-            }
-
             UpdateCommonVisibilityParams();
-
             _model.Invalidate();
         }
 

@@ -16,7 +16,6 @@ namespace SensorSensitivity3D.DAL
 
 
         public List<Configuration> Configurations;
-        public List<Drawing> Drawings;
         public List<Geophone> Geophones;
 
         public Context()
@@ -43,34 +42,27 @@ namespace SensorSensitivity3D.DAL
 
             }
 
-            Drawings = new List<Drawing>
-            {
-                new Drawing ()
-                {
-                    Id = 0,
-                    ConfigId = 0,
-                    Path = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
-                }
-            };
-
             Configurations = new List<Configuration>
             {
                 new Configuration
                 {
                     Id = 0,
-                    Name = "Конфигурация 1"
+                    Name = "Конфигурация 1",
+                    SubstratePath = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
                 },
 
                 new Configuration
                 {
                     Id = 1,
-                    Name = "Конфигурация 2"
+                    Name = "Конфигурация 2",
+                    SubstratePath = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
                 },
 
                 new Configuration
                 {
                     Id = 2,
-                    Name = "Конфигурация 3"
+                    Name = "Конфигурация 3",
+                    SubstratePath = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
                 }
             };
         }

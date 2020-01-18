@@ -27,7 +27,7 @@ namespace SensorSensitivity3D.DAL.Repositories
                 geophone.Id = maxId + 1;
 
                 _context.Geophones.Add(geophone);
-                _context.SaveChanges();
+                //_context.SaveChanges();
 
                 return true;
             }
@@ -44,7 +44,7 @@ namespace SensorSensitivity3D.DAL.Repositories
             try
             {
                 _context.Geophones.RemoveAt(geophoneIndex);
-                _context.SaveChanges();
+                //_context.SaveChanges();
 
                 return true;
             }

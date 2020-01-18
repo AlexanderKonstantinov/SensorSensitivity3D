@@ -7,7 +7,7 @@ using SensorSensitivity3D.Domain.Base;
 namespace SensorSensitivity3D.Domain.Entities
 {
     [Serializable]
-    public class Geophone : NamedEntity
+    public sealed class Geophone : NamedEntity
     {       
         public int ConfigId { get; set; }
 
@@ -20,25 +20,37 @@ namespace SensorSensitivity3D.Domain.Entities
         [Required]
         public double Z { get; set; }
         [Required]
-        public bool IsGood { get; set; }
+        public int R { get; set; }
+        [Required]
+        public string Color { get; set; } = "#000000";
         [Required]
         public bool GIsVisible { get; set; }
         [Required]
         public bool SIsVisible { get; set; }
         [Required]
-        public string Color { get; set; } = "#000000";
-
-        [Required]
-        /// <summary>
-        /// Предел чувствительности
-        /// </summary>
-        public int R { get; set; }
+        public bool IsGood { get; set; }
         
-        public virtual ICollection<Zone> Zones { get; set; }
+        
+        public ICollection<Zone> Zones { get; set; }
 
         [Required]
         [ForeignKey(nameof(ConfigId))]
-        public virtual Configuration Configuration { get; set; }
+        public Configuration Configuration { get; set; }
+
+        public Geophone() { }
+        public Geophone(Geophone source)
+        {
+            Name = source.Name;
+            HoleNumber = source.HoleNumber;
+            X = source.X;
+            Y = source.Y;
+            Z = source.Z;
+            R = source.R;
+            Color = source.Color;
+            GIsVisible = source.GIsVisible;
+            SIsVisible = source.SIsVisible;
+            IsGood = source.IsGood;
+        }
 
         public override bool Equals(object obj)
         {

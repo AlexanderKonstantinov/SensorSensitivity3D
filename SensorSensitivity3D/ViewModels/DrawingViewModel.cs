@@ -3,43 +3,30 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
-using devDept.Eyeshot;
-using devDept.Eyeshot.Entities;
-using devDept.Eyeshot.Translators;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.Win32;
 using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
 
+using static SensorSensitivity3D.Services.ModelInteractionService;
+
 namespace SensorSensitivity3D.ViewModels
 {
 
     public class DrawingViewModel : BaseViewModel, IDropTarget
     {
-        private readonly DrawingService DrawingService;
-
-        private readonly Model Model;
-        private ReadAutodesk _readAutodesk;
-
-        public Entity[] DrawingEntities => _readAutodesk?.Entities;
-
-        public Drawing Drawing { get; set; }
+        private readonly ConfigService _configService;
+        private readonly Configuration _config;
         
-
-
         public DrawingViewModel() { }
 
-        public DrawingViewModel(Model model, Configuration config)
+        public DrawingViewModel(ConfigService configService, Configuration config)
         {
-            Model = model;
+            _configService = configService;
+            _config = config;
 
-            DrawingService = new DrawingService();
-            Drawing = DrawingService.GetDrawing(config.Id);
-            
-            //TODO Проверка наличия файла 
-            ReadAutodesk(Drawing.Path);
+            UpdateSubstrate(config.SubstratePath);
         }
 
 
@@ -48,7 +35,7 @@ namespace SensorSensitivity3D.ViewModels
         
         private RelayCommand _loadModelCommand;
         public ICommand LoadModelCommand
-            => _loadModelCommand ??= new RelayCommand(ExecuteLoadModelCommand, CanExecuteLoadModelCommand);
+            => _loadModelCommand ??= new RelayCommand(ExecuteLoadModelCommand);
         
         private void ExecuteLoadModelCommand(object obj)
         {
@@ -59,44 +46,11 @@ namespace SensorSensitivity3D.ViewModels
                 Filter = "Drawing Format (*.dxf;*.dwg)|*.dxf;*dwg"
             };
 
-            if (openFileDialog.ShowDialog() == true)
-                ReadAutodesk(openFileDialog.FileName);
+            if (openFileDialog.ShowDialog() != true) return;
+
+            if (UpdateSubstrate(openFileDialog.FileName))
+                _configService.EditConfiguration(_config);
         }
-
-        private void ReadAutodesk(string drawingPath)
-        {
-            if (!File.Exists(drawingPath))
-                return;
-
-            Application.Current.Dispatcher.Invoke(DispatcherPriority.Background,
-                new Action(delegate { }));
-
-            _readAutodesk = new ReadAutodesk(drawingPath);
-            _readAutodesk.DoWork();
-
-            UpdateDrawing();
-            _readAutodesk.AddToScene(Model);
-
-            foreach (var e in Model.Entities)
-                e.Selectable = false;
-        }
-
-        public void UpdateDrawing()
-        {
-            Drawing.Path = _readAutodesk.Path;
-            Drawing.Name = new FileInfo(_readAutodesk.Path).Name;
-            Drawing.XMin = _readAutodesk.Min.X;
-            Drawing.XMax = _readAutodesk.Max.X;
-            Drawing.YMin = _readAutodesk.Min.Y;
-            Drawing.YMax = _readAutodesk.Max.Y;
-            Drawing.ZMin = _readAutodesk.Min.Z;
-            Drawing.ZMax = _readAutodesk.Max.Z;
-
-            OnPropertyChanged(nameof(Drawing));
-        }
-
-        private bool CanExecuteLoadModelCommand(object o)
-            => true;
 
         private RelayCommand _editModelCommand;
         public ICommand EditModelCommand
