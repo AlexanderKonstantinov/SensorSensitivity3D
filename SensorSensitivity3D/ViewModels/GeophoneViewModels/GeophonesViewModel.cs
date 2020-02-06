@@ -8,6 +8,10 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 using SensorSensitivity3D.Domain.Enums;
+using System;
+using SensorSensitivity3D.ViewModels.Base;
+using Microsoft.Win32;
+using System.Windows;
 
 using static SensorSensitivity3D.Services.ModelInteractionService;
 
@@ -15,6 +19,10 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 {
     public class GeophonesViewModel : BaseViewModel
     {
+        private readonly Configuration _config;
+
+        public event Action<IEnumerable<Entity>> SelectionEntities;
+
         private readonly GeophoneService _geophoneService; 
 
         public ObservableCollection<GeophoneModel> GeophoneModels { get; set; }
@@ -22,84 +30,45 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         public const string TRANSPARENT = "Transparent";
 
         public string GeophonesColor { get; set; }
+        public bool GeophoneCentersIsVisible { get; set; }
+        public bool GeophoneSensitivitySpheresIsVisible { get; set; }
 
-        private bool _geophonesIsVisible;
-        public bool GeophonesIsVisible
-        {
-            get => _geophonesIsVisible;
-            set
-            {
-                if (_geophonesIsVisible.Equals(value))
-                    return;
-
-                foreach (var g in GeophoneModels)
-                    g.GIsVisible = value;
-                
-                _geophonesIsVisible = value;
-                OnPropertyChanged(nameof(GeophonesIsVisible));
-                _model.Invalidate();
-                _model.UpdateVisibleSelection();
-            }
-        }
-
-        private bool _geophoneSpheresIsVisible;
-        public bool GeophoneSpheresIsVisible
-        {
-            get => _geophoneSpheresIsVisible;
-            set
-            {
-                if (_geophoneSpheresIsVisible.Equals(value))
-                    return;
-
-                foreach (var g in GeophoneModels)
-                    g.SIsVisible = value;
-
-                _geophoneSpheresIsVisible = value;
-                OnPropertyChanged(nameof(GeophoneSpheresIsVisible));
-
-                _model.UpdateVisibleSelection();
-                _model.Invalidate();
-            }
-        }
-
-
+        public bool ColorEditorIsOpen { get; set; }
         public GeophoneModel SelectedGeophone { get; set; }
 
         public GeophoneViewModel GeophoneViewModel { get; set; }
-        
-        public GeophonesViewModel(GeophoneService geophoneService, int configId)
+
+
+        public GeophonesViewModel() { }
+        public GeophonesViewModel(GeophoneService geophoneService, Configuration config)
         {
+            _config = config;
             _geophoneService = geophoneService;
 
             GeophoneModels = new ObservableCollection<GeophoneModel>
             (
-                _geophoneService.GetConfigGeophones(configId).Select(g => new GeophoneModel(g))
+                _geophoneService.GetConfigGeophones(config.Id)
             );
 
-            var entities = GeophoneModels
-                .Select(g => g.GeophoneEntity)
-                .Concat(GeophoneModels.Select(g => g.GeophoneSphereEntity));
+            var entities = new Entity[GeophoneModels.Count * 2];
 
-            AddEntities(entities);
+            var i = 0;
+            foreach (var g in GeophoneModels)
+            {
+                entities[i] = g.CenterSphere;
+                entities[i + 1] = g.SensitivitySphere;
 
-            
+                i += 2;
+            }
 
-            _model = model;
-            _entityList = entityList;
-            _entityList.AddRange(entities);
+            AddEntities(entities);        
 
-            GeophoneModels = new ObservableCollection<GeophoneModel>(geophoneModels);
-
-            GeophoneViewModel = new GeophoneViewModel(_model, _entityList);
+            GeophoneViewModel = new GeophoneViewModel();
             GeophoneViewModel.Back += SaveNewGeophone;
 
-            var firstGeophone = GeophoneModels.FirstOrDefault();
-            GeophonesColor =
-                firstGeophone != null && GeophoneModels.Skip(1).All(g => g.Color == firstGeophone.Color)
-                ? firstGeophone.Color
-                : TRANSPARENT;
+            UpdateGeophonesColor();
 
-            UpdateCommonVisibilityParams();
+            UpdateVisibilityParams();
         }
 
         #region commands
@@ -112,16 +81,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         public void ExecuteAddGeophoneCommand(object o)
         {
-            SelectedGeophone = new GeophoneModel();
-
-            GeophoneModels.Add(SelectedGeophone);
-
-            _entityList.Add(SelectedGeophone.GeophoneEntity);
-            _entityList.Add(SelectedGeophone.GeophoneSphereEntity);
-
-            ExecuteSelectGeophoneCommand(SelectedGeophone);
-
-            GeophoneViewModel.ActivateGeophoneViewModel("Добавить геофон", SelectedGeophone);
+            GeophoneViewModel.ActivateGeophoneViewModel(null);
         }
 
         private RelayCommand _editGeophoneCommand;
@@ -130,7 +90,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteEditGeophoneCommand(object obj)
         {
-            GeophoneViewModel.ActivateGeophoneViewModel("Редактировать геофон", SelectedGeophone);
+            GeophoneViewModel.ActivateGeophoneViewModel(SelectedGeophone);
         }
 
 
@@ -140,20 +100,51 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteRemoveGeophoneCommand(object o)
         {
-            GeophoneModels.Remove(SelectedGeophone);
-            _entityList.Remove(SelectedGeophone.GeophoneEntity);
-            _entityList.Remove(SelectedGeophone.GeophoneSphereEntity);
+            if (_geophoneService.RemoveGeophone(SelectedGeophone))
+            {
+                RemoveEntities(SelectedGeophone.Entities);
+                GeophoneModels.Remove(SelectedGeophone);                
+            }
 
-            _geophoneService.RemoveGeophone(SelectedGeophone.OriginalGeophone.Id);
-
-            UpdateCommonVisibilityParams();
-
-            _model.Invalidate();
+            UpdateGeophonesColor();
+            UpdateVisibilityParams();
         }
 
         #endregion
 
         #region change visibility parameters of geophones
+
+        private RelayCommand _changeGeophoneCenterVisibility;
+        public ICommand ChangeGeophoneCenterVisibilityCommand
+            => _changeGeophoneCenterVisibility ??= new RelayCommand(ExecuteChangeGeophoneCenterVisibilityCommand);
+
+        private void ExecuteChangeGeophoneCenterVisibilityCommand(object o)
+        {
+           if (SelectedGeophone is null)
+            {
+                foreach (var g in GeophoneModels)
+                    g.GIsVisible = GeophoneCentersIsVisible;
+            }
+
+            UpdateVisibilityParams();
+        }
+
+
+        private RelayCommand _changeSensitivitySphereVisibility;
+        public ICommand ChangeSensitivitySphereVisibilityCommand
+            => _changeSensitivitySphereVisibility ??= new RelayCommand(ExecuteChangeSensitivitySphereVisibilityCommand);
+
+        private void ExecuteChangeSensitivitySphereVisibilityCommand(object o)
+        {
+            if (SelectedGeophone is null)
+            {
+                foreach (var g in GeophoneModels)
+                    g.SIsVisible = GeophoneSensitivitySpheresIsVisible;
+            }
+
+            UpdateVisibilityParams();
+        }
+
 
         private RelayCommand _changeColorCommand;
         public ICommand ChangeColorCommand
@@ -161,6 +152,10 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteChangeColorCommand(object o)
         {
+            // снимаем выделение, чтобы было видно изменения
+            if (SelectedGeophone != null)
+                SelectionEntities?.Invoke(null);
+
             var color = o.ToString();
 
             if (SelectedGeophone is null)
@@ -171,10 +166,11 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             }
             else
             {
-                GeophonesColor = TRANSPARENT;
                 SelectedGeophone.Color = color;
+                UpdateGeophonesColor();
             }
-            _model.Invalidate();
+
+            UpdateVisibility();
         }
 
 
@@ -184,43 +180,53 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteResetGeophoneCommand(object obj)
         {
-            if (obj is GeophoneModel geophoneModel)
+            IList<Entity> oldEntities, newEntities;
+
+            // Откат к сохраненным настройкам
+            // геофонов
+            if (SelectedGeophone is null)
             {
-                geophoneModel.ResetGeophoneSettings();
-                _entityList.RemoveRange(new [] {
-                    geophoneModel.GeophoneEntity,
-                    geophoneModel.GeophoneSphereEntity
-                });
-            }
-            else
-            {
-                foreach (var g in GeophoneModels)
+                var changedGeophones = GeophoneModels.Where(g => g.IsChanged);
+
+                var count = changedGeophones.Count();
+
+                oldEntities = new Entity[count * 2];
+                newEntities = new Entity[count * 2];
+
+                var i = 0;
+                foreach (var g in changedGeophones)
+                {
+                    oldEntities[i] = g.CenterSphere;
+                    oldEntities[i + 1] = g.SensitivitySphere;
+
                     g.ResetGeophoneSettings();
 
-                _entityList.RemoveRange(GeophoneModels.Select(g => g.GeophoneEntity).Concat(GeophoneModels.Select(g => g.GeophoneSphereEntity)));
+                    newEntities[i] = g.CenterSphere;
+                    newEntities[i + 1] = g.SensitivitySphere;
+
+                    i += 2;
+                }
+            }
+            // геофона
+            else
+            {
+                oldEntities = SelectedGeophone.Entities.Select(e => e).ToList();
+
+                SelectedGeophone.ResetGeophoneSettings();
+
+                newEntities = SelectedGeophone.Entities;                
             }
 
-            GeophonesColor = TRANSPARENT;
-            _model.Invalidate();
+            ReplaceEntities(oldEntities, newEntities);
+
+            UpdateGeophonesColor();
+            UpdateVisibilityParams();
         }
 
         private bool CanExecuteResetGeophoneCommandCommand(object obj)
             => obj is GeophoneModel geophoneModel
                 ? geophoneModel.IsChanged
                 : GeophoneModels?.Any(g => g.IsChanged) ?? false;
-
-
-        private RelayCommand _changeGeophonesVisibilityCommand;
-        public ICommand ChangeGeophonesVisibilityCommand
-            => _changeGeophonesVisibilityCommand ??= new RelayCommand(ExecuteChangeGeophoneCommand);
-
-        private void ExecuteChangeGeophoneCommand(object obj)
-        {
-            UpdateCommonVisibilityParams();
-
-            _model.UpdateVisibleSelection();
-            _model.Invalidate();
-        }
 
         #endregion
 
@@ -234,66 +240,96 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         {
             SelectedGeophone = obj as GeophoneModel;
 
-            if (SelectedGeophone != null)
-            {
-                SelectedGeophone.GeophoneEntity.Selected = SelectedGeophone.GeophoneSphereEntity.Selected = true;
-
-                _model.UpdateVisibleSelection();
-                _model.Invalidate();
-            }
+            SelectionEntities?.Invoke(SelectedGeophone?.Entities);
         }
-
-
-        private RelayCommand _unselectGeophoneCommand;
-        public ICommand UnselectGeophoneCommand
-            => _unselectGeophoneCommand ??= new RelayCommand(ExecuteUnselectGeophoneCommand);
-
-        private void ExecuteUnselectGeophoneCommand(object obj)
-        {
-            if (GeophoneViewModel.IsGeophonePanel)
-                return;
-
-            if (SelectedGeophone != null)
-            {
-                SelectedGeophone.GeophoneEntity.Selected = SelectedGeophone.GeophoneSphereEntity.Selected = false;
-                _model.UpdateVisibleSelection();
-                _model.Invalidate();
-            }
-
-            SelectedGeophone = obj as GeophoneModel;
-        }
-
+               
 
         private RelayCommand _goToGeophoneCommand;
         public ICommand GoToGeophoneCommand
-            => _goToGeophoneCommand ??= new RelayCommand(ExecuteGoToGeophoneCommand, CanExecuteGoToGeophoneCommand);
+            => _goToGeophoneCommand ??= new RelayCommand(ExecuteGoToGeophoneCommand);
 
         private void ExecuteGoToGeophoneCommand(object o)
         {
-            _model.GoToEntities(new List<Entity>
-            {
-                SelectedGeophone.GeophoneEntity,
-                SelectedGeophone.GeophoneSphereEntity
-            });
+            GoToEntities(SelectedGeophone.Entities);
         }
 
-        private bool CanExecuteGoToGeophoneCommand(object o)
-            => o is GeophoneModel g && (g.GIsVisible || g.SIsVisible);
-
         #endregion
 
-        #endregion
+        #region saving and loading geophones
 
+        private RelayCommand _saveToFileCommand;
+        public ICommand SaveToFileCommand
+            => _saveToFileCommand ??= new RelayCommand(ExecuteSaveToFileCommand, CanExecuteSaveToFileCommand);
 
-        public GeophoneModel TrySelectedGeophone()
+        private void ExecuteSaveToFileCommand(object obj)
         {
-            var geophone = GeophoneModels.FirstOrDefault(p => p.GeophoneEntity.Selected);
+            var saveFileDialog = new SaveFileDialog
+            {
+                FileName = $"{_config.Name}.xml",
+                InitialDirectory = Environment.CurrentDirectory,
+                AddExtension = true,
+                Title = "Выберите файл для сохранения",
+                Filter = "XML Format (*.xml)|*.xml"
+            };
 
-            if (geophone is null)
-                geophone = GeophoneModels.FirstOrDefault(p => p.GeophoneSphereEntity.Selected);
+            if (saveFileDialog.ShowDialog() != true) return;
 
-            return geophone;
+            var message = _geophoneService.SaveToFile(GeophoneModels, saveFileDialog.FileName)
+                ? "Геофоны успешно сохранены"
+                : "Ошибка при сохранении геофонов";
+
+            MessageBox.Show(message);
         }
+
+        private bool CanExecuteSaveToFileCommand(object obj)
+            => GeophoneModels?.Any() ?? false;
+
+
+        private RelayCommand _loadFromFileCommand;
+        public ICommand LoadFromFileCommand
+            => _loadFromFileCommand ??= new RelayCommand(ExecuteLoadFromFileCommand);
+
+        private void ExecuteLoadFromFileCommand(object obj)
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = Environment.CurrentDirectory,
+                Title = "Выберите файл для загрузки",
+                Filter = "XML Format (*.xml)|*.xml"
+            };
+
+            if (openFileDialog.ShowDialog() != true) return;
+
+            var loadedGeophones = _geophoneService.LoadFromFile(openFileDialog.FileName);
+
+            string message;
+            if (loadedGeophones != null && loadedGeophones.Any())
+            {
+                foreach (var g in loadedGeophones)
+                {
+                    g.InitEntities();
+                    g.OriginalGeophone = _geophoneService.AddGeophone(g);
+                    GeophoneModels.Add(g);
+                }
+
+                AddEntities(loadedGeophones.SelectMany(g => g.Entities));
+                message = "Геофоны успешно загружены";                
+            }
+            else
+            {
+                message = "Ошибка при загрузке геофонов";
+            }
+
+            MessageBox.Show(message);
+
+            UpdateGeophonesColor();
+            UpdateVisibilityParams();
+        }
+
+        #endregion
+
+        #endregion
+
 
         /// <summary>
         /// Добавление нового геофона в коллекцию или редактирование
@@ -301,36 +337,53 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         /// обновление изображения
         /// </summary>
         /// <param name="editedGeophone"></param>
-        private void SaveNewGeophone(GeophoneOperation operation)
+        private void SaveNewGeophone(GeophoneOperation operation, GeophoneModel editedGeophone)
         {
-            ExecuteUnselectGeophoneCommand(SelectedGeophone);
-
-
             switch (operation)
             {
-                case GeophoneOperation.Save:
-                    //TODO обработать
-                    if (!_geophoneService.AddGeophone(SelectedGeophone.OriginalGeophone))
-                        return;
+                case GeophoneOperation.Add:
+                    editedGeophone.OriginalGeophone = _geophoneService.AddGeophone(editedGeophone) ;
+                    if (editedGeophone.OriginalGeophone != null)
+                        GeophoneModels.Add(editedGeophone);
                     break;
-                case GeophoneOperation.SaveAndContinueAdding:
-                    ExecuteAddGeophoneCommand(null);
+                case GeophoneOperation.AddAndContinueAdding:
+                    editedGeophone.OriginalGeophone = _geophoneService.AddGeophone(editedGeophone);
+                    if (editedGeophone.OriginalGeophone != null)
+                    {
+                        GeophoneModels.Add(editedGeophone);
+                        GeophoneViewModel.ActivateGeophoneViewModel(editedGeophone);
+                    }
+                    break;
+                case GeophoneOperation.Edit:                    
+                    _geophoneService.EditGeophone(editedGeophone);
                     break;
                 default:
-                    GeophoneModels.Remove(SelectedGeophone);
-                    _entityList.Remove(SelectedGeophone.GeophoneEntity);
-                    _entityList.Remove(SelectedGeophone.GeophoneSphereEntity);
-                    break;
+                    return;
             }
-            
-            UpdateCommonVisibilityParams();
-            _model.Invalidate();
+            UpdateGeophonesColor();
+            UpdateVisibilityParams();
         }
 
-        private void UpdateCommonVisibilityParams()
+        private void UpdateGeophonesColor()
         {
-            GeophonesIsVisible = GeophoneModels.All(g => g.GIsVisible);
-            GeophoneSpheresIsVisible = GeophoneModels.All(g => g.SIsVisible);
+            var firstGeophone = GeophoneModels.FirstOrDefault();
+            GeophonesColor =
+                firstGeophone != null && GeophoneModels.Skip(1).All(g => g.Color == firstGeophone.Color)
+                ? firstGeophone.Color
+                : TRANSPARENT;
+        }
+
+        private void UpdateVisibilityParams()
+        {
+            GeophoneCentersIsVisible = GeophoneModels.Any() && GeophoneModels.All(g => g.GIsVisible);
+            GeophoneSensitivitySpheresIsVisible = GeophoneModels.Any() && GeophoneModels.All(g => g.SIsVisible);
+            UpdateVisibility();
+        }
+
+        public string TrySelectGeophone()
+        {
+            SelectedGeophone =  GeophoneModels.FirstOrDefault(g => g.Entities.Any(e => e.Selected));
+            return SelectedGeophone?.ToString();
         }
 
         protected override void OnDispose()

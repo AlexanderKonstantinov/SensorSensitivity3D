@@ -1,13 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using devDept.Eyeshot;
+using devDept.Eyeshot.Entities;
 using devDept.Graphics;
 using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
+using SensorSensitivity3D.ViewModels.Base;
 using SensorSensitivity3D.ViewModels.GeophoneViewModels;
 
 using static SensorSensitivity3D.Services.ModelInteractionService;
@@ -19,9 +21,10 @@ namespace SensorSensitivity3D.ViewModels
         private readonly ConfigService _configService;
         private readonly GeophoneService _geophoneService;
 
-        public Visibility RightPanelVisibility { get; set; } = Visibility.Visible;
+        public bool RightPanelVisibility { get; set; } = false;
+        public bool ConfigPanelVisibility { get; set; } = true;
 
-        public static string SelectedEntityInfo { get; set; }
+        public string SelectedEntityInfo { get; set; }
 
 
         public DrawingViewModel DrawingViewModel { get; set; }
@@ -35,7 +38,6 @@ namespace SensorSensitivity3D.ViewModels
 
         public MainViewModel() { }
 
-        
         public MainViewModel(CustomModel model)
         {
             _configService = new ConfigService();
@@ -48,22 +50,38 @@ namespace SensorSensitivity3D.ViewModels
 
             model.MouseMove += (o, a) =>
             {
-                SelectEntity(
-                    model.Entities.ElementAtOrDefault
-                        (model.GetEntityUnderMouseCursor(RenderContextUtility.ConvertPoint(model.GetMousePosition(a)))));
+                var selectedEntity = model.Entities.ElementAtOrDefault
+                        (model.GetEntityUnderMouseCursor(RenderContextUtility.ConvertPoint(model.GetMousePosition(a))));
+                
+                SelectEntity(selectedEntity);
+
+                SelectedEntityInfo = GeophonesViewModel?.TrySelectGeophone();                
             };
         }
 
         #region Commands
 
 
-        private RelayCommand _loadCommand;
-        public ICommand LoadCommand
-            => _loadCommand ??= new RelayCommand(ExecuteLoadCommand, null);
+        private RelayCommand _loadConfigCommand;
+        public ICommand LoadConfigCommand
+            => _loadConfigCommand ??= new RelayCommand(ExecuteLoadConfigCommand, null);
         
-        private void ExecuteLoadCommand(object obj)
+        private void ExecuteLoadConfigCommand(object obj)
         {
+            SelectedConfig = obj as Configuration;
 
+            DrawingViewModel = new DrawingViewModel(_configService, SelectedConfig);
+
+            GeophonesViewModel = new GeophonesViewModel(_geophoneService, SelectedConfig);
+
+            GeophonesViewModel.SelectionEntities += entities =>
+            OnSelectionEntities(entities);
+
+            ConfigPanelVisibility = false;
+            RightPanelVisibility = false;
+
+            Focus();
+            ZoomFit();
         }
 
 
@@ -74,14 +92,25 @@ namespace SensorSensitivity3D.ViewModels
         private void ExecuteSelectConfigCommand(object obj)
         {
             SelectedConfig = obj as Configuration;
-
-            DrawingViewModel = new DrawingViewModel(_configService, SelectedConfig);
-
-            GeophonesViewModel = new GeophonesViewModel(_geophoneService, SelectedConfig);
-                                   
-            _model.ZoomFit();
-            _model.Invalidate();
+            OnPropertyChanged(nameof(SelectedConfig));
         }
+
+
+        private RelayCommand _editConfigCommand;
+        public ICommand EditConfigCommand
+            => _editConfigCommand ??= new RelayCommand(ExecuteEditConfigCommand, CanExecuteEditConfigCommand);
+
+        private void ExecuteEditConfigCommand(object obj)
+        {
+            SelectedConfig.Name = obj.ToString();
+            _configService.SaveContext();
+        }
+
+        private bool CanExecuteEditConfigCommand(object obj)
+            => (obj is string editedName)
+            && !string.IsNullOrEmpty(editedName)
+            && Configurations != null
+            && !Configurations.Any(c => c.Name.Equals(editedName));
 
 
         private RelayCommand _panelCollapseCommand;
@@ -90,13 +119,49 @@ namespace SensorSensitivity3D.ViewModels
 
         private void ExecutePanelCollapseCommand(object obj)
         {
-            RightPanelVisibility = RightPanelVisibility == Visibility.Visible
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+            RightPanelVisibility = !RightPanelVisibility;
+        }
+
+        private RelayCommand _saveConfigCommand;
+        public ICommand SaveConfigCommand
+            => _saveConfigCommand ??= new RelayCommand(ExecuteSaveConfigCommand, CanExecuteSaveConfigCommand);
+
+        private void ExecuteSaveConfigCommand(object obj)
+        {
+
+            //_configService.SaveContext();
+        }
+
+        private bool CanExecuteSaveConfigCommand(object obj)
+            => GeophonesViewModel.GeophoneModels.Any(g => g.IsChanged);
+
+
+        private RelayCommand _chooseConfigCommand;
+        public ICommand ChooseConfigCommand
+            => _chooseConfigCommand ??= new RelayCommand(ExecuteChooseConfigCommand);
+
+        private void ExecuteChooseConfigCommand(object obj)
+        {
+            if (GeophonesViewModel.GeophoneModels.Any(g => g.IsChanged))
+            {
+                var result = MessageBox.Show("Желаете сохранить внесенные изменения", "Конфигурация была изменена", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
+                if (result == MessageBoxResult.Cancel)
+                    return;
+
+                if (result == MessageBoxResult.Yes)
+                    ExecuteSelectConfigCommand(null);
+            }
+
+            ConfigPanelVisibility = true;
         }
 
         #endregion
 
+        private void OnSelectionEntities(IEnumerable<Entity> entities)
+        {            
+            SelectEntities(entities);
+            SelectedEntityInfo = null;
+        }
 
         protected override void OnDispose()
         {

@@ -1,62 +1,68 @@
 ﻿using SensorSensitivity3D.Infrastructure;
-using SensorSensitivity3D.Services;
 using System;
 using System.Windows.Input;
 using devDept.Eyeshot;
 using SensorSensitivity3D.Domain.Enums;
 using SensorSensitivity3D.Domain.Models;
+using SensorSensitivity3D.ViewModels.Base;
+
+using static SensorSensitivity3D.Services.ModelInteractionService;
+
 
 namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 {
     public class GeophoneViewModel : BaseViewModel
     {
-        private readonly GeophoneConversionService _geophoneConversionService;
-
-        private readonly Model _model;
-        private readonly CustomEntityList _entityList;
-
         /// <summary>
         /// Вызывается при возвращении к панели с геофонами
         /// Сообщает подписчику, стоит ли оставить геофон в коллекции
         /// </summary>
-        public event Action<GeophoneOperation> Back;
+        public event Action<GeophoneOperation, GeophoneModel> Back;
         public bool IsGeophonePanel { get; set; }
         public string PanelTitle { get; private set; }
+        public bool IsEditedMode { get; set; }
 
         public GeophoneModel EditedGeophone { get; set; }
 
 
         public GeophoneViewModel() { }
-        public GeophoneViewModel(Model model, CustomEntityList entities)
-        {
-            _model = model;
-            _entityList = entities;
-        }
 
         /// <summary>
         /// Активировать панель редактирования или добавления нового геофона,
         /// сделав её видимой и инициализировав привязываемые объекты
         /// </summary>
-        /// <param name="originalGeophone">Геофон для редактирования</param>
-        /// <param name="panelTitle">Заголовок панели</param>
-        public void ActivateGeophoneViewModel(string panelTitle, GeophoneModel originalGeophone)
+        /// <param name="editedGeophone">Геофон для редактирования</param>
+        public void ActivateGeophoneViewModel(GeophoneModel editedGeophone)
         {
-            PanelTitle = panelTitle;
+            IsEditedMode = editedGeophone != null;
 
-            EditedGeophone = originalGeophone;
+            if (IsEditedMode)
+            {
+                EditedGeophone = editedGeophone;
+                PanelTitle = "Редактировать геофон";
+            }
+            else
+            {
+                EditedGeophone = new GeophoneModel();
+                PanelTitle = "Добавить геофон";
+                AddEntities(EditedGeophone.Entities);
+            }
             
             IsGeophonePanel = true;
         }
 
 
-        private RelayCommand _changeColorCommand;
-        public ICommand ChangeColorCommand
-            => _changeColorCommand ??= new RelayCommand(ExecuteChangeColorCommand);
+        private RelayCommand _changeGeophoneCommand;
+        public ICommand ChangeGeophoneCommand
+            => _changeGeophoneCommand ??= new RelayCommand(ExecuteChangeGeophoneCommand);
 
-        private void ExecuteChangeColorCommand(object o)
+        private void ExecuteChangeGeophoneCommand(object o)
         {
-            EditedGeophone.Color = o.ToString();
-            OnPropertyChanged(nameof(EditedGeophone));
+            RemoveEntities(EditedGeophone.Entities);
+
+            EditedGeophone.InitEntities();
+
+            AddEntities(EditedGeophone.Entities);
         }
 
 
@@ -68,9 +74,15 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         {
             IsGeophonePanel = false;
 
-            EditedGeophone.ResetGeophoneSettings();
+            RemoveEntities(EditedGeophone.Entities);
 
-            Back?.Invoke(GeophoneOperation.None);
+            if (IsEditedMode)
+            {
+                EditedGeophone.ResetGeophoneSettings();
+                AddEntities(EditedGeophone.Entities);
+            }
+
+            Back?.Invoke(GeophoneOperation.None, null);
         }
 
 
@@ -82,12 +94,13 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         {
             IsGeophonePanel = false;
 
-            Back?.Invoke(GeophoneOperation.Save);
+            EditedGeophone.AcceptChanges();
+
+            Back?.Invoke(GeophoneOperation.Edit, EditedGeophone);
         }
 
         private bool CanExecuteSaveGeophoneCommand(object obj) 
-            => EditedGeophone?.OriginalGeophone != null 
-               && EditedGeophone.IsChanged;
+            => IsEditedMode && (EditedGeophone?.IsChanged ?? false);
 
 
         private RelayCommand _addGeophoneCommand;
@@ -96,13 +109,29 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteAddGeophoneCommand(object obj)
         {
-            IsGeophonePanel = (bool) obj;
+            IsGeophonePanel = false;
 
-            Back?.Invoke(GeophoneOperation.SaveAndContinueAdding);
+            if (IsEditedMode)
+            {
+                var newGeophone = new GeophoneModel(EditedGeophone);
+
+                RemoveEntities(EditedGeophone.Entities);
+                EditedGeophone.ResetGeophoneSettings();
+                AddEntities(EditedGeophone.Entities);
+                
+                AddEntities(newGeophone.Entities);
+
+                EditedGeophone = newGeophone;
+            }
+
+            Back?.Invoke((bool) obj 
+                ? GeophoneOperation.AddAndContinueAdding
+                : GeophoneOperation.Add, 
+                EditedGeophone);
         }
 
         private bool CanExecuteAddGeophoneCommand(object obj)
-            => EditedGeophone?.OriginalGeophone == null || EditedGeophone.IsChanged;
+            => !IsEditedMode || (EditedGeophone?.IsChanged ?? false);
 
 
         private RelayCommand _resetGeophoneCommand;
@@ -111,11 +140,15 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteResetGeophoneCommand(object obj)
         {
+            RemoveEntities(EditedGeophone.Entities);
+
             EditedGeophone.ResetGeophoneSettings();
+
+            AddEntities(EditedGeophone.Entities);            
         }
 
         private bool CanExecuteResetGeophoneCommand(object obj)
-            => EditedGeophone?.OriginalGeophone != null && EditedGeophone.IsChanged;
+            => IsEditedMode && (EditedGeophone?.IsChanged ?? false);
 
 
         protected override void OnDispose()

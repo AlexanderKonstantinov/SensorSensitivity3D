@@ -8,26 +8,53 @@ namespace SensorSensitivity3D.DAL.Repositories
 {
     public class ConfigRepository
     {
-        private readonly Context _context;
-
-        public ConfigRepository() => _context = Context.Instance;
-
         public IEnumerable<Configuration> GetConfigurations()
-            => _context.Configurations;
+        {
+            using (var context = new Context())
+            {
+                return context.Configurations.ToList();
+            }
+        }
 
-        public Configuration GetConfiguration(int id) 
-            => _context.Configurations.FirstOrDefault(c => c.Id == id);
+        public Configuration GetConfiguration(int id)
+        {
+            using (var context = new Context())
+            {
+                return context.Configurations.FirstOrDefault(c => c.Id == id);
+            }
+        }
 
-        public bool EditConfiguration(Configuration config)
+        public bool AddConfiguration(Configuration config)
         {
             try
             {
-                var old = GetConfiguration(config.Id);
+                using (var context = new Context())
+                {
+                    context.Configurations.Add(config);
+                    context.SaveChanges();
+                }
+                
+                return true;
+            }
+            catch (Exception)
+            {
+                //TODO
+                return false;
+            }
+        }
 
-                old.Name = config.Name;
-                old.SubstratePath = config.SubstratePath;
+        public bool RenameConfiguration(int configId, string newName)
+        {
+            try
+            {
+                var editedConfig = GetConfiguration(configId);
 
-                _context.SaveChanges();
+                editedConfig.Name = newName;
+
+                using (var context = new Context())
+                {
+                    context.SaveChanges();
+                }
 
                 return true;
             }
@@ -36,6 +63,25 @@ namespace SensorSensitivity3D.DAL.Repositories
                 //TODO
                 return false;
             }
+        }
+
+        public bool SaveContext()
+        {
+            try
+            {
+                using (var context = new Context())
+                {
+                    var test = context.Configurations.First();
+                    test.Name = "111";
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

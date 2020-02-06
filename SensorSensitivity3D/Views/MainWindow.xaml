@@ -7,7 +7,8 @@
     xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:ddgr="http://schemas.devdept.com/winfx/2008/xaml/graphics"
-    
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+
     xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
     xmlns:views="clr-namespace:SensorSensitivity3D.Views"
     xmlns:geophoneUserControls="clr-namespace:SensorSensitivity3D.Views.GeophoneUserControls"
@@ -18,35 +19,69 @@
     mc:Ignorable="d" Title="Зоны локации"
     d:DesignHeight="650" d:DesignWidth="900"
     MinWidth="850" MinHeight="650" 
-    Icon="pack://application:,,,/Resources/Icons/main_icon.png" >
+    Icon="pack://application:,,,/Resources/Icons/main_icon.png" 
+    PreviewMouseLeftButtonDown="Window_MouseDown">
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
+        <helpers:NullToBooleanConverter x:Key="NullToBooleanConverter" />
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
 
     <Window.DataContext>
         <viewModels:MainViewModel />
     </Window.DataContext>
 
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding LoadCommand}"/>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
-
     <Grid>
         <StackPanel 
-            
+            x:Name="ConfigPanel"
             Panel.ZIndex="1000"
             HorizontalAlignment="Center"
-            VerticalAlignment="Center" >
+            VerticalAlignment="Center" 
+            Visibility="{Binding ConfigPanelVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+
+            <Popup
+                x:Name="NameConfigField"
+                Width="{Binding ElementName=ConfigPanel, Path=ActualWidth}"
+                Height="25"
+                HorizontalAlignment="Stretch"
+                Placement="Top"
+                StaysOpen="False"
+                PopupAnimation="Fade"
+                AllowsTransparency="True" >
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" MinWidth="50"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBox 
+                        Grid.Column="0"
+                        x:Name="EditedConfigName"
+                        VerticalContentAlignment="Center" 
+                        Text="{Binding SelectedConfig.Name, Mode=OneWay}" 
+                        TextChanged="EditedConfigName_TextChanged"/>
+                    
+                    <t:RadButton 
+                        x:Name="AllowConfigNameButton"
+                        Click="SwitchNameConfigFieldVisibility"
+                        Content="OK"
+                        Margin="5 0 0 0"
+                        Grid.Column="1"
+                        Background="Transparent"                        
+                        Style="{StaticResource BaseRadButton}"
+                        Command="{Binding EditConfigCommand}"
+                        CommandParameter="{Binding ElementName=EditedConfigName, Path=Text}"/>
+                </Grid>
+            </Popup>
             
-            <t:RadListBox
+            <t:RadListBox    
                 x:Name="ConfigList"
                 ItemsSource="{Binding Configurations}" 
                 BorderThickness="0"
                 Background="Transparent"
-                Style="{StaticResource BaseRadListBox}">
+                Style="{StaticResource BaseRadListBox}" >
 
                 <t:RadListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type t:RadListBoxItem}">
@@ -77,24 +112,33 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Text="{Binding Name}" 
-                                       FontFamily="Segoe UI" 
-                                       FontSize="16" 
-                                       Padding="0 0 0 3"
-                                       Grid.Column="0" 
-                                       VerticalAlignment="Bottom" />
+                            <t:RadButton 
+                                Content="{Binding Name}" 
+                                Style="{StaticResource BaseRadButton}"
+                                BorderThickness="0"
+                                Padding="10 5"
+                                Background="Transparent"
+                                FontFamily="Segoe UI" 
+                                FontSize="16" 
+                                Grid.Column="0" 
+                                VerticalAlignment="Bottom" 
+                                ToolTip="Загрузить"
+                                Command="{Binding DataContext.LoadConfigCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                CommandParameter="{Binding}">
+                            </t:RadButton>
 
                             <t:RadButton
                                 Style="{StaticResource RightPanelIconButton}"
                                 Grid.Column="1"
-                                Margin="30 0"
-                                ToolTip="Загрузить"
-                                Click="OnLoadConfig"
+                                Margin="50 0 10 0"
+                                ToolTip="Переименовать"
+                                Padding="8"
+                                Click="SwitchNameConfigFieldVisibility"
                                 Command="{Binding DataContext.SelectConfigCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
                                 CommandParameter="{Binding}">
                                 <Image 
-                                        Source="pack://application:,,,/Resources/Icons/arrow_down.png"
-                                        Stretch="Fill"/>
+                                    Source="pack://application:,,,/Resources/Icons/pencil.png"
+                                    Stretch="Fill"/>
                             </t:RadButton>
 
                             <t:RadButton
@@ -102,8 +146,8 @@
                                 Grid.Column="2" 
                                 ToolTip="Удалить">
                                 <Image 
-                                        Source="pack://application:,,,/Resources/Icons/trash.png"
-                                        Stretch="Fill"/>
+                                    Source="pack://application:,,,/Resources/Icons/trash.png"
+                                    Stretch="Fill"/>
                             </t:RadButton>
 
                         </Grid>
@@ -111,11 +155,74 @@
                 </t:RadListBox.ItemTemplate>
 
             </t:RadListBox>
+
+            <t:RadButton                 
+                x:Name="NewConfigurationButton"
+                Style="{StaticResource BaseRadButton}"
+                Height="30"
+                CornerRadius="15"
+                ToolTip="Создать новую конфигурацию"
+                Click="NewConfigurationButton_Click">
+                <Image 
+                    Stretch="Uniform" 
+                    Source="pack://application:,,,/Resources/Icons/plus.png" />
+            </t:RadButton>
+
+            <Grid
+                x:Name="NewConfigurationPanel"
+                Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox 
+                    x:Name="NewConfigurationText"
+                    Grid.Column="0" 
+                    VerticalContentAlignment="Center"
+                    HorizontalContentAlignment="Right"
+                    FontFamily="Segoe UI" 
+                    FontSize="16" 
+                    BorderThickness="1"
+                    Padding="10 0 60 0"
+                    Margin="0 0 -50 0">
+                    <TextBox.Resources>
+                        <Style TargetType="{x:Type Border}">
+                            <Setter Property="CornerRadius" Value="15"/>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+                
+                <t:RadButton   
+                    Grid.Column="1"
+                    Width="50"
+                    Style="{StaticResource BaseRadButton}"
+                    Height="30"
+                    CornerRadius="15"
+                    Content="ОК"
+                    Command="{Binding AddConfigurationCommand}" />
+            </Grid>
+            
         </StackPanel>
 
         <Grid 
-            x:Name="ModelContainer"
-            Visibility="Hidden">
+            x:Name="ModelContainer" >
+
+            <Grid.Style>
+                <Style TargetType="Grid" >
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Visibility, ElementName=ConfigPanel}"
+                                         Value="Collapsed">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Visibility, ElementName=ConfigPanel}"
+                                         Value="Visible">
+                            <Setter Property="Visibility" Value="Hidden" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition />
@@ -124,12 +231,12 @@
             </Grid.ColumnDefinitions>
 
             <Border
+                Background="Transparent"
                 Panel.ZIndex="1000"
                 Grid.Column="3"
                 Width="350"
                 BorderThickness="1 0 0 0"
-                BorderBrush="#FF5E6770"
-                Visibility="{Binding RightPanelVisibility}">
+                Visibility="{Binding RightPanelVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
 
                 <Border.Effect>
                     <DropShadowEffect 
@@ -138,6 +245,7 @@
                 </Border.Effect>
 
                 <t:RadTabControl
+                    Background="#FF5E6770"
                     UIElement.PreviewMouseUp="RightPanel_PreviewMouseUp"
                     x:Name="RightPanel"
                     FontSize="16"
@@ -153,14 +261,15 @@
                     <t:RadTabItem
                         x:Name="GeophoneTabItem"
                         Header="Геофоны" >
-                        <geophoneUserControls:Geophones DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        <geophoneUserControls:Geophones 
+                            DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     </t:RadTabItem>
                     
                     <t:RadTabItem Header="Зоны локации" />
                 </t:RadTabControl>
             </Border>
 
-            <t:RadButton
+            <t:RadButton                
                 Grid.Column="2"
                 HorizontalAlignment="Right"
                 Style="{StaticResource RightPanelIconButton}"
@@ -174,10 +283,10 @@
                         <Style TargetType="{x:Type Image}">
                             <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"></Setter>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding RightPanelVisibility}" Value="Visibility">
+                                <DataTrigger Binding="{Binding RightPanelVisibility}" Value="True">
                                     <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding RightPanelVisibility}" Value="Collapsed">
+                                <DataTrigger Binding="{Binding RightPanelVisibility}" Value="False">
                                     <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_left.png"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -191,7 +300,7 @@
                 Grid.Column="0"
                 Width="40" Height="40"
                 HorizontalAlignment="Left"
-                VerticalAlignment="Top">
+                VerticalAlignment="Top">          
 
                 <t:RadMenu 
                     Padding="0"
@@ -211,12 +320,16 @@
                                 Source="pack://application:,,,/Resources/Icons/gears.png"
                                 HorizontalAlignment="Stretch"/>
                         </t:RadMenuItem.Icon>
-                        <t:RadMenuItem  Header="Сохранить конфигурацию">
+                        <t:RadMenuItem  
+                            Header="Сохранить конфигурацию"
+                            Command="{Binding SaveConfigCommand}">
                             <t:RadMenuItem.Icon>
                                 <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/floppy_disk.png" />
                             </t:RadMenuItem.Icon>
                         </t:RadMenuItem>
-                        <t:RadMenuItem  Header="Загрузить конфигурацию">
+                        <t:RadMenuItem  
+                            Header="Загрузить конфигурацию"
+                            Command="{Binding LoadConfigCommand}">
                             <t:RadMenuItem.Icon>
                                 <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/arrow_down.png" />
                             </t:RadMenuItem.Icon>
@@ -231,15 +344,19 @@
                 PopupAnimation="Fade"
                 Placement="Mouse"
                 StaysOpen="True"
+                Panel.ZIndex="5000"
                 AllowsTransparency="True" >
-                <TextBlock x:Name="EntityInfo" FontSize="14" FontWeight="DemiBold" Text="{Binding SelectedEntityInfo}"/>
+                <TextBlock 
+                    x:Name="EntityInfo" 
+                    FontSize="14" 
+                    FontWeight="DemiBold" 
+                    Text="{Binding SelectedEntityInfo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Popup>
 
             <models:CustomModel 
                 x:Name="Model"
                 CustomEntityList="{Binding EntityList}"
                 AutoRefresh="True"
-                ActionMode="SelectVisibleByPick"
                 SelectionColor="OrangeRed"
                 MouseMove="Model_OnMouseMove"
                 Margin="{Binding 

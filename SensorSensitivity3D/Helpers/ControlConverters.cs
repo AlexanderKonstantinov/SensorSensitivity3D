@@ -7,11 +7,11 @@ using System.Windows.Media;
 
 namespace SensorSensitivity3D.Helpers
 {
-    [ValueConversion(typeof(Control), typeof(Thickness))]
+    [ValueConversion(typeof(bool), typeof(Thickness))]
     public class MarginConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-            => new Thickness(0, 0, System.Convert.ToBoolean(value) ? 325 : 0, 0);
+            => new Thickness(0, 0, (bool) value ? 350 : 0, 0);
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -140,5 +140,15 @@ namespace SensorSensitivity3D.Helpers
         {
             return System.Drawing.ColorTranslator.FromHtml(value.ToString());
         }
+    }
+
+    [ValueConversion(typeof(string), typeof(Visibility))]
+    public class StringToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => string.IsNullOrEmpty((string)value) ? Visibility.Collapsed : Visibility.Visible;
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            => throw new NotImplementedException();
     }
 }

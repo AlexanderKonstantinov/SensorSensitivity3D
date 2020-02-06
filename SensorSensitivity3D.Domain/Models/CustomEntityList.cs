@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Linq;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 
@@ -28,21 +29,22 @@ namespace SensorSensitivity3D.Domain.Models
                     if (!_stopInvalidate)
                         Model.Invalidate();
                     break;
-                    //case NotifyCollectionChangedAction.Replace:
-                    //    Model.Entities.Remove(e.OldItems[0] as Entity);
+                case NotifyCollectionChangedAction.Replace:
+                    Model.Entities.Remove(e.OldItems[0] as Entity);
 
-                    //    if (!_stopInvalidate)
-                    //    {
-                    //        Model.Entities.Add(e.NewItems[0] as Entity);
-                    //        Model.Invalidate();
-                    //    }
+                    if (!_stopInvalidate)
+                    {
+                        Model.Entities.Add(e.NewItems[0] as Entity);
+                        Model.Invalidate();
+                    }
 
-                    //    break;
+                    break;
             }
         }
 
 
-        // When I add or remove a range of entities, I want to refresh the Model only at the end.
+        // When I add or remove a range of entities, 
+        // I want to refresh the Model only at the end.
         private bool _stopInvalidate;
         public void AddRange(IEnumerable<Entity> entities)
         {
@@ -67,6 +69,21 @@ namespace SensorSensitivity3D.Domain.Models
             Model.Invalidate();
 
             _stopInvalidate = false;
+        }
+
+        public void ReplaceRange(IEnumerable<Entity> entities)
+        {
+            //_stopInvalidate = true;
+
+            //for (int i = 0; i < entities.Count(); i++)
+            //    Model.Entities.
+
+            //foreach (var entity in entities)
+            //    Replace(entity);
+
+            //Model.Invalidate();
+
+            //_stopInvalidate = false;
         }
 
         public Model Model { get; set; }

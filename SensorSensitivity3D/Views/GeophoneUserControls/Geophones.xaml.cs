@@ -30,5 +30,9 @@ namespace SensorSensitivity3D.Views.GeophoneUserControls
             ? Visibility.Collapsed
             : Visibility.Visible;
 
+        private void GeophoneListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

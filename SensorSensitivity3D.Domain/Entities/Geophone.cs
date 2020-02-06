@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SensorSensitivity3D.Domain.Base;
+using SensorSensitivity3D.Domain.Base.Interfaces;
 
 namespace SensorSensitivity3D.Domain.Entities
 {
     [Serializable]
-    public sealed class Geophone : NamedEntity
+    public sealed class Geophone : NamedEntity, ICopy<Geophone>
     {       
         public int ConfigId { get; set; }
 
@@ -30,8 +31,6 @@ namespace SensorSensitivity3D.Domain.Entities
         [Required]
         public bool IsGood { get; set; }
         
-        
-        public ICollection<Zone> Zones { get; set; }
 
         [Required]
         [ForeignKey(nameof(ConfigId))]
@@ -40,16 +39,32 @@ namespace SensorSensitivity3D.Domain.Entities
         public Geophone() { }
         public Geophone(Geophone source)
         {
-            Name = source.Name;
-            HoleNumber = source.HoleNumber;
-            X = source.X;
-            Y = source.Y;
-            Z = source.Z;
-            R = source.R;
-            Color = source.Color;
-            GIsVisible = source.GIsVisible;
-            SIsVisible = source.SIsVisible;
-            IsGood = source.IsGood;
+            source.CopyTo(this);
+
+            //Name = source.Name;
+            //HoleNumber = source.HoleNumber;
+            //X = source.X;
+            //Y = source.Y;
+            //Z = source.Z;
+            //R = source.R;
+            //Color = source.Color;
+            //GIsVisible = source.GIsVisible;
+            //SIsVisible = source.SIsVisible;
+            //IsGood = source.IsGood;
+        }
+
+        public void CopyTo(Geophone target)
+        {
+            target.Name = Name;
+            target.HoleNumber = HoleNumber;
+            target.X = X;
+            target.Y = Y;
+            target.Z = Z;
+            target.R = R;
+            target.Color = Color;
+            target.GIsVisible = GIsVisible;
+            target.SIsVisible = SIsVisible;
+            target.IsGood = IsGood;
         }
 
         public override bool Equals(object obj)
@@ -90,6 +105,6 @@ namespace SensorSensitivity3D.Domain.Entities
             hashCode = hashCode * -1521134295 + SIsVisible.GetHashCode();
             hashCode = hashCode * -1521134295 + R.GetHashCode();
             return (int)hashCode;
-        }
+        }        
     }
 }

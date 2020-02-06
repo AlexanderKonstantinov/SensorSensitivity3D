@@ -7,7 +7,8 @@
              xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
              xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
              xmlns:s="clr-namespace:System;assembly=mscorlib"
-            
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+
              xmlns:geophoneViewModels="clr-namespace:SensorSensitivity3D.ViewModels.GeophoneViewModels"
 
              mc:Ignorable="d" 
@@ -23,7 +24,7 @@
         <helpers:BoolToStringConverter x:Key="BoolToDisplayConverter" TrueValue="отображать" FalseValue="не отображать" />
         <helpers:StringToColorConverter x:Key="StringToColorConverter" />
         <helpers:DrawingColorToMediaColorConverter x:Key="DrawingColorToMediaColorConverter" />
-        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" />
         
         <s:Boolean x:Key="TrueValue">True</s:Boolean>
         <s:Boolean x:Key="FalseValue">False</s:Boolean>
@@ -87,20 +88,35 @@
             Style="{StaticResource TitleTextBlock}"/>
         <TextBox  
             Grid.Row="3"
-            Grid.Column="1" 
+            Grid.Column="1"             
             Text="{Binding EditedGeophone.X, UpdateSourceTrigger=PropertyChanged}"  
-            Style="{StaticResource EditTextBox}"/>
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                                Command="{Binding ChangeGeophoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
 
         <TextBlock 
             Grid.Row="4"
             Grid.Column="0" 
             Text="Y, м" 
-            Style="{StaticResource TitleTextBlock}"/>
+            Style="{StaticResource TitleTextBlock}">
+        </TextBlock>
         <TextBox 
             Grid.Row="4"
             Grid.Column="1" 
             Text="{Binding EditedGeophone.Y, UpdateSourceTrigger=PropertyChanged}"  
-            Style="{StaticResource EditTextBox}"/>
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                                Command="{Binding ChangeGeophoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
 
         <TextBlock 
             Grid.Row="5"
@@ -112,7 +128,14 @@
             Grid.Column="1" 
             Panel.ZIndex="1"
             Text="{Binding EditedGeophone.Z, UpdateSourceTrigger=PropertyChanged}"  
-            Style="{StaticResource EditTextBox}"/>
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                                Command="{Binding ChangeGeophoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
 
         <TextBlock 
             Grid.Row="6"
@@ -124,7 +147,8 @@
             HorizontalAlignment="Right"
             Style="{StaticResource ResourceKey=GeophoneToggleButton}"
             IsChecked="{Binding EditedGeophone.GIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            Content="{Binding EditedGeophone.GIsVisible, Converter={StaticResource BoolToDisplayConverter}}"/>
+            Content="{Binding EditedGeophone.GIsVisible, Converter={StaticResource BoolToDisplayConverter}}"
+            Command="{Binding ChangeGeophoneCommand}"/>
 
         <TextBlock 
             Grid.Row="7"
@@ -137,7 +161,8 @@
             HorizontalAlignment="Right"
             Style="{StaticResource ResourceKey=GeophoneToggleButton}"
             IsChecked="{Binding EditedGeophone.SIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            Content="{Binding EditedGeophone.SIsVisible, Converter={StaticResource BoolToDisplayConverter}}"/>
+            Content="{Binding EditedGeophone.SIsVisible, Converter={StaticResource BoolToDisplayConverter}}"
+            Command="{Binding ChangeGeophoneCommand}"/>
 
         <TextBlock 
             Grid.Row="8"
@@ -147,9 +172,11 @@
         <t:RadButton
             Grid.Row="8"
             Grid.Column="1"
+            HorizontalAlignment="Right"
             Style="{StaticResource ColorButton}"
             Click="ColorButton_Click"
-            Background="{Binding EditedGeophone.Color, Converter={StaticResource StringToColorConverter}}"/>
+            Background="{Binding EditedGeophone.Color, Mode=OneWay, Converter={StaticResource StringToColorConverter}}"
+            />
         <Popup     
             Grid.Row="8"
             Grid.Column="1"
@@ -158,20 +185,16 @@
             <Grid MouseLeave="ColorEditor_MouseLeave">
                 <t:RadColorEditor                         
                     x:Name="ColorEditorGeophonePanel"   
+                    SelectedColor="{Binding EditedGeophone.Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToColorConverter}}"
                     InitialColor="{Binding EditedGeophone.Color, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
-                    Style="{StaticResource ColorEditor}" />
-
-                <StackPanel
-                    Orientation="Horizontal"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom">
-                    <t:RadButton
-                        Content="Ок" 
-                        Style="{StaticResource ColorEditorButton}"
-                        Click="ColorEditorOk_Click"
-                        Command="{Binding ChangeColorCommand}"
-                        CommandParameter="{Binding ElementName=ColorEditorGeophonePanel, Path=SelectedColor}"/>
-                </StackPanel>
+                    Style="{StaticResource ColorEditor}" >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedColorChanged">
+                            <i:InvokeCommandAction 
+                                Command="{Binding ChangeGeophoneCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </t:RadColorEditor>
             </Grid>
         </Popup>
 
@@ -196,7 +219,15 @@
         <TextBox 
             Grid.Row="10"
             Grid.Column="1"
-            Text="{Binding EditedGeophone.R, UpdateSourceTrigger=PropertyChanged}"  Style="{StaticResource EditTextBox}"/>
+            Text="{Binding EditedGeophone.R, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                                Command="{Binding ChangeGeophoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
 
         <StackPanel
             Grid.ColumnSpan="3"
@@ -228,7 +259,7 @@
             <t:RadButton 
                 Content="Сохранить"
                 ToolTip="Сохранить изменения"
-                Visibility="{Binding OriginalGeophone, Converter={StaticResource NullToVisibilityConverter}}"
+                Visibility="{Binding IsEditedMode, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibilityConverter}}"
                 Command="{Binding SaveGeophoneCommand}"
                 Style="{StaticResource BackPanelAcceptButton}"/>
             

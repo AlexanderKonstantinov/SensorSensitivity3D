@@ -8,26 +8,89 @@ namespace SensorSensitivity3D.DAL
 {
     public class Context : DbContext
     {
-        private static Context _context = null;
+        private static string _dbPath;
+        //public static Context Instance => _context ?? (_context = new Context());
 
-        static Context() => _context = new Context();
-
-        public static Context Instance => _context;
-
-
-        public List<Configuration> Configurations;
-        public List<Geophone> Geophones;
-
-        public Context()
+        public static void ContextConfiguring(string dbPath)
         {
-            Geophones = new List<Geophone>();
+            _dbPath = dbPath;
+        }
+
+        //public Context()
+        //    : base(_options)
+        //{ }
+
+        public DbSet<Configuration> Configurations { get; set; }
+        public DbSet<Geophone> Geophones { get; set; }
+
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite($"Data Source={_dbPath}");
+        }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Configuration>()
+                .Property(e => e.Name)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.Name)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.HoleNumber)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.X)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.Y)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.Z)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.R)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.Color)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.GIsVisible)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.SIsVisible)
+                .IsRequired();
+
+            modelBuilder.Entity<Geophone>()
+                .Property(e => e.IsGood)
+                .IsRequired();
+
+            Seed(modelBuilder);
+        }
+        
+        private void Seed(in ModelBuilder modelBuilder)
+        {
             var rnd = new Random();
+            const string pionerDesktop = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf";
+            const string pionerNotebook = @"C:\Users\Александер\Documents\GitHub\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf";
+
             for (var i = 0; i < 30; ++i)
             {
-                Geophones.Add(new Geophone
+                modelBuilder.Entity<Geophone>()
+                .HasData(
+                new Geophone
                 {
-                    Id = i,
-                    ConfigId = rnd.Next(0, 3),
+                    Id = i + 1,
+                    ConfigId = rnd.Next(1, 4),
                     Name = $"Геофон {i}",
                     HoleNumber = i,
                     X = rnd.Next(-820, -450),
@@ -39,69 +102,31 @@ namespace SensorSensitivity3D.DAL
                     SIsVisible = rnd.Next(0, 2) > 0,
                     R = 50
                 });
-
             }
 
-            Configurations = new List<Configuration>
-            {
-                new Configuration
-                {
-                    Id = 0,
-                    Name = "Конфигурация 1",
-                    SubstratePath = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
-                },
-
+            modelBuilder.Entity<Configuration>()
+                .HasData(
                 new Configuration
                 {
                     Id = 1,
-                    Name = "Конфигурация 2",
-                    SubstratePath = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
+                    Name = "Конфигурация 1",
+                    SubstratePath = pionerNotebook
                 },
 
                 new Configuration
                 {
                     Id = 2,
+                    Name = "Конфигурация 2",
+                    SubstratePath = pionerNotebook
+                },
+
+                new Configuration
+                {
+                    Id = 3,
                     Name = "Конфигурация 3",
-                    SubstratePath = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf"
+                    SubstratePath = pionerNotebook
                 }
-            };
+                );
         }
-
-
-        //public DbSet<Configuration> Configurations { get; set; }
-        //public DbSet<Configuration> Models { get; set; }
-        //public DbSet<Configuration> Sensors { get; set; }
-
-        //private static bool _created;
-
-        //public Context(DbContextOptions<Context> options)
-        //    : base(options)
-        //{
-        //    if (!_created)
-        //    {
-        //        _created = true;
-        //        Database.EnsureCreated();
-        //    }
-        //}
-
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    var connectionStringBuilder = new SqliteConnectionStringBuilder {DataSource = "test.db"};
-        //    var connectionString = connectionStringBuilder.ToString();
-        //    var connection = new SqliteConnection(connectionString);
-
-        //    optionsBuilder.UseSqlite(connection);
-        //}
-
-        //public class ContextFactory : IDesignTimeDbContextFactory<Context>
-        //{
-        //    public Context CreateDbContext(string[] args)
-        //    {
-        //        var optionsBuilder = new DbContextOptionsBuilder<Context>();
-        //        optionsBuilder.UseSqlite("Data Source=SSDB.db");
-
-        //        return new Context(optionsBuilder.Options);
-        //    }
-        //}
     }
 }

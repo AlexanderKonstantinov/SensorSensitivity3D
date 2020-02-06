@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Input;
 using devDept.Eyeshot;
+using Microsoft.EntityFrameworkCore;
+using SensorSensitivity3D.DAL;
 using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.ViewModels;
 using Telerik.Windows.Controls;
@@ -17,9 +19,13 @@ namespace SensorSensitivity3D.Views
 
         public MainWindow()
         {
-            InitializeComponent();
             
-            Model.CustomEntityList = new CustomEntityList();
+            InitializeComponent();
+
+            // Указание на путь к БД
+            Context.ContextConfiguring(@"C:\Users\Александер\Documents\GitHub\SensorSensitivity3D\SensorSensitivity3D\SS3D.sqlite");
+
+
             _viewModel = new MainViewModel(Model);
 
             DataContext = _viewModel;
@@ -55,15 +61,47 @@ namespace SensorSensitivity3D.Views
 
         private void OnLoadConfig(object sender, RoutedEventArgs e)
         {
-            ConfigList.Visibility = Visibility.Collapsed;
-            ModelContainer.Visibility = Visibility.Visible;
-            Model.Focus();
+            //Model.Focus();
+            //Model.ZoomFit();
         }
 
         private void Model_OnMouseMove(object sender, MouseEventArgs e)
         {
             EntityPopup.IsOpen = false;
             EntityPopup.IsOpen = !string.IsNullOrEmpty(EntityInfo.Text);
+        }
+
+        private void NewConfigurationButton_Click(object sender, RoutedEventArgs e)
+        {
+            NewConfigurationPanel.Visibility = Visibility.Visible;
+            NewConfigurationButton.Visibility = Visibility.Collapsed;
+            NewConfigurationText.Focus();
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (NewConfigurationPanel.Visibility == Visibility.Visible 
+                && !NewConfigurationText.IsMouseOver)
+            {
+                NewConfigurationPanel.Visibility = Visibility.Collapsed;
+                NewConfigurationButton.Visibility = Visibility.Visible;                
+            }
+        }
+
+        private void SwitchNameConfigFieldVisibility(object sender, RoutedEventArgs e)
+        {
+            NameConfigField.IsOpen = !NameConfigField.IsOpen;
+
+            if (NameConfigField.IsOpen)
+            {
+                EditedConfigName.Focus();                
+            }            
+        }
+
+        private void EditedConfigName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (EditedConfigName.CaretIndex == 0)
+                EditedConfigName.CaretIndex = EditedConfigName.Text.Length;
         }
     }
 }

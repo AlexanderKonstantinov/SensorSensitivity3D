@@ -15,16 +15,14 @@
     </UserControl.DataContext>
 
     <UserControl.Resources>
-        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+        <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
     </UserControl.Resources>
 
     <Grid
         dd:DragDrop.IsDropTarget="True"
         dd:DragDrop.DropHandler="{Binding}">
         <ListBox 
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            HorizontalContentAlignment="Center">
+            VerticalAlignment="Stretch">
 
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
@@ -52,19 +50,14 @@
                     Width="Auto"
                     VerticalAlignment="Center"
                     Content="Загрузить модель из файла"
-                    Command="{Binding LoadModelCommand}"/>
+                    Command="{Binding LoadDrawingCommand}"/>
 
 
             </StackPanel>
-
-            <!--Visibility="{Binding Model, Converter={StaticResource NullToVisibilityConverter}}"-->
             <Grid 
                 Visibility="{Binding Drawing, Converter={StaticResource NullToVisibilityConverter}}"
                 Margin="10">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -74,96 +67,66 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <CheckBox
-                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
                     VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    IsChecked="{Binding Drawing.IsVisible, Mode=TwoWay}"
                     Style="{DynamicResource SliderCheckBox}" 
-                    Content="{Binding Drawing.Name}"
-                    IsChecked="True"/>
+                    Content="{Binding Drawing.Name, Mode=OneWay}"
+                    Command="{Binding ShowDrawingCommand}" />
 
-                <telerik:RadButton
-                    Style="{StaticResource RightPanelIconButton}"
-                    Grid.Row="0" Grid.Column="2"
-                    VerticalAlignment="Center"
-                    HorizontalAlignment="Left"
-                    Margin="10 0"
-                    Command="{Binding EditModelCommand}">
-                    <Image Source="../Resources/Icons/pencil.png"/>
-                </telerik:RadButton>
 
-                <Label 
+                <TextBox 
                     Grid.Column="0"
-                    Grid.Row="1"
-                    Content="Xmin"
-                    Style="{StaticResource LeftPropertyGridLabel}"/>
-
-                <Label 
+                    Grid.Row="1"                   
+                    Text="{Binding Drawing.XMin, StringFormat=N2}"
+                    Style="{StaticResource BoundaryTextBox}"/>
+                <TextBlock 
                     Grid.Column="1"
                     Grid.Row="1"
-                    Content="{Binding Drawing.XMin}"                    
-                    Style="{StaticResource RightPropertyGridLabel}"/>
-                <Label 
-                    Grid.Column="0"
-                    Grid.Row="2"
-                    Content="Xmax"
-                    Style="{StaticResource LeftPropertyGridLabel}"/>
+                    Text="&lt;  X  &lt;"
+                    Style="{StaticResource BoundaryTextBlock}"/>
+                <TextBox 
+                    Grid.Column="2"
+                    Grid.Row="1"
+                    Text="{Binding Drawing.XMax, StringFormat=N2}"
+                    Style="{StaticResource BoundaryTextBox}" />
 
-                <Label 
+                <TextBox 
+                    Grid.Column="0"
+                    Grid.Row="2"       
+                    Text="{Binding Drawing.YMin, StringFormat=N2}"
+                    Style="{StaticResource BoundaryTextBox}"/>
+                <TextBlock 
                     Grid.Column="1"
                     Grid.Row="2"
-                    Content="{Binding Drawing.XMax}"
-                    Style="{StaticResource RightPropertyGridLabel}"/>
+                    Text="&lt;  Y  &lt;" 
+                    Style="{StaticResource BoundaryTextBlock}"/>
+                <TextBox 
+                    Grid.Column="2"
+                    Grid.Row="2"  
+                    Text="{Binding Drawing.YMax, StringFormat=N2}" 
+                    Style="{StaticResource BoundaryTextBox}"/>
 
-                <Label 
+                <TextBox 
                     Grid.Column="0"
-                    Grid.Row="3"
-                    Content="Ymin"
-                    Style="{StaticResource LeftPropertyGridLabel}"/>
-
-                <Label 
+                    Grid.Row="3"    
+                    Text="{Binding Drawing.ZMin, StringFormat=N2}"
+                    Style="{StaticResource BoundaryTextBox}"/>
+                <TextBlock 
                     Grid.Column="1"
                     Grid.Row="3"
-                    Content="{Binding Drawing.YMin}"
-                    Style="{StaticResource RightPropertyGridLabel}"/>
-
-                <Label 
-                    Grid.Column="0"
-                    Grid.Row="4"
-                    Content="Ymax"
-                    Style="{StaticResource LeftPropertyGridLabel}"/>
-
-                <Label 
-                    Grid.Column="1"
-                    Grid.Row="4"
-                    Content="{Binding Drawing.YMax}"
-                    Style="{StaticResource RightPropertyGridLabel}"/>
-
-                <Label 
-                    Grid.Column="0"
-                    Grid.Row="5"
-                    Content="Zmin"
-                    Style="{StaticResource LeftPropertyGridLabel}"/>
-
-                <Label 
-                    Grid.Column="1"
-                    Grid.Row="5"
-                    Content="{Binding Drawing.ZMin}"
-                    Style="{StaticResource RightPropertyGridLabel}"/>
-
-                <Label 
-                    Grid.Column="0"
-                    Grid.Row="6"
-                    Content="Zmax"
-                    Style="{StaticResource LeftPropertyGridLabel}"/>
-
-                <Label 
-                    Grid.Column="1"
-                    Grid.Row="6"
-                    Content="{Binding Drawing.ZMax}"
-                    Style="{StaticResource RightPropertyGridLabel}"/>
+                    Text="&lt;  Z  &lt;" 
+                    Style="{StaticResource BoundaryTextBlock}"/>
+                <TextBox 
+                    Grid.Column="2"
+                    Grid.Row="3"       
+                    Text="{Binding Drawing.ZMax, StringFormat=N2}" 
+                    Style="{StaticResource BoundaryTextBox}"/>
 
             </Grid>
         </ListBox>

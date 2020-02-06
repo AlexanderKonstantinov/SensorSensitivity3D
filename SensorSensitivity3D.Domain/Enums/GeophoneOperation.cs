@@ -3,7 +3,8 @@
     public enum GeophoneOperation : byte
     {
         None,
-        Save,
-        SaveAndContinueAdding
+        Add,
+        AddAndContinueAdding,
+        Edit        
     }
 }

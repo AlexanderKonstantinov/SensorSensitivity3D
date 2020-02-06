@@ -1,6 +1,4 @@
 ﻿
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SensorSensitivity3D.DAL.Repositories;
 using SensorSensitivity3D.Domain.Entities;
@@ -16,11 +14,23 @@ namespace SensorSensitivity3D.Services
 
         public ObservableCollection<Configuration> GetConfigurations()
             => new ObservableCollection<Configuration>(ConfigRepository.GetConfigurations());
-
+        
         public Configuration GetConfiguration(int id)
             => ConfigRepository.GetConfiguration(id);
 
-        public bool EditConfiguration(Configuration config)
-            => ConfigRepository.EditConfiguration(config);
+        /// <summary>
+        /// Добавление новой конфигурации в БД
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public bool AddConfiguration(Configuration config)
+            => ConfigRepository.AddConfiguration(config);
+
+        /// <summary>
+        /// Сохранение конфигурации в базе данных
+        /// </summary>
+        /// <returns>Успешность сохранения</returns>
+        public bool SaveContext()
+            => ConfigRepository.SaveContext();
     }
 }

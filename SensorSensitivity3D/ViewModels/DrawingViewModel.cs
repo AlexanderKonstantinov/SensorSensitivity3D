@@ -6,9 +6,10 @@ using System.Windows.Input;
 using GongSolutions.Wpf.DragDrop;
 using Microsoft.Win32;
 using SensorSensitivity3D.Domain.Entities;
+using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
-
+using SensorSensitivity3D.ViewModels.Base;
 using static SensorSensitivity3D.Services.ModelInteractionService;
 
 namespace SensorSensitivity3D.ViewModels
@@ -18,6 +19,18 @@ namespace SensorSensitivity3D.ViewModels
     {
         private readonly ConfigService _configService;
         private readonly Configuration _config;
+
+        public Drawing _drawing;
+        public Drawing Drawing
+        {
+            get => _drawing;
+            set
+            {
+                _drawing = value;
+                OnPropertyChanged(nameof(Drawing));
+            }
+        }
+        public double XMin { get; set; }
         
         public DrawingViewModel() { }
 
@@ -26,18 +39,17 @@ namespace SensorSensitivity3D.ViewModels
             _configService = configService;
             _config = config;
 
-            UpdateSubstrate(config.SubstratePath);
+            UpdateSubstrate(config.SubstratePath, _config.DrawingIsVisible, ref _drawing);
+            OnPropertyChanged(nameof(Drawing));
         }
-
-
 
         #region Commands
         
-        private RelayCommand _loadModelCommand;
-        public ICommand LoadModelCommand
-            => _loadModelCommand ??= new RelayCommand(ExecuteLoadModelCommand);
+        private RelayCommand _loadDrawingCommand;
+        public ICommand LoadDrawingCommand
+            => _loadDrawingCommand ??= new RelayCommand(ExecuteLoadDrawingCommand);
         
-        private void ExecuteLoadModelCommand(object obj)
+        private void ExecuteLoadDrawingCommand(object obj)
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -48,24 +60,31 @@ namespace SensorSensitivity3D.ViewModels
 
             if (openFileDialog.ShowDialog() != true) return;
 
-            if (UpdateSubstrate(openFileDialog.FileName))
-                _configService.EditConfiguration(_config);
+
+
+            if (UpdateSubstrate(openFileDialog.FileName, true, ref _drawing))
+            {
+                _config.DrawingIsVisible = true;
+                _config.SubstratePath = openFileDialog.FileName;
+                _configService.SaveContext();                
+                OnPropertyChanged(nameof(Drawing));
+                ZoomFit();
+            }
         }
 
-        private RelayCommand _editModelCommand;
-        public ICommand EditModelCommand
-            => _editModelCommand ??= new RelayCommand(ExecuteEditModelCommand, CanExecuteEditModelCommand);
+        private RelayCommand _showDrawingCommand;
+        public ICommand ShowDrawingCommand
+            => _showDrawingCommand ??= new RelayCommand(ExecuteShowDrawingCommand, CanExecuteShowDrawingCommand);
 
-        private void ExecuteEditModelCommand(object obj)
-        {
-
-        }
-
-        private bool CanExecuteEditModelCommand(object o)
-            => true;
+        private void ExecuteShowDrawingCommand(object obj)
+            => SwitchEntitiesVisibility(Drawing.Entities, Drawing.IsVisible);
         
-        #endregion
-        
+
+        private bool CanExecuteShowDrawingCommand(object obj)
+            => Drawing?.Entities.Length > 0;
+
+            #endregion
+
 
         public void DragOver(IDropInfo dropInfo)
         {

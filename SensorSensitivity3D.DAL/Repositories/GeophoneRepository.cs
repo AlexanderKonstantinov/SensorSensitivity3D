@@ -8,50 +8,78 @@ namespace SensorSensitivity3D.DAL.Repositories
 {
     public class GeophoneRepository
     {
-        private readonly Context _context;
-
-        public GeophoneRepository() => _context = Context.Instance;
-
         public IEnumerable<Geophone> GetConfigGeophones(int configId)
-            => _context.Geophones.Where(g => g.ConfigId == configId);
-
-        public Geophone GetGeophone(int id)
-            => _context.Geophones.FirstOrDefault(g => g.Id == id);
-
-        public bool AddGeophone(Geophone geophone)
         {
-            try
+            using (var context = new Context())
             {
-                // Временно
-                var maxId = _context.Geophones.Select(g => g.Id).Max();
-                geophone.Id = maxId + 1;
-
-                _context.Geophones.Add(geophone);
-                //_context.SaveChanges();
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
+                return context.Geophones.Where(g => g.ConfigId == configId).ToList();
             }
         }
 
-        public bool RemoveGeophone(int id)
+        public Geophone GetGeophone(int id)
         {
-            var geophoneIndex = _context.Geophones.FindIndex(g => g.Id == id);
+            using (var context = new Context())
+            {
+                return context.Geophones.FirstOrDefault(g => g.Id == id);
+            }
+        }
 
+        public Geophone AddGeophone(Geophone geophone)
+        {
             try
             {
-                _context.Geophones.RemoveAt(geophoneIndex);
-                //_context.SaveChanges();
+                using (var context = new Context())
+                {
+                    context.Add(geophone);
+                    context.SaveChanges();
+                }                
+            }
+            catch (Exception)
+            {
+                return null;
+            }
 
-                return true;
+            //проверить id
+            return geophone;
+        }
+
+        public bool RemoveGeophone(Geophone geophone)
+        {
+            try
+            {
+                using (var context = new Context())
+                {
+                    context.Remove(geophone);
+                    context.SaveChanges();
+                }
             }
             catch (Exception)
             {
                 return false;
             }
+
+            return true;
+        }
+
+        public Geophone EditGeophone(Geophone geophone)
+        {
+            using (var context = new Context())
+            {
+                try
+                {
+                    var editedGeophone = context.Geophones.First(g => g.Id == geophone.Id);
+
+                    geophone.CopyTo(editedGeophone);
+
+                    context.SaveChanges();                    
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+
+            return geophone;
         }
     }
 }

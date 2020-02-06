@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace SensorSensitivity3D.ViewModels
+namespace SensorSensitivity3D.ViewModels.Base
 {
     public abstract class BaseViewModel : INotifyPropertyChanged, IDisposable
     {

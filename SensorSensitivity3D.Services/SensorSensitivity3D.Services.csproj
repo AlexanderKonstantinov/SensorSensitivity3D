@@ -35,6 +35,7 @@
     <Reference Include="devDept.Eyeshot.Control.x86.Wpf.v12">
       <HintPath>C:\Program Files\devDept Software\Eyeshot Ultimate 12\Bin\x86\devDept.Eyeshot.Control.x86.Wpf.v12.dll</HintPath>
     </Reference>
+    <Reference Include="devDept.Geometry.v12, Version=12.0.239.0, Culture=neutral, PublicKeyToken=9440825e8b4733bc" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -63,6 +64,9 @@
       <Project>{5EBFD4A6-08E9-4434-A228-5F561BB04081}</Project>
       <Name>SensorSensitivity3D.Domain</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -11,6 +11,11 @@ namespace SensorSensitivity3D.Domain.Models
 {
     public class CustomModel : Model
     {
+        public CustomModel()
+        {
+            Entities = new EntityList();
+        }
+
         public static readonly DependencyProperty CustomEntityListProperty =
             DependencyProperty.Register(
                 nameof(CustomEntityList),
@@ -33,26 +38,6 @@ namespace SensorSensitivity3D.Domain.Models
         {
             get => (CustomEntityList)GetValue(CustomEntityListProperty);
             set => SetValue(CustomEntityListProperty, value);
-        }
-
-        /// <summary>
-        /// Навигация на выбранные объекты
-        /// </summary>
-        /// <param name="entities"></param>
-        public void GoToEntities(IList<Entity> entities)
-        {
-            // Если объекты невидимые навигация не происходит
-            var visibilitiesSafe = entities.Select(e => e.Visible).ToList();
-
-            foreach (var e in entities) 
-                e.Visible = true;
-
-            this.ZoomFit(entities, false, 20);
-
-            for (int i = 0; i < entities.Count; i++)
-                entities[i].Visible = visibilitiesSafe[i];
-
-            this.Invalidate();
-        }
+        }        
     }
 }

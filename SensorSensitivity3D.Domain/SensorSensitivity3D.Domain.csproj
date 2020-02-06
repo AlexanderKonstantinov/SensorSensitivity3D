@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Base\BaseEntity.cs" />
     <Compile Include="Base\Interfaces\IBaseEntity.cs" />
+    <Compile Include="Base\Interfaces\ICopy.cs" />
     <Compile Include="Base\Interfaces\INamedEntity.cs" />
     <Compile Include="Base\NamedEntity.cs" />
     <Compile Include="Entities\Configuration.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Enums\GeophoneOperation.cs" />
     <Compile Include="Models\CustomEntityList.cs" />
     <Compile Include="Models\CustomModel.cs" />
+    <Compile Include="Models\Drawing.cs" />
     <Compile Include="Models\GeophoneModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -5,21 +5,39 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace SensorSensitivity3D.Domain.Models
 {
-    [Serializable]
     public class GeophoneModel : NamedEntity, INotifyPropertyChanged
     {
+        [XmlIgnore]
         public Geophone OriginalGeophone { get; set; }
 
-        public Entity GeophoneEntity { get; set; }
-        public Entity GeophoneSphereEntity { get; set; }
+        [XmlIgnore]
+        public Entity[] Entities { get; private set; } = new Entity[2];
 
+        [XmlIgnore]
+        public Entity CenterSphere
+        {
+            get => Entities[0];
+            set => Entities[0] = value;
+        }
+
+        [XmlIgnore]
+        public Entity SensitivitySphere
+        {
+            get => Entities[1];
+            set => Entities[1] = value;
+        }
+
+        [XmlIgnore]
         public string DisplayName => $"{Name} ({HoleNumber})";
-        
-        
-        public bool IsChanged 
+
+
+        [XmlIgnore]
+        public bool IsChanged
             => !(OriginalGeophone is null) &&
                (OriginalGeophone.SIsVisible != SIsVisible ||
                 OriginalGeophone.GIsVisible != GIsVisible ||
@@ -34,7 +52,9 @@ namespace SensorSensitivity3D.Domain.Models
                );
 
 
-        public string _name;
+        #region geophone properties
+
+        private string _name;
         public override string Name
         {
             get => _name;
@@ -47,7 +67,7 @@ namespace SensorSensitivity3D.Domain.Models
             }
         }
 
-        public int _holeNumber;
+        private int _holeNumber;
         public int HoleNumber
         {
             get => _holeNumber;
@@ -69,9 +89,6 @@ namespace SensorSensitivity3D.Domain.Models
                 _x = value;
                 OnPropertyChanged(nameof(X));
                 OnPropertyChanged(nameof(IsChanged));
-
-                GeophoneEntity = CreateGeophoneEntity(this);
-                GeophoneSphereEntity = CreateGeophoneSphereEntity(this);
             }
         }
 
@@ -84,9 +101,6 @@ namespace SensorSensitivity3D.Domain.Models
                 _y = value;
                 OnPropertyChanged(nameof(Y));
                 OnPropertyChanged(nameof(IsChanged));
-
-                GeophoneEntity = CreateGeophoneEntity(this);
-                GeophoneSphereEntity = CreateGeophoneSphereEntity(this);
             }
         }
 
@@ -99,9 +113,6 @@ namespace SensorSensitivity3D.Domain.Models
                 _z = value;
                 OnPropertyChanged(nameof(Z));
                 OnPropertyChanged(nameof(IsChanged));
-
-                GeophoneEntity = CreateGeophoneEntity(this);
-                GeophoneSphereEntity = CreateGeophoneSphereEntity(this);
             }
         }
 
@@ -117,13 +128,10 @@ namespace SensorSensitivity3D.Domain.Models
                 _r = value;
                 OnPropertyChanged(nameof(R));
                 OnPropertyChanged(nameof(IsChanged));
-
-                GeophoneEntity = CreateGeophoneEntity(this);
-                GeophoneSphereEntity = CreateGeophoneSphereEntity(this);
             }
         }
 
-        public bool _isGood;
+        private bool _isGood;
         public bool IsGood
         {
             get => _isGood;
@@ -135,7 +143,7 @@ namespace SensorSensitivity3D.Domain.Models
             }
         }
 
-        public bool _gIsVisible;
+        private bool _gIsVisible;
         public bool GIsVisible
         {
             get => _gIsVisible;
@@ -145,11 +153,11 @@ namespace SensorSensitivity3D.Domain.Models
                 OnPropertyChanged(nameof(GIsVisible));
                 OnPropertyChanged(nameof(IsChanged));
 
-                GeophoneEntity.Visible = value;
+                CenterSphere.Visible = value;
             }
         }
 
-        public bool _sIsVisible;
+        private bool _sIsVisible;
         public bool SIsVisible
         {
             get => _sIsVisible;
@@ -159,11 +167,11 @@ namespace SensorSensitivity3D.Domain.Models
                 OnPropertyChanged(nameof(SIsVisible));
                 OnPropertyChanged(nameof(IsChanged));
 
-                GeophoneSphereEntity.Visible = value;
+                SensitivitySphere.Visible = value;
             }
         }
 
-        public string _color;
+        private string _color = $"#000000";
         public string Color
         {
             get => _color;
@@ -173,14 +181,17 @@ namespace SensorSensitivity3D.Domain.Models
                 OnPropertyChanged(nameof(Color));
                 OnPropertyChanged(nameof(IsChanged));
 
-                GeophoneSphereEntity.Color = ColorTranslator.FromHtml(value);
+                CenterSphere.Color = SensitivitySphere.Color = ColorTranslator.FromHtml(value);
             }
         }
 
+        #endregion
+               
+        #region constructors
+
         public GeophoneModel()
         {
-            GeophoneEntity = CreateGeophoneEntity(this);
-            GeophoneSphereEntity = CreateGeophoneEntity(this);
+            InitEntities();
         }
 
         public GeophoneModel(Geophone source)
@@ -198,8 +209,7 @@ namespace SensorSensitivity3D.Domain.Models
             _sIsVisible = source.SIsVisible;
             _isGood = source.IsGood;
 
-            GeophoneEntity = CreateGeophoneEntity(this);
-            GeophoneSphereEntity = CreateGeophoneSphereEntity(this);
+            InitEntities();
         }
 
         public GeophoneModel(GeophoneModel source)
@@ -217,8 +227,30 @@ namespace SensorSensitivity3D.Domain.Models
             _sIsVisible = source.SIsVisible;
             _isGood = source.IsGood;
 
-            GeophoneEntity = CreateGeophoneEntity(this);
-            GeophoneSphereEntity = CreateGeophoneEntity(this);
+            InitEntities();
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Создание объектов модели, представляющих геофон и его предел чувствительности
+        /// </summary>
+        [OnSerialized()]
+        public void InitEntities()
+        {
+            var center = Mesh.CreateSphere(3, 20, 20, Mesh.natureType.Smooth);
+            center.Color = ColorTranslator.FromHtml(Color);
+            center.ColorMethod = colorMethodType.byEntity;
+            center.Translate(X, Y, Z);
+            center.Visible = GIsVisible;
+            
+            CenterSphere = center;
+            var sensitivitySphere = Mesh.CreateSphere(R > 0 ? R : 1, 30, 30, Mesh.natureType.Smooth);
+            sensitivitySphere.Color = ColorTranslator.FromHtml(Color);
+            sensitivitySphere.ColorMethod = colorMethodType.byEntity;
+            sensitivitySphere.Translate(X, Y, Z);
+            sensitivitySphere.Visible = SIsVisible;
+            SensitivitySphere = sensitivitySphere;
         }
 
         /// <summary>
@@ -237,8 +269,7 @@ namespace SensorSensitivity3D.Domain.Models
             _sIsVisible = OriginalGeophone.SIsVisible;
             _color = OriginalGeophone.Color;
 
-            GeophoneEntity = CreateGeophoneEntity(this);
-            GeophoneSphereEntity = CreateGeophoneSphereEntity(this);
+            InitEntities();
 
             OnPropertyChanged(nameof(Name));
             OnPropertyChanged(nameof(HoleNumber));
@@ -253,7 +284,23 @@ namespace SensorSensitivity3D.Domain.Models
 
             OnPropertyChanged(nameof(IsChanged));
         }
-        
+
+        public void AcceptChanges()
+        {
+            OriginalGeophone.Name = Name;
+            OriginalGeophone.HoleNumber = HoleNumber;
+            OriginalGeophone.X = X;
+            OriginalGeophone.Y = Y;
+            OriginalGeophone.Z = Z;
+            OriginalGeophone.R = R;
+            OriginalGeophone.IsGood = IsGood;
+            OriginalGeophone.GIsVisible = GIsVisible;
+            OriginalGeophone.SIsVisible = SIsVisible;
+            OriginalGeophone.Color = Color;
+        }
+
+       
+
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)
         {
@@ -303,38 +350,48 @@ namespace SensorSensitivity3D.Domain.Models
             hashCode = hashCode * -1521134295 + R.GetHashCode();
             return (int)hashCode;
         }
-        
 
-        /// <summary>
-        /// Создание сферы, обозначающей геофон
-        /// </summary>
-        /// <param name="geophone">геофон с параметрами</param>
-        /// <returns></returns>
-        private static Entity CreateGeophoneEntity(GeophoneModel geophone)
-        {
-            var mesh = Mesh.CreateSphere(3, 20, 20, Mesh.natureType.Smooth);
-            mesh.Color = ColorTranslator.FromHtml(geophone.Color);
-            mesh.ColorMethod = colorMethodType.byEntity;
-            mesh.Translate(geophone.X, geophone.Y, geophone.Z);
-            mesh.Visible = geophone.GIsVisible;
+        public static Geophone GeoophoneModelToGeophone(GeophoneModel geophoneModel)
+            => new Geophone
+            {
+                Name = geophoneModel.Name,
+                HoleNumber = geophoneModel.HoleNumber,
+                X = geophoneModel.X,
+                Y = geophoneModel.Y,
+                Z = geophoneModel.Z,
+                R = geophoneModel.R,
+                Color = geophoneModel.Color,
+                GIsVisible = geophoneModel.GIsVisible,
+                SIsVisible = geophoneModel.SIsVisible,
+                IsGood = geophoneModel.IsGood,
+            };
 
-            return mesh;
-        }
+        //protected GeophoneModel(SerializationInfo info, StreamingContext context)
+        //{
+        //    _name = info.GetString("name");
+        //    _holeNumber = info.GetInt32("holeNumber");
+        //    _x = info.GetDouble("x");
+        //    _y = info.GetDouble("y");
+        //    _z = info.GetDouble("z");
+        //    _r = info.GetInt32("r");
+        //    _color = info.GetString("color");
+        //    _gIsVisible = info.GetBoolean("centerVisibility");
+        //    _sIsVisible = info.GetBoolean("sensitivitySphereVisibility");
+        //    _isGood = info.GetBoolean("isGood");
+        //}
 
-        /// <summary>
-        /// Создание сферы, обозначающей зону чувствительности геофона
-        /// </summary>
-        /// <param name="geophone">геофон с параметрами</param>
-        /// <returns></returns>
-        private static Entity CreateGeophoneSphereEntity(GeophoneModel geophone)
-        {
-            var mesh = Mesh.CreateSphere(geophone.R > 0 ? geophone.R : 1, 30, 30, Mesh.natureType.Smooth);
-            mesh.Color = ColorTranslator.FromHtml(geophone.Color);
-            mesh.ColorMethod = colorMethodType.byEntity;
-            mesh.Translate(geophone.X, geophone.Y, geophone.Z);
-            mesh.Visible = geophone.SIsVisible;
-
-            return mesh;
-        }
+        //public void GetObjectData(SerializationInfo info, StreamingContext context)
+        //{
+        //    info.AddValue("name", _name);
+        //    info.AddValue("holeNumber", _holeNumber);
+        //    info.AddValue("x", _x);
+        //    info.AddValue("y", _y);
+        //    info.AddValue("z", _z);
+        //    info.AddValue("r", _r);
+        //    info.AddValue("color", _color);
+        //    info.AddValue("centerVisibility", _gIsVisible);
+        //    info.AddValue("sensitivitySphereVisibility", _sIsVisible);
+        //    info.AddValue("isGood", _isGood);
+        //}
     }
 }
