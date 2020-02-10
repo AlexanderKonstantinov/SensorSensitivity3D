@@ -43,16 +43,13 @@ namespace SensorSensitivity3D.DAL.Repositories
             }
         }
 
-        public bool RenameConfiguration(int configId, string newName)
+        public bool RemoveConfiguration(Configuration config)
         {
             try
             {
-                var editedConfig = GetConfiguration(configId);
-
-                editedConfig.Name = newName;
-
                 using (var context = new Context())
                 {
+                    context.Configurations.Remove(config);
                     context.SaveChanges();
                 }
 
@@ -65,23 +62,25 @@ namespace SensorSensitivity3D.DAL.Repositories
             }
         }
 
-        public bool SaveContext()
+        public void EditConfiguration(Configuration config)
         {
             try
             {
                 using (var context = new Context())
                 {
-                    var test = context.Configurations.First();
-                    test.Name = "111";
+                    var editedConfig = context.Configurations.FirstOrDefault(c => c.Id == config.Id);
+
+                    editedConfig.Name = config.Name;
+                    editedConfig.SubstratePath = config.SubstratePath;
+                    editedConfig.DrawingIsVisible = config.DrawingIsVisible;
+
                     context.SaveChanges();
                 }
             }
             catch (Exception)
             {
-                return false;
+                //TODO
             }
-
-            return true;
-        }
+        }       
     }
 }

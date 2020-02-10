@@ -24,7 +24,7 @@ namespace SensorSensitivity3D.DAL.Repositories
             }
         }
 
-        public Geophone AddGeophone(Geophone geophone)
+        public bool AddGeophone(Geophone geophone)
         {
             try
             {
@@ -36,11 +36,10 @@ namespace SensorSensitivity3D.DAL.Repositories
             }
             catch (Exception)
             {
-                return null;
+                return false;
             }
 
-            //проверить id
-            return geophone;
+            return true;
         }
 
         public bool RemoveGeophone(Geophone geophone)
@@ -61,25 +60,22 @@ namespace SensorSensitivity3D.DAL.Repositories
             return true;
         }
 
-        public Geophone EditGeophone(Geophone geophone)
+        public void EditGeophone(Geophone geophone)
         {
-            using (var context = new Context())
+            try
             {
-                try
+                using (var context = new Context())
                 {
                     var editedGeophone = context.Geophones.First(g => g.Id == geophone.Id);
-
+                    
                     geophone.CopyTo(editedGeophone);
-
-                    context.SaveChanges();                    
-                }
-                catch (Exception)
-                {
-                    return null;
-                }
+                    context.SaveChanges();
+                }                  
             }
+            catch (Exception)
+            {
 
-            return geophone;
+            }
         }
     }
 }

@@ -211,5 +211,11 @@ namespace SensorSensitivity3D.Services
 
             _tempEntities.Clear();
         }
+
+        public static void ModelClear()
+        {
+            _model.Clear();
+            UpdateVisibility();
+        }
     }
 }

@@ -1,18 +1,50 @@
 ﻿
 using SensorSensitivity3D.Domain.Base;
-using SensorSensitivity3D.Domain.Base.Interfaces;
+using System.ComponentModel;
 
 namespace SensorSensitivity3D.Domain.Entities
 {
-    public class Configuration : NamedEntity, ICopy<Configuration>
+    public class Configuration : NamedEntity, INotifyPropertyChanged
     {
-        public bool DrawingIsVisible { get; set; }
-        public string SubstratePath { get; set; }
-
-        public void CopyTo(Configuration target)
+        private string _name;
+        public override string Name
         {
-            target.DrawingIsVisible = DrawingIsVisible;
-            target.SubstratePath = SubstratePath;
+            get => _name;
+            set
+            {
+                _name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
+
+        private bool _drawingIsVisible;
+        public bool DrawingIsVisible
+        {
+            get => _drawingIsVisible;
+            set
+            {
+                _drawingIsVisible = value;
+                OnPropertyChanged(nameof(DrawingIsVisible));
+            }
+        }
+
+        private string _substratePath;
+        public string SubstratePath
+        {
+            get => _substratePath;
+            set
+            {
+                _substratePath = value;
+                OnPropertyChanged(nameof(SubstratePath));
+            }
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            handler?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

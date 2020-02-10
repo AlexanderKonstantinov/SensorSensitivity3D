@@ -29,13 +29,22 @@ namespace SensorSensitivity3D.Services
         public Geophone GetGeophone(int id)
             => GeophoneRepository.GetGeophone(id);
 
-        public Geophone AddGeophone(GeophoneModel geophone)
-            => GeophoneRepository.AddGeophone(GeophoneModel.GeoophoneModelToGeophone(geophone));
+        public bool AddGeophone(GeophoneModel geophone, int configId)
+        {
+            var addedGeophone = GeophoneModel.GeophoneModelToGeophone(geophone);
+            addedGeophone.ConfigId = configId;
+
+            if (!GeophoneRepository.AddGeophone(addedGeophone))
+                return false;
+
+            geophone.OriginalGeophone = addedGeophone;
+            return true;
+        }
 
         public bool RemoveGeophone(GeophoneModel geophone)
             => GeophoneRepository.RemoveGeophone(geophone.OriginalGeophone);
 
-        public Geophone EditGeophone(GeophoneModel geophone)
+        public void EditGeophone(GeophoneModel geophone)
             => GeophoneRepository.EditGeophone(geophone.OriginalGeophone);
 
         /// <summary>

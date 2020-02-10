@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using devDept.Eyeshot;
 using Microsoft.EntityFrameworkCore;
@@ -59,12 +60,6 @@ namespace SensorSensitivity3D.Views
                 RightPanel.Focus();
         }
 
-        private void OnLoadConfig(object sender, RoutedEventArgs e)
-        {
-            //Model.Focus();
-            //Model.ZoomFit();
-        }
-
         private void Model_OnMouseMove(object sender, MouseEventArgs e)
         {
             EntityPopup.IsOpen = false;
@@ -81,10 +76,11 @@ namespace SensorSensitivity3D.Views
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (NewConfigurationPanel.Visibility == Visibility.Visible 
-                && !NewConfigurationText.IsMouseOver)
+                && !NewConfigurationText.IsMouseOver
+                && !AddConfigButton.IsMouseOver)
             {
                 NewConfigurationPanel.Visibility = Visibility.Collapsed;
-                NewConfigurationButton.Visibility = Visibility.Visible;                
+                NewConfigurationButton.Visibility = Visibility.Visible;
             }
         }
 
@@ -93,15 +89,19 @@ namespace SensorSensitivity3D.Views
             NameConfigField.IsOpen = !NameConfigField.IsOpen;
 
             if (NameConfigField.IsOpen)
-            {
-                EditedConfigName.Focus();                
-            }            
+                EditedConfigName.Focus();   
         }
 
         private void EditedConfigName_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
         {
             if (EditedConfigName.CaretIndex == 0)
                 EditedConfigName.CaretIndex = EditedConfigName.Text.Length;
+        }
+
+        private void AddConfigButton_Click(object sender, RoutedEventArgs e)
+        {
+            NewConfigurationPanel.Visibility = Visibility.Collapsed;
+            NewConfigurationButton.Visibility = Visibility.Visible;
         }
     }
 }

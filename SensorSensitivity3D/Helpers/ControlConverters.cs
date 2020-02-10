@@ -82,7 +82,7 @@ namespace SensorSensitivity3D.Helpers
             => (value is bool && (bool)value) ? TrueValue : FalseValue;
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-            => throw new NotImplementedException();
+            => (Visibility) value == TrueValue;
     }
 
 

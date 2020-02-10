@@ -155,30 +155,11 @@
                 FontSize="15"
                 SelectionChanged="GeophoneListBox_SelectionChanged"
                 SelectedItem="{Binding SelectedGeophone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                SelectionMode="Single"
-                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                ScrollViewer.CanContentScroll="True"
+                SelectionMode="Single"                
                 ItemsSource="{Binding GeophoneModels, UpdateSourceTrigger=PropertyChanged}"
                 BorderThickness="0"
-                Background="Transparent" >
-
-                <telerik:RadListBox.Style >
-                    <Style TargetType="telerik:RadListBox" BasedOn="{StaticResource BaseRadListBox}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsScrollIntoViewEnabled, ElementName=GeophoneListBox}"
-                                         Value="True">
-                                <Setter Property="Margin" Value="0 0 -10 0" />
-                                <Setter Property="Padding" Value="0 0 15 0" />
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsScrollIntoViewEnabled, ElementName=GeophoneListBox}"
-                                         Value="False">
-                                <Setter Property="Margin" Value="0 0 0 0" />
-                            </DataTrigger>
-                                              
-                            
-                        </Style.Triggers>
-                    </Style>
-                </telerik:RadListBox.Style>
+                Background="Transparent" 
+                Style="{StaticResource ScrolledListBox}">
 
                 <telerik:RadListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type telerik:RadListBoxItem}">

@@ -308,8 +308,8 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                 foreach (var g in loadedGeophones)
                 {
                     g.InitEntities();
-                    g.OriginalGeophone = _geophoneService.AddGeophone(g);
-                    GeophoneModels.Add(g);
+                    if (_geophoneService.AddGeophone(g, _config.Id))
+                        GeophoneModels.Add(g);
                 }
 
                 AddEntities(loadedGeophones.SelectMany(g => g.Entities));
@@ -342,20 +342,20 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             switch (operation)
             {
                 case GeophoneOperation.Add:
-                    editedGeophone.OriginalGeophone = _geophoneService.AddGeophone(editedGeophone) ;
-                    if (editedGeophone.OriginalGeophone != null)
+                    if (_geophoneService.AddGeophone(editedGeophone, _config.Id))
                         GeophoneModels.Add(editedGeophone);
                     break;
                 case GeophoneOperation.AddAndContinueAdding:
-                    editedGeophone.OriginalGeophone = _geophoneService.AddGeophone(editedGeophone);
-                    if (editedGeophone.OriginalGeophone != null)
+                    if (_geophoneService.AddGeophone(editedGeophone, _config.Id))
                     {
                         GeophoneModels.Add(editedGeophone);
                         GeophoneViewModel.ActivateGeophoneViewModel(editedGeophone);
                     }
                     break;
-                case GeophoneOperation.Edit:                    
-                    _geophoneService.EditGeophone(editedGeophone);
+                case GeophoneOperation.Edit:
+                    {
+                        _geophoneService.EditGeophone(editedGeophone);
+                    }
                     break;
                 default:
                     return;
@@ -382,7 +382,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         public string TrySelectGeophone()
         {
-            SelectedGeophone =  GeophoneModels.FirstOrDefault(g => g.Entities.Any(e => e.Selected));
+            SelectedGeophone = GeophoneModels.FirstOrDefault(g => g.Entities.Any(e => e.Selected));
             return SelectedGeophone?.ToString();
         }
 

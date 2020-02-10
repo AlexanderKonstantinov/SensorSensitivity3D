@@ -38,7 +38,7 @@
             Panel.ZIndex="1000"
             HorizontalAlignment="Center"
             VerticalAlignment="Center" 
-            Visibility="{Binding ConfigPanelVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            Visibility="{Binding ConfigPanelVisibility, Mode=TwoWay, Converter={StaticResource BoolToVisibilityConverter}}">
 
             <Popup
                 x:Name="NameConfigField"
@@ -78,14 +78,15 @@
             
             <t:RadListBox    
                 x:Name="ConfigList"
+                MaxHeight="500"
                 ItemsSource="{Binding Configurations}" 
                 BorderThickness="0"
                 Background="Transparent"
-                Style="{StaticResource BaseRadListBox}" >
+                Style="{StaticResource ScrolledListBox}" >
 
                 <t:RadListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type t:RadListBoxItem}">
-                        <Setter Property="Margin" Value="0 5" />
+                        <Setter Property="Margin" Value="15 5" />
                         <Setter Property="Background" Value="Transparent" />
                         <Setter Property="Template">
                             <Setter.Value>
@@ -144,7 +145,9 @@
                             <t:RadButton
                                 Style="{StaticResource RightPanelIconButton}"
                                 Grid.Column="2" 
-                                ToolTip="Удалить">
+                                ToolTip="Удалить"
+                                Command="{Binding DataContext.RemoveConfigCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                CommandParameter="{Binding}">
                                 <Image 
                                     Source="pack://application:,,,/Resources/Icons/trash.png"
                                     Stretch="Fill"/>
@@ -183,24 +186,43 @@
                     HorizontalContentAlignment="Right"
                     FontFamily="Segoe UI" 
                     FontSize="16" 
+                    Height="28"
                     BorderThickness="1"
                     Padding="10 0 60 0"
-                    Margin="0 0 -50 0">
+                    Margin="0 0 -40 0">
                     <TextBox.Resources>
                         <Style TargetType="{x:Type Border}">
                             <Setter Property="CornerRadius" Value="15"/>
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Focusable, ElementName=NewConfigurationText}"
+                                         Value="True">
+                                    <Setter Property="Panel.ZIndex" Value="0" />
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </TextBox.Resources>
                 </TextBox>
+
+                <Border 
+                    Width="50"
+                    Height="30"
+                    Grid.Column="1"
+                    Background="White"
+                    CornerRadius="15"/>
                 
                 <t:RadButton   
+                    x:Name="AddConfigButton"
+                    Panel.ZIndex="1000"
                     Grid.Column="1"
                     Width="50"
+                    Click="AddConfigButton_Click"
                     Style="{StaticResource BaseRadButton}"
                     Height="30"
                     CornerRadius="15"
                     Content="ОК"
-                    Command="{Binding AddConfigurationCommand}" />
+                    Command="{Binding AddConfigCommand}" 
+                    CommandParameter="{Binding ElementName=NewConfigurationText, Path=Text}"/>
             </Grid>
             
         </StackPanel>
@@ -329,7 +351,7 @@
                         </t:RadMenuItem>
                         <t:RadMenuItem  
                             Header="Загрузить конфигурацию"
-                            Command="{Binding LoadConfigCommand}">
+                            Command="{Binding BackToConfigsCommand}">
                             <t:RadMenuItem.Icon>
                                 <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/arrow_down.png" />
                             </t:RadMenuItem.Icon>

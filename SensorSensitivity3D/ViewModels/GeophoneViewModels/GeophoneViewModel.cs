@@ -45,7 +45,6 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             {
                 EditedGeophone = new GeophoneModel();
                 PanelTitle = "Добавить геофон";
-                AddEntities(EditedGeophone.Entities);
             }
             
             IsGeophonePanel = true;
@@ -94,13 +93,15 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         {
             IsGeophonePanel = false;
 
-            EditedGeophone.AcceptChanges();
+            EditedGeophone.AcceptChanges(); // кажется это лишнее
 
             Back?.Invoke(GeophoneOperation.Edit, EditedGeophone);
         }
 
         private bool CanExecuteSaveGeophoneCommand(object obj) 
-            => IsEditedMode && (EditedGeophone?.IsChanged ?? false);
+            => IsEditedMode 
+            && (EditedGeophone?.IsChanged ?? false)
+            && !string.IsNullOrEmpty(EditedGeophone.DisplayName);
 
 
         private RelayCommand _addGeophoneCommand;
@@ -109,29 +110,30 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteAddGeophoneCommand(object obj)
         {
+            var needToContinue = (bool) obj;
+
             IsGeophonePanel = false;
 
             if (IsEditedMode)
             {
                 var newGeophone = new GeophoneModel(EditedGeophone);
 
-                RemoveEntities(EditedGeophone.Entities);
                 EditedGeophone.ResetGeophoneSettings();
                 AddEntities(EditedGeophone.Entities);
                 
-                AddEntities(newGeophone.Entities);
-
                 EditedGeophone = newGeophone;
             }
 
-            Back?.Invoke((bool) obj 
+            Back?.Invoke(needToContinue 
                 ? GeophoneOperation.AddAndContinueAdding
                 : GeophoneOperation.Add, 
                 EditedGeophone);
         }
 
         private bool CanExecuteAddGeophoneCommand(object obj)
-            => !IsEditedMode || (EditedGeophone?.IsChanged ?? false);
+            => !IsEditedMode 
+            || (EditedGeophone?.IsChanged ?? false) 
+            && !string.IsNullOrEmpty(EditedGeophone.DisplayName);
 
 
         private RelayCommand _resetGeophoneCommand;

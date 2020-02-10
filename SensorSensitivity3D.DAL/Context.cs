@@ -35,14 +35,6 @@ namespace SensorSensitivity3D.DAL
                 .IsRequired();
 
             modelBuilder.Entity<Geophone>()
-                .Property(e => e.Name)
-                .IsRequired();
-
-            modelBuilder.Entity<Geophone>()
-                .Property(e => e.HoleNumber)
-                .IsRequired();
-
-            modelBuilder.Entity<Geophone>()
                 .Property(e => e.X)
                 .IsRequired();
 

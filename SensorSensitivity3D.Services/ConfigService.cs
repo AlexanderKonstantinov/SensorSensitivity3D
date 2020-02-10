@@ -26,11 +26,14 @@ namespace SensorSensitivity3D.Services
         public bool AddConfiguration(Configuration config)
             => ConfigRepository.AddConfiguration(config);
 
+        public bool RemoveConfiguration(Configuration config)
+            => ConfigRepository.RemoveConfiguration(config);
+
         /// <summary>
-        /// Сохранение конфигурации в базе данных
+        /// Редактирование конфигурации (имени, пути к подложке и видимости подложки)
         /// </summary>
-        /// <returns>Успешность сохранения</returns>
-        public bool SaveContext()
-            => ConfigRepository.SaveContext();
+        /// <param name="config"></param>
+        public void EditConfiguration(Configuration config)
+            => ConfigRepository.EditConfiguration(config);
     }
 }

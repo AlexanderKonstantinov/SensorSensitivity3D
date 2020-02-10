@@ -11,28 +11,17 @@ namespace SensorSensitivity3D.Domain.Entities
     public sealed class Geophone : NamedEntity, ICopy<Geophone>
     {       
         public int ConfigId { get; set; }
-
-        [Required]
         public int HoleNumber { get; set; }
-        [Required]
         public double X { get; set; }
-        [Required]
         public double Y { get; set; }
-        [Required]
         public double Z { get; set; }
-        [Required]
         public int R { get; set; }
-        [Required]
         public string Color { get; set; } = "#000000";
-        [Required]
         public bool GIsVisible { get; set; }
-        [Required]
         public bool SIsVisible { get; set; }
-        [Required]
         public bool IsGood { get; set; }
         
 
-        [Required]
         [ForeignKey(nameof(ConfigId))]
         public Configuration Configuration { get; set; }
 

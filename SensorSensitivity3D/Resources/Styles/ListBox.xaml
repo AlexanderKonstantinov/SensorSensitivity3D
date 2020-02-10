@@ -1,0 +1,22 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:t="http://schemas.telerik.com/2008/xaml/presentation">
+    <Style x:Key="ScrolledListBox" TargetType="t:RadListBox" BasedOn="{StaticResource BaseRadListBox}">
+        
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsScrollIntoViewEnabled, ElementName=GeophoneListBox}"
+                                         Value="True">
+                <Setter Property="Margin" Value="0 0 -10 0" />
+                <Setter Property="Padding" Value="0 0 15 0" />
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsScrollIntoViewEnabled, ElementName=GeophoneListBox}"
+                                         Value="False">
+                <Setter Property="Margin" Value="0 0 0 0" />
+            </DataTrigger>
+
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -29,7 +29,6 @@ namespace SensorSensitivity3D.ViewModels
 
         public DrawingViewModel DrawingViewModel { get; set; }
         public GeophonesViewModel GeophonesViewModel { get; set; }
-        public GeophoneViewModel GeophoneViewModel { get; set; }
 
 
         public ObservableCollection<Configuration> Configurations { get; set; }
@@ -69,10 +68,11 @@ namespace SensorSensitivity3D.ViewModels
         private void ExecuteLoadConfigCommand(object obj)
         {
             SelectedConfig = obj as Configuration;
-
+                
             DrawingViewModel = new DrawingViewModel(_configService, SelectedConfig);
 
             GeophonesViewModel = new GeophonesViewModel(_geophoneService, SelectedConfig);
+                       
 
             GeophonesViewModel.SelectionEntities += entities =>
             OnSelectionEntities(entities);
@@ -96,6 +96,43 @@ namespace SensorSensitivity3D.ViewModels
         }
 
 
+        private RelayCommand _addConfigCommand;
+        public ICommand AddConfigCommand
+            => _addConfigCommand ??= new RelayCommand(ExecuteAddConfigCommand, CanExecuteAddConfigCommand);
+
+        private void ExecuteAddConfigCommand(object obj)
+        {
+            var newConfig = new Configuration { Name = obj.ToString() };
+            if (_configService.AddConfiguration(newConfig))
+                Configurations.Add(newConfig);
+        }
+
+        private bool CanExecuteAddConfigCommand(object obj)
+            => (obj is string name)
+            && !string.IsNullOrEmpty(name)
+            && Configurations.All(c => c.Name != name);
+
+
+        private RelayCommand _removeConfigCommand;
+        public ICommand RemoveConfigCommand
+            => _removeConfigCommand ??= new RelayCommand(ExecuteRemoveConfigCommand);
+
+        private void ExecuteRemoveConfigCommand(object obj)
+        {
+            var res = MessageBox.Show(
+                "Вы уверены, что хотите удалить конфигурацию со всеми настройками и геофонами",
+                "Подтверждение",
+                MessageBoxButton.OKCancel);
+
+            if (res != MessageBoxResult.OK)
+                return;
+
+            var removedConfig = (Configuration) obj;
+            if (_configService.RemoveConfiguration(removedConfig))
+                Configurations.Remove(removedConfig);
+        }
+
+
         private RelayCommand _editConfigCommand;
         public ICommand EditConfigCommand
             => _editConfigCommand ??= new RelayCommand(ExecuteEditConfigCommand, CanExecuteEditConfigCommand);
@@ -103,7 +140,7 @@ namespace SensorSensitivity3D.ViewModels
         private void ExecuteEditConfigCommand(object obj)
         {
             SelectedConfig.Name = obj.ToString();
-            _configService.SaveContext();
+            _configService.EditConfiguration(SelectedConfig);
         }
 
         private bool CanExecuteEditConfigCommand(object obj)
@@ -128,7 +165,6 @@ namespace SensorSensitivity3D.ViewModels
 
         private void ExecuteSaveConfigCommand(object obj)
         {
-
             //_configService.SaveContext();
         }
 
@@ -136,23 +172,24 @@ namespace SensorSensitivity3D.ViewModels
             => GeophonesViewModel.GeophoneModels.Any(g => g.IsChanged);
 
 
-        private RelayCommand _chooseConfigCommand;
-        public ICommand ChooseConfigCommand
-            => _chooseConfigCommand ??= new RelayCommand(ExecuteChooseConfigCommand);
+        private RelayCommand _backToConfigsCommand;
+        public ICommand BackToConfigsCommand
+            => _backToConfigsCommand ??= new RelayCommand(ExecuteBackToConfigsCommand);
 
-        private void ExecuteChooseConfigCommand(object obj)
+        private void ExecuteBackToConfigsCommand(object obj)
         {
             if (GeophonesViewModel.GeophoneModels.Any(g => g.IsChanged))
             {
-                var result = MessageBox.Show("Желаете сохранить внесенные изменения", "Конфигурация была изменена", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
+                var result = MessageBox.Show("Желаете сохранить внесенные изменения", "Геофоны были изменены", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
                 if (result == MessageBoxResult.Cancel)
                     return;
-
-                if (result == MessageBoxResult.Yes)
-                    ExecuteSelectConfigCommand(null);
+                                
+                //Save geofons
             }
 
+            ModelClear();
             ConfigPanelVisibility = true;
+            ExecuteSelectConfigCommand(null);            
         }
 
         #endregion

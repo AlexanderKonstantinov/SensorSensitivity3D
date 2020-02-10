@@ -66,7 +66,7 @@ namespace SensorSensitivity3D.ViewModels
             {
                 _config.DrawingIsVisible = true;
                 _config.SubstratePath = openFileDialog.FileName;
-                _configService.SaveContext();                
+                _configService.EditConfiguration(_config);                
                 OnPropertyChanged(nameof(Drawing));
                 ZoomFit();
             }

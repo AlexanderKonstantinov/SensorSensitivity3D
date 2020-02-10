@@ -227,7 +227,8 @@ namespace SensorSensitivity3D.Domain.Models
             _sIsVisible = source.SIsVisible;
             _isGood = source.IsGood;
 
-            InitEntities();
+            SensitivitySphere = source.SensitivitySphere;
+            CenterSphere = source.CenterSphere;
         }
 
         #endregion
@@ -351,7 +352,7 @@ namespace SensorSensitivity3D.Domain.Models
             return (int)hashCode;
         }
 
-        public static Geophone GeoophoneModelToGeophone(GeophoneModel geophoneModel)
+        public static Geophone GeophoneModelToGeophone(GeophoneModel geophoneModel)
             => new Geophone
             {
                 Name = geophoneModel.Name,
@@ -365,33 +366,5 @@ namespace SensorSensitivity3D.Domain.Models
                 SIsVisible = geophoneModel.SIsVisible,
                 IsGood = geophoneModel.IsGood,
             };
-
-        //protected GeophoneModel(SerializationInfo info, StreamingContext context)
-        //{
-        //    _name = info.GetString("name");
-        //    _holeNumber = info.GetInt32("holeNumber");
-        //    _x = info.GetDouble("x");
-        //    _y = info.GetDouble("y");
-        //    _z = info.GetDouble("z");
-        //    _r = info.GetInt32("r");
-        //    _color = info.GetString("color");
-        //    _gIsVisible = info.GetBoolean("centerVisibility");
-        //    _sIsVisible = info.GetBoolean("sensitivitySphereVisibility");
-        //    _isGood = info.GetBoolean("isGood");
-        //}
-
-        //public void GetObjectData(SerializationInfo info, StreamingContext context)
-        //{
-        //    info.AddValue("name", _name);
-        //    info.AddValue("holeNumber", _holeNumber);
-        //    info.AddValue("x", _x);
-        //    info.AddValue("y", _y);
-        //    info.AddValue("z", _z);
-        //    info.AddValue("r", _r);
-        //    info.AddValue("color", _color);
-        //    info.AddValue("centerVisibility", _gIsVisible);
-        //    info.AddValue("sensitivitySphereVisibility", _sIsVisible);
-        //    info.AddValue("isGood", _isGood);
-        //}
     }
 }

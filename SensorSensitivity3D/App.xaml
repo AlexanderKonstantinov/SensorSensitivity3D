@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="/Resources/Styles/TextConrols.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/PropertyGridControls.xaml"/>
                 <ResourceDictionary Source="/Resources/Styles/ColorEditorControls.xaml"/>
+                <ResourceDictionary Source="/Resources/Styles/ListBox.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
