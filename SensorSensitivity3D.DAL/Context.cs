@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using SensorSensitivity3D.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,10 +16,6 @@ namespace SensorSensitivity3D.DAL
         {
             _dbPath = dbPath;
         }
-
-        //public Context()
-        //    : base(_options)
-        //{ }
 
         public DbSet<Configuration> Configurations { get; set; }
         public DbSet<Geophone> Geophones { get; set; }
@@ -72,8 +69,8 @@ namespace SensorSensitivity3D.DAL
         private void Seed(in ModelBuilder modelBuilder)
         {
             var rnd = new Random();
-            const string pionerDesktop = @"G:\Git\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf";
-            const string pionerNotebook = @"C:\Users\Александер\Documents\GitHub\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf";
+            const string drawingName = @"Pioner.dxf";
+            //const string drawingPath = @"C:\Users\Александер\Documents\GitHub\SensorSensitivity3D\SensorSensitivity3D\Pioner.dxf";
 
             for (var i = 0; i < 30; ++i)
             {
@@ -102,21 +99,21 @@ namespace SensorSensitivity3D.DAL
                 {
                     Id = 1,
                     Name = "Конфигурация 1",
-                    SubstratePath = pionerNotebook
+                    SubstrateName = drawingName
                 },
 
                 new Configuration
                 {
                     Id = 2,
                     Name = "Конфигурация 2",
-                    SubstratePath = pionerNotebook
+                    SubstrateName = drawingName
                 },
 
                 new Configuration
                 {
                     Id = 3,
                     Name = "Конфигурация 3",
-                    SubstratePath = pionerNotebook
+                    SubstrateName = drawingName
                 }
                 );
         }

@@ -62,7 +62,7 @@ namespace SensorSensitivity3D.DAL.Repositories
             }
         }
 
-        public void EditConfiguration(Configuration config)
+        public bool EditConfiguration(Configuration config)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace SensorSensitivity3D.DAL.Repositories
                     var editedConfig = context.Configurations.FirstOrDefault(c => c.Id == config.Id);
 
                     editedConfig.Name = config.Name;
-                    editedConfig.SubstratePath = config.SubstratePath;
+                    editedConfig.SubstrateName = config.SubstrateName;
                     editedConfig.DrawingIsVisible = config.DrawingIsVisible;
 
                     context.SaveChanges();
@@ -80,7 +80,10 @@ namespace SensorSensitivity3D.DAL.Repositories
             catch (Exception)
             {
                 //TODO
+                return false;
             }
+
+            return true;
         }       
     }
 }

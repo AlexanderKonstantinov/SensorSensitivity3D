@@ -17,10 +17,12 @@ namespace SensorSensitivity3D.ViewModels
 
     public class DrawingViewModel : BaseViewModel, IDropTarget
     {
+        private readonly string _substratesDir;
+
         private readonly ConfigService _configService;
         private readonly Configuration _config;
 
-        public Drawing _drawing;
+        private Drawing _drawing;
         public Drawing Drawing
         {
             get => _drawing;
@@ -39,7 +41,9 @@ namespace SensorSensitivity3D.ViewModels
             _configService = configService;
             _config = config;
 
-            UpdateSubstrate(config.SubstratePath, _config.DrawingIsVisible, ref _drawing);
+            _substratesDir = Path.Combine(Directory.GetCurrentDirectory(), "Resources", _config.Name);
+
+            UpdateSubstrate(Path.Combine(_substratesDir, _config.SubstrateName), _config.DrawingIsVisible, ref _drawing);
             OnPropertyChanged(nameof(Drawing));
         }
 
@@ -54,22 +58,34 @@ namespace SensorSensitivity3D.ViewModels
             var openFileDialog = new OpenFileDialog
             {
                 Multiselect = false,
-                InitialDirectory = System.Environment.CurrentDirectory,
+                InitialDirectory = _substratesDir,
                 Filter = "Drawing Format (*.dxf;*.dwg)|*.dxf;*dwg"
             };
 
             if (openFileDialog.ShowDialog() != true) return;
 
+            if (openFileDialog.FileName.Equals(_config.SubstrateName))
+                return;
 
+            if (!UpdateSubstrate(openFileDialog.FileName, true, ref _drawing))
+                return;
 
-            if (UpdateSubstrate(openFileDialog.FileName, true, ref _drawing))
-            {
-                _config.DrawingIsVisible = true;
-                _config.SubstratePath = openFileDialog.FileName;
-                _configService.EditConfiguration(_config);                
-                OnPropertyChanged(nameof(Drawing));
-                ZoomFit();
-            }
+            OnPropertyChanged(nameof(Drawing));
+            ZoomFit();
+
+            // сохранение данных о загруженном чертеже в БД
+            _config.DrawingIsVisible = true;
+            _config.SubstrateName = openFileDialog.SafeFileName;
+            if (!_configService.EditConfiguration(_config))
+                return;
+
+            // сохранение файла чертежа в папке с ресурсами,
+            // если файла с таким именем не существует
+            if (openFileDialog.FileName.StartsWith(_substratesDir))
+                return;
+
+            Directory.CreateDirectory(_substratesDir);
+            File.Copy(openFileDialog.FileName, Path.Combine(_substratesDir, _config.SubstrateName));
         }
 
         private RelayCommand _showDrawingCommand;

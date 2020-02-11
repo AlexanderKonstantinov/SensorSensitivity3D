@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.ObjectModel;
+using System.IO;
 using SensorSensitivity3D.DAL.Repositories;
 using SensorSensitivity3D.Domain.Entities;
 
@@ -10,7 +11,9 @@ namespace SensorSensitivity3D.Services
         private static readonly ConfigRepository ConfigRepository;
 
         static ConfigService()
-            => ConfigRepository = new ConfigRepository();
+        {
+            ConfigRepository = new ConfigRepository();
+        } 
 
         public ObservableCollection<Configuration> GetConfigurations()
             => new ObservableCollection<Configuration>(ConfigRepository.GetConfigurations());
@@ -33,7 +36,7 @@ namespace SensorSensitivity3D.Services
         /// Редактирование конфигурации (имени, пути к подложке и видимости подложки)
         /// </summary>
         /// <param name="config"></param>
-        public void EditConfiguration(Configuration config)
+        public bool EditConfiguration(Configuration config)
             => ConfigRepository.EditConfiguration(config);
     }
 }

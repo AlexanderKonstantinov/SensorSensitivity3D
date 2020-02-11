@@ -30,7 +30,7 @@ namespace SensorSensitivity3D.Services
         //TODO Нужно тестировать
         public static bool UpdateSubstrate(string substratePath, bool isVisible, ref Drawing drawing)
         {
-            if (!File.Exists(substratePath) || substratePath == _readAutodesk?.Path)
+            if (!File.Exists(substratePath))
                 return false;
 
             Application.Current.Dispatcher?.Invoke(DispatcherPriority.Background,

@@ -28,14 +28,14 @@ namespace SensorSensitivity3D.Domain.Entities
             }
         }
 
-        private string _substratePath;
-        public string SubstratePath
+        private string _substrateName;
+        public string SubstrateName
         {
-            get => _substratePath;
+            get => _substrateName;
             set
             {
-                _substratePath = value;
-                OnPropertyChanged(nameof(SubstratePath));
+                _substrateName = value;
+                OnPropertyChanged(nameof(SubstrateName));
             }
         }
 

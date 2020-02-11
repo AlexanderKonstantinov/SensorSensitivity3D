@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using devDept.Eyeshot;
 using SensorSensitivity3D.DAL;
@@ -18,10 +19,17 @@ namespace SensorSensitivity3D.Views
         {
             
             InitializeComponent();
+            
+            // Указание на путь к БД или создание файла БД
+            var resDir = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
+            Directory.CreateDirectory(resDir);
 
-            // Указание на путь к БД
-            Context.ContextConfiguring(@"C:\Users\Александер\Documents\GitHub\SensorSensitivity3D\SensorSensitivity3D\SS3D.sqlite");
+            var dbPath = Path.Combine(resDir, "SS3D.sqlite");
 
+            Context.ContextConfiguring(dbPath);
+
+            if (!File.Exists(dbPath))
+                (new Context()).Database.EnsureCreated();
 
             _viewModel = new MainViewModel(Model);
 

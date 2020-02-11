@@ -175,13 +175,13 @@
             <t:RadButton                 
                 x:Name="NewConfigurationButton"
                 Style="{StaticResource BaseRadButton}"
-                Height="30"
+                Height="31"
                 CornerRadius="15"
                 ToolTip="Создать новую конфигурацию"
                 Click="NewConfigurationButton_Click">
                 <Image 
                     Stretch="Uniform" 
-                    Source="pack://application:,,,/Resources/Icons/plus.png" />
+                    Source="pack://application:,,,/Resources/Icons/plus24.png" />
             </t:RadButton>
 
             <Grid
@@ -229,6 +229,8 @@
                     Panel.ZIndex="1000"
                     Grid.Column="1"
                     Width="50"
+                    BorderBrush="LightSlateGray"
+                    BorderThickness="1"
                     Click="AddConfigButton_Click"
                     Style="{StaticResource BaseRadButton}"
                     Height="30"

@@ -155,11 +155,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Context.cs" />
-    <Compile Include="Migrations\20200202102253_Initial.cs" />
-    <Compile Include="Migrations\20200202102253_Initial.designer.cs">
-      <DependentUpon>20200202102253_Initial.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\ContextModelSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\ConfigRepository.cs" />
     <Compile Include="Repositories\GeophoneRepository.cs" />
