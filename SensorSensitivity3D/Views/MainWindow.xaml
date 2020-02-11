@@ -20,7 +20,7 @@
     d:DesignHeight="650" d:DesignWidth="900"
     MinWidth="850" MinHeight="650" 
     Icon="pack://application:,,,/Resources/Icons/main_icon.png" 
-    PreviewMouseLeftButtonDown="Window_MouseDown">
+    PreviewMouseLeftButtonDown="Window_MouseDown" >
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
@@ -31,6 +31,18 @@
     <Window.DataContext>
         <viewModels:MainViewModel />
     </Window.DataContext>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction 
+                Command="{Binding ExecuteBackToConfigsCommand}"/>
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="MouseDoubleClick">
+            <i:InvokeCommandAction 
+                Command="{Binding ZoomFitEntityCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <Grid>
         <StackPanel 
@@ -77,6 +89,7 @@
             </Popup>
             
             <t:RadListBox    
+                
                 x:Name="ConfigList"
                 MaxHeight="500"
                 ItemsSource="{Binding Configurations}" 
@@ -259,7 +272,8 @@
                 Width="350"
                 BorderThickness="1 0 0 0"
                 Visibility="{Binding RightPanelVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
-
+                
+                
                 <Border.Effect>
                     <DropShadowEffect 
                         BlurRadius="15" 
@@ -377,23 +391,26 @@
 
             <models:CustomModel 
                 x:Name="Model"
+                SelectionChanged="Model_SelectionChanged"
                 CustomEntityList="{Binding EntityList}"
                 AutoRefresh="True"
                 SelectionColor="OrangeRed"
-                MouseMove="Model_OnMouseMove"
                 Margin="{Binding 
                 ElementName=RightPanel, 
                 Path=IsVisible, 
                 Converter={StaticResource MarginConverter},
                 Mode=OneWay,
                 UpdateSourceTrigger=PropertyChanged}"
-                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4" >
+                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4"
+                MouseLeave="ModelSpaceLeave">
 
                 <models:CustomModel.ProgressBar>
                     <ddes:ProgressBar Lighting="False"/>
                 </models:CustomModel.ProgressBar>
                 <models:CustomModel.Viewports>
-                    <ddes:Viewport DisplayMode="Rendered">
+                    <ddes:Viewport
+                        DisplayMode="Rendered" >
+                        
                         <ddes:Viewport.Background>
                             <ddgr:BackgroundSettings 
                                 BottomColor="#49547a" 

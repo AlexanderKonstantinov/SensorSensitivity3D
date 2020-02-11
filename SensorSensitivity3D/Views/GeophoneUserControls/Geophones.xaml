@@ -153,7 +153,6 @@
                 Grid.ColumnSpan="8"
                 Grid.Row="2"
                 FontSize="15"
-                SelectionChanged="GeophoneListBox_SelectionChanged"
                 SelectedItem="{Binding SelectedGeophone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 SelectionMode="Single"                
                 ItemsSource="{Binding GeophoneModels, UpdateSourceTrigger=PropertyChanged}"

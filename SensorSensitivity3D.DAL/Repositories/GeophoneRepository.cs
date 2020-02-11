@@ -60,7 +60,7 @@ namespace SensorSensitivity3D.DAL.Repositories
             return true;
         }
 
-        public void EditGeophone(Geophone geophone)
+        public void SaveGeophone(Geophone geophone)
         {
             try
             {
@@ -74,7 +74,45 @@ namespace SensorSensitivity3D.DAL.Repositories
             }
             catch (Exception)
             {
+                // Пробуем восстанавить параметры геофона
+                try
+                {
+                    GetGeophone(geophone.Id).CopyTo(geophone);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+        }
 
+        public void SaveGeophones(IEnumerable<Geophone> geophones)
+        {
+            try
+            {
+                using (var context = new Context())
+                {                    
+                    foreach (var g in geophones)
+                        g.CopyTo(context.Geophones.First(dbG => dbG.Id == g.Id));
+
+                    context.SaveChanges();
+                }
+            }
+            catch (Exception)
+            {
+                // Пробуем восстанавить параметры геофонов
+                try
+                {
+                    using (var context = new Context())
+                    {
+                        foreach (var g in geophones)
+                            context.Geophones.First(dbG => dbG.Id == g.Id).CopyTo(g);
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
         }
     }

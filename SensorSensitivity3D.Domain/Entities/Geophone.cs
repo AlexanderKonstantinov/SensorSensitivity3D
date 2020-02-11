@@ -29,17 +29,6 @@ namespace SensorSensitivity3D.Domain.Entities
         public Geophone(Geophone source)
         {
             source.CopyTo(this);
-
-            //Name = source.Name;
-            //HoleNumber = source.HoleNumber;
-            //X = source.X;
-            //Y = source.Y;
-            //Z = source.Z;
-            //R = source.R;
-            //Color = source.Color;
-            //GIsVisible = source.GIsVisible;
-            //SIsVisible = source.SIsVisible;
-            //IsGood = source.IsGood;
         }
 
         public void CopyTo(Geophone target)

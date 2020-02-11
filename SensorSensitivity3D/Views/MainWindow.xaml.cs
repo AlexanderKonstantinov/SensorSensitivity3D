@@ -1,11 +1,7 @@
-﻿using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
+﻿using System.Windows;
 using System.Windows.Input;
 using devDept.Eyeshot;
-using Microsoft.EntityFrameworkCore;
 using SensorSensitivity3D.DAL;
-using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.ViewModels;
 using Telerik.Windows.Controls;
 
@@ -60,12 +56,6 @@ namespace SensorSensitivity3D.Views
                 RightPanel.Focus();
         }
 
-        private void Model_OnMouseMove(object sender, MouseEventArgs e)
-        {
-            EntityPopup.IsOpen = false;
-            EntityPopup.IsOpen = !string.IsNullOrEmpty(EntityInfo.Text);
-        }
-
         private void NewConfigurationButton_Click(object sender, RoutedEventArgs e)
         {
             NewConfigurationPanel.Visibility = Visibility.Visible;
@@ -102,6 +92,17 @@ namespace SensorSensitivity3D.Views
         {
             NewConfigurationPanel.Visibility = Visibility.Collapsed;
             NewConfigurationButton.Visibility = Visibility.Visible;
+        }
+
+        private void ModelSpaceLeave(object sender, MouseEventArgs e)
+        {
+            EntityInfo.Text = null;
+        }
+
+        private void Model_SelectionChanged(object sender, Environment.SelectionChangedEventArgs e)
+        {
+            EntityPopup.IsOpen = false;
+            EntityPopup.IsOpen = !string.IsNullOrEmpty(EntityInfo.Text);
         }
     }
 }

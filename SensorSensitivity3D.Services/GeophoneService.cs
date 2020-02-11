@@ -44,8 +44,29 @@ namespace SensorSensitivity3D.Services
         public bool RemoveGeophone(GeophoneModel geophone)
             => GeophoneRepository.RemoveGeophone(geophone.OriginalGeophone);
 
-        public void EditGeophone(GeophoneModel geophone)
-            => GeophoneRepository.EditGeophone(geophone.OriginalGeophone);
+        /// <summary>
+        /// Сохранить параметры геофона в БД
+        /// </summary>
+        /// <param name="geophone"></param>
+        public void SaveGeophone(GeophoneModel geophone)
+        {
+            geophone.AcceptChanges();
+
+            GeophoneRepository.SaveGeophone(geophone.OriginalGeophone);
+        }
+
+        /// <summary>
+        /// Сохраненить параметры всех изменённых геофонов в БД
+        /// </summary>
+        /// <param name="geophones"></param>
+        public void SaveGeophones(IEnumerable<GeophoneModel> geophones)
+        {
+            var changedGeophones = geophones.Where(g => g.IsChanged).ToList();
+            foreach (var g in changedGeophones)
+                g.AcceptChanges();
+
+            GeophoneRepository.SaveGeophones(changedGeophones.Select(g => g.OriginalGeophone));
+        }
 
         /// <summary>
         /// Сохранить геофоны в xml-файл

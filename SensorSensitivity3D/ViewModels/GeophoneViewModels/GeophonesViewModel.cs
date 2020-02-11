@@ -64,7 +64,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             AddEntities(entities);        
 
             GeophoneViewModel = new GeophoneViewModel();
-            GeophoneViewModel.Back += SaveNewGeophone;
+            GeophoneViewModel.Back += ExecuteGeophoneOperation;
 
             UpdateGeophonesColor();
 
@@ -250,7 +250,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteGoToGeophoneCommand(object o)
         {
-            GoToEntities(SelectedGeophone.Entities);
+            ZoomFitEntities(SelectedGeophone.Entities);
         }
 
         #endregion
@@ -337,7 +337,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         /// обновление изображения
         /// </summary>
         /// <param name="editedGeophone"></param>
-        private void SaveNewGeophone(GeophoneOperation operation, GeophoneModel editedGeophone)
+        private void ExecuteGeophoneOperation(GeophoneOperation operation, GeophoneModel editedGeophone)
         {
             switch (operation)
             {
@@ -354,7 +354,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                     break;
                 case GeophoneOperation.Edit:
                     {
-                        _geophoneService.EditGeophone(editedGeophone);
+                        _geophoneService.SaveGeophone(editedGeophone);
                     }
                     break;
                 default:

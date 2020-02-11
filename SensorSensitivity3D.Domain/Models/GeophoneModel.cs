@@ -286,8 +286,12 @@ namespace SensorSensitivity3D.Domain.Models
             OnPropertyChanged(nameof(IsChanged));
         }
 
+        /// <summary>
+        /// Принять изменения геофонов. 
+        /// Запускается после сохранения параметров геофона в БД
+        /// </summary>
         public void AcceptChanges()
-        {
+        { 
             OriginalGeophone.Name = Name;
             OriginalGeophone.HoleNumber = HoleNumber;
             OriginalGeophone.X = X;

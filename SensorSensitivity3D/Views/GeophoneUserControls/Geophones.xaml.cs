@@ -19,20 +19,15 @@ namespace SensorSensitivity3D.Views.GeophoneUserControls
 
         private void ColorEditor_MouseLeave(object sender, MouseEventArgs e) 
             => ColorEditorPopup.IsOpen = false;
-        
+
 
         //private void GeophonePanelShow(object sender, RoutedEventArgs e)
         //=> GeophonePanel.Visibility = Visibility.Visible;
-                   
+
 
         private void GeophonesPanel_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
             => GeophonePanel.Visibility = GeophonePanel.Visibility == Visibility.Visible
-            ? Visibility.Collapsed
-            : Visibility.Visible;
-
-        private void GeophoneListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
+                ? Visibility.Collapsed
+                : Visibility.Visible;
     }
 }

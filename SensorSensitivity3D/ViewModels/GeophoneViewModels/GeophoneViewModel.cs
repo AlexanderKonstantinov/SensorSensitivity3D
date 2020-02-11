@@ -57,11 +57,14 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteChangeGeophoneCommand(object o)
         {
-            RemoveEntities(EditedGeophone.Entities);
+            if (IsGeophonePanel)
+            {
+                RemoveEntities(EditedGeophone.Entities);
 
-            EditedGeophone.InitEntities();
+                EditedGeophone.InitEntities();
 
-            AddEntities(EditedGeophone.Entities);
+                AddEntities(EditedGeophone.Entities);
+            }            
         }
 
 
@@ -92,8 +95,6 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         private void ExecuteSaveGeophoneCommand(object obj)
         {
             IsGeophonePanel = false;
-
-            EditedGeophone.AcceptChanges(); // кажется это лишнее
 
             Back?.Invoke(GeophoneOperation.Edit, EditedGeophone);
         }

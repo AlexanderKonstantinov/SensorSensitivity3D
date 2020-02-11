@@ -157,21 +157,29 @@ namespace SensorSensitivity3D.Services
         /// <summary>
         /// Масштабирование объектов модели
         /// </summary>
-        /// <param name="entities"></param>
-        public static void GoToEntities(IList<Entity> entities)
+        /// <param name="entities">Объекты, которые требуется масштабировать</param>
+        /// <remarks>Если entities == null, то происходит масштабирование выделенных объектов</remarks>
+        public static void ZoomFitEntities(IList<Entity> entities = null)
         {
-            // Если объекты невидимые, масштабирование не происходит
-            // Поэтому сохраняем значения видимости
-            var visibilitiesSafe = entities.Select(e => e.Visible).ToList();
-            
-            foreach (var e in entities)
-                e.Visible = true;
+            if (entities == null)
+            {
+                _model.ZoomFitSelectedLeaves(20);
+            }
+            else
+            {
+                // Если объекты невидимые, масштабирование не происходит
+                // Поэтому сохраняем значения видимости
+                var visibilitiesSafe = entities.Select(e => e.Visible).ToList();
 
-            _model.ZoomFit(entities, false, 20);
+                foreach (var e in entities)
+                    e.Visible = true;
 
-            // и восстанавливаем первоначальную видимость
-            for (int i = 0; i < entities.Count; i++)
-                entities[i].Visible = visibilitiesSafe[i];
+                _model.ZoomFit(entities, false, 20);
+
+                // и восстанавливаем первоначальную видимость
+                for (int i = 0; i < entities.Count; i++)
+                    entities[i].Visible = visibilitiesSafe[i];
+            }           
 
             Invalidate();
         }
