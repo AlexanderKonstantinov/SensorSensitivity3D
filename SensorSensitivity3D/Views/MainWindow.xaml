@@ -290,7 +290,7 @@
                     t:StyleManager.Theme="Green" 
                     DisplayMemberPath="Content" 
                     ScrollMode="Viewport" 
-
+                    SelectedIndex="1"
                     BorderThickness="0" >
                     <t:RadTabItem Header="Модель" >
                         <views:Drawing DataContext="{Binding DrawingViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

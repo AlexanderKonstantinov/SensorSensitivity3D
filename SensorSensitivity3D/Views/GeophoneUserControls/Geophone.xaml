@@ -61,11 +61,10 @@
             
         <ScrollViewer 
             Grid.Row="1"
-            Grid.Column="1" 
+            Grid.Column="2" 
             VerticalScrollBarVisibility="Hidden"
             HorizontalScrollBarVisibility="Hidden">
             <TextBox 
-                Grid.Row="0"
                 Text="{Binding EditedGeophone.Name, UpdateSourceTrigger=PropertyChanged}" 
                 Style="{StaticResource EditTextBox}" />
         </ScrollViewer>
@@ -75,7 +74,7 @@
             Grid.Column="0" 
             Text="Номер скважины" 
             Style="{StaticResource TitleTextBlock}"/>
-        <TextBox x:Name="valid" 
+        <TextBox
             Grid.Row="2"
             Grid.Column="1" 
             Text="{Binding EditedGeophone.HoleNumber, UpdateSourceTrigger=PropertyChanged}"  
@@ -140,11 +139,11 @@
         <TextBlock 
             Grid.Row="6"
             Grid.Column="0"
-            Text="Видимость геофона" Style="{StaticResource TitleTextBlock}"/>
+            Text="Видимость геофона" 
+            Style="{StaticResource TitleTextBlock}"/>
         <t:RadToggleButton 
             Grid.Column="1"
             Grid.Row="6"
-            HorizontalAlignment="Right"
             Style="{StaticResource ResourceKey=GeophoneToggleButton}"
             IsChecked="{Binding EditedGeophone.GIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Content="{Binding EditedGeophone.GIsVisible, Converter={StaticResource BoolToDisplayConverter}}"
@@ -158,7 +157,6 @@
         <t:RadToggleButton 
             Grid.Column="1"
             Grid.Row="7"
-            HorizontalAlignment="Right"
             Style="{StaticResource ResourceKey=GeophoneToggleButton}"
             IsChecked="{Binding EditedGeophone.SIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Content="{Binding EditedGeophone.SIsVisible, Converter={StaticResource BoolToDisplayConverter}}"
@@ -172,7 +170,6 @@
         <t:RadButton
             Grid.Row="8"
             Grid.Column="1"
-            HorizontalAlignment="Right"
             Style="{StaticResource ColorButton}"
             Click="ColorButton_Click"
             Background="{Binding EditedGeophone.Color, Mode=OneWay, Converter={StaticResource StringToColorConverter}}"
@@ -206,7 +203,6 @@
         <t:RadToggleButton
             Grid.Row="9"
             Grid.Column="1" 
-            HorizontalAlignment="Right"
             Panel.ZIndex="1"
             Style="{StaticResource ResourceKey=GeophoneToggleButton}"
             IsChecked="{Binding EditedGeophone.IsGood, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -230,7 +226,8 @@
         </TextBox>
 
         <StackPanel
-            Grid.ColumnSpan="3"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
             Grid.Row="11"
             HorizontalAlignment="Right"
             Orientation="Horizontal" >

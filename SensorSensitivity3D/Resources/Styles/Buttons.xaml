@@ -130,6 +130,7 @@
         <Setter Property="MinWidth" Value="95"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="Margin" Value="0 5"/>
 
         <Setter Property="Template">
@@ -139,8 +140,9 @@
                         Padding="5"
                         BorderBrush="{TemplateBinding BorderBrush}"   
                         Background="{TemplateBinding Background}">
-                        <ContentPresenter HorizontalAlignment="Center"                  
-                                              VerticalAlignment="Center"/>
+                        <ContentPresenter 
+                            HorizontalAlignment="Center"                  
+                            VerticalAlignment="Center"/>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -170,6 +172,7 @@
         </Style.Triggers>
     </Style>
 
+
     <Style 
         x:Key="BackButton"
         TargetType="{x:Type t:RadButton}"
@@ -192,6 +195,18 @@
         <Setter Property="Height" Value="25" />
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style 
+        x:Key="AcceptDeclineButton"
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+        <Setter Property="Height" Value="30" />
+        <Setter Property="Width" Value="100" />
+        <Setter Property="CornerRadius" Value="4" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Margin" Value="10" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
 </ResourceDictionary>

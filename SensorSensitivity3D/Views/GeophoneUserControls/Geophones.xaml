@@ -102,7 +102,7 @@
                 Grid.Column="4"
                 Grid.Row="0"
                 Style="{StaticResource GeophonesHeaderButton}"
-                Command="{Binding }" 
+                Command="{Binding LoadFromDbCommand}" 
                 ToolTip="Добавить геофоны из базы данных">
                 <Image 
                     Stretch="Uniform" 

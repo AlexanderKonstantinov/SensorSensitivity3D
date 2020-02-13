@@ -9,7 +9,7 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Foreground" Value="Black"/>
-        <Setter Property="VerticalAlignment" Value="Bottom"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0 5"/>
         <Setter Property="FontSize" Value="15"/>
     </Style>
@@ -19,9 +19,10 @@
         TargetType="{x:Type TextBox}">
         <Setter Property="Margin" Value="0 5"/>
         <Setter Property="Padding" Value="10 0"/>
-        <Setter Property="MinWidth" Value="50"/>
-        <Setter Property="Height" Value="25"/>
+        <Setter Property="MinWidth" Value="95"/>
+        <Setter Property="Height" Value="20"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Bottom"/>
         <Setter Property="BorderBrush" Value="#706c6c"/>
@@ -29,6 +30,7 @@
         <Setter Property="HorizontalScrollBarVisibility" Value="Hidden"/>
         <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
         <Setter Property="TextWrapping" Value="WrapWithOverflow"/>
+        <Setter Property="FontSize" Value="15"/>
 
     </Style>    
 

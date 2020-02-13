@@ -83,49 +83,49 @@
                 <TextBox 
                     Grid.Column="0"
                     Grid.Row="1"                   
-                    Text="{Binding Drawing.XMin, StringFormat=N2}"
+                    Text="{Binding Drawing.XMin, StringFormat=N0}"
                     Style="{StaticResource BoundaryTextBox}"/>
                 <TextBlock 
                     Grid.Column="1"
                     Grid.Row="1"
-                    Text="&lt;  X  &lt;"
+                    Text="&lt; X &lt;"
                     Style="{StaticResource BoundaryTextBlock}"/>
                 <TextBox 
                     Grid.Column="2"
                     Grid.Row="1"
-                    Text="{Binding Drawing.XMax, StringFormat=N2}"
+                    Text="{Binding Drawing.XMax, StringFormat=N0}"
                     Style="{StaticResource BoundaryTextBox}" />
 
                 <TextBox 
                     Grid.Column="0"
                     Grid.Row="2"       
-                    Text="{Binding Drawing.YMin, StringFormat=N2}"
+                    Text="{Binding Drawing.YMin, StringFormat=N0}"
                     Style="{StaticResource BoundaryTextBox}"/>
                 <TextBlock 
                     Grid.Column="1"
                     Grid.Row="2"
-                    Text="&lt;  Y  &lt;" 
+                    Text="&lt; Y &lt;" 
                     Style="{StaticResource BoundaryTextBlock}"/>
                 <TextBox 
                     Grid.Column="2"
                     Grid.Row="2"  
-                    Text="{Binding Drawing.YMax, StringFormat=N2}" 
+                    Text="{Binding Drawing.YMax, StringFormat=N0}" 
                     Style="{StaticResource BoundaryTextBox}"/>
 
                 <TextBox 
                     Grid.Column="0"
                     Grid.Row="3"    
-                    Text="{Binding Drawing.ZMin, StringFormat=N2}"
+                    Text="{Binding Drawing.ZMin, StringFormat=N0}"
                     Style="{StaticResource BoundaryTextBox}"/>
                 <TextBlock 
                     Grid.Column="1"
                     Grid.Row="3"
-                    Text="&lt;  Z  &lt;" 
+                    Text="&lt; Z &lt;" 
                     Style="{StaticResource BoundaryTextBlock}"/>
                 <TextBox 
                     Grid.Column="2"
                     Grid.Row="3"       
-                    Text="{Binding Drawing.ZMax, StringFormat=N2}" 
+                    Text="{Binding Drawing.ZMax, StringFormat=N0}" 
                     Style="{StaticResource BoundaryTextBox}"/>
 
             </Grid>

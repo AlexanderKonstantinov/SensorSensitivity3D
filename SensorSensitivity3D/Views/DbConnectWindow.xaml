@@ -1,0 +1,108 @@
+﻿<Window x:Class="SensorSensitivity3D.Views.DbConnectWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SensorSensitivity3D.Views"
+        mc:Ignorable="d"
+        xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
+        xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
+        Title="Подключение к базе данных Geoacoustics"
+        Height="450" Width="320"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.DataContext>
+        <viewModels:DbConnectViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="10">
+
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock 
+            Grid.Row="0" 
+            Grid.Column="0" 
+            Text="Имя сервера" 
+            Style="{StaticResource TitleTextBlock}"/>
+
+        <ScrollViewer 
+            t:StyleManager.Theme="Fluent"
+            Grid.Row="0"
+            Grid.Column="1" 
+            VerticalScrollBarVisibility="Hidden"
+            HorizontalScrollBarVisibility="Auto">
+            <TextBox 
+                 Text="{Binding ServerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                 Style="{StaticResource EditTextBox}"/>
+        </ScrollViewer>
+            
+       
+
+        <TextBlock 
+            Grid.Row="1" 
+            Grid.Column="0" 
+            Text="Имя базы данных" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox 
+            Grid.Row="1"
+            Grid.Column="1" 
+            Text="{Binding DbName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+
+        <TextBlock 
+            Grid.Row="2" 
+            Grid.Column="0" 
+            Text="Имя пользователя" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox 
+            Grid.Row="2"
+            Grid.Column="1" 
+            Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+
+        <TextBlock 
+            Grid.Row="3" 
+            Grid.Column="0" 
+            Text="Пароль" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox 
+            Grid.Row="3"
+            Grid.Column="1" 
+            Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}"/>
+      
+        <StackPanel 
+            Grid.Row="4"
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Orientation="Horizontal"
+            HorizontalAlignment="Right">
+           
+            <t:RadButton 
+                Content="Отмена"
+                Command="{Binding CancelCommand}"
+                Style="{StaticResource AcceptDeclineButton}"/>
+
+            <t:RadButton 
+                Content="Подключиться"
+                ToolTip="Установить подключение к базе данных"
+                Background="#66b366"
+                Command="{Binding ConnectDBCommand}"
+                Style="{StaticResource AcceptDeclineButton}"/>
+
+        </StackPanel>
+        
+    </Grid>
+</Window>

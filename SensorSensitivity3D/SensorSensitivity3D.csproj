@@ -44,6 +44,9 @@
   <PropertyGroup>
     <ApplicationIcon>main_icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
       <HintPath>..\packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
@@ -223,11 +226,15 @@
     <Compile Include="Helpers\EventHandlers.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
+    <Compile Include="ViewModels\DbConnectViewModel.cs" />
     <Compile Include="ViewModels\DrawingViewModel.cs" />
     <Compile Include="ViewModels\GeophoneViewModels\GeophonesViewModel.cs" />
     <Compile Include="ViewModels\GeophoneViewModels\GeophoneViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ZonesViewModel.cs" />
+    <Compile Include="Views\DbConnectWindow.xaml.cs">
+      <DependentUpon>DbConnectWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Drawing.xaml.cs">
       <DependentUpon>Drawing.xaml</DependentUpon>
     </Compile>
@@ -276,6 +283,10 @@
     <Page Include="Resources\Styles\ToggleSwitch.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\DbConnectWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Drawing.xaml">
       <Generator>MSBuild:Compile</Generator>

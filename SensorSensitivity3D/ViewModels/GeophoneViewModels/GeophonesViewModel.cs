@@ -12,7 +12,7 @@ using System;
 using SensorSensitivity3D.ViewModels.Base;
 using Microsoft.Win32;
 using System.Windows;
-
+using SensorSensitivity3D.Views;
 using static SensorSensitivity3D.Services.ModelInteractionService;
 
 namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
@@ -283,6 +283,16 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private bool CanExecuteSaveToFileCommand(object obj)
             => GeophoneModels?.Any() ?? false;
+
+
+        private RelayCommand _loadFromDbCommand;
+        public ICommand LoadFromDbCommand
+            => _loadFromDbCommand ??= new RelayCommand(ExecuteLoadFromDbCommand);
+
+        private void ExecuteLoadFromDbCommand(object obj)
+        {
+            new DbConnectWindow().ShowDialog();
+        }
 
 
         private RelayCommand _loadFromFileCommand;

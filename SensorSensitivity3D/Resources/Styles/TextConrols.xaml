@@ -7,8 +7,9 @@
         TargetType="{x:Type TextBox}">
         <Setter Property="MinWidth" Value="50"/>
         <Setter Property="Height" Value="25"/>
+        <Setter Property="Margin" Value="0 12"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="IsReadOnly" Value="True"/>
@@ -17,7 +18,7 @@
     <Style
         x:Key="BoundaryTextBlock"
         TargetType="{x:Type TextBlock}">
-        <Setter Property="Margin" Value="10 20"/>
+        <Setter Property="Margin" Value="5 12"/>
         <Setter Property="TextAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
