@@ -10,17 +10,17 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Foreground" Value="Black"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="0 5"/>
+        <Setter Property="Margin" Value="0 10"/>
         <Setter Property="FontSize" Value="15"/>
     </Style>
 
     <Style
         x:Key="EditTextBox"
         TargetType="{x:Type TextBox}">
-        <Setter Property="Margin" Value="0 5"/>
+        <Setter Property="Margin" Value="0 0 0 15"/>
         <Setter Property="Padding" Value="10 0"/>
         <Setter Property="MinWidth" Value="95"/>
-        <Setter Property="Height" Value="20"/>
+        <Setter Property="Height" Value="25"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>

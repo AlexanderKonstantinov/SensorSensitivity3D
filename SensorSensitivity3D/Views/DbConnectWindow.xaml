@@ -3,12 +3,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SensorSensitivity3D.Views"
         mc:Ignorable="d"
         xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
         xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
         Title="Подключение к базе данных Geoacoustics"
-        Height="450" Width="320"
+        Height="350" Width="320"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize">
 
@@ -16,7 +15,7 @@
         <viewModels:DbConnectViewModel />
     </Window.DataContext>
 
-    <Grid Margin="10">
+    <Grid Margin="15" VerticalAlignment="Stretch">
 
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -36,59 +35,65 @@
             Grid.Column="0" 
             Text="Имя сервера" 
             Style="{StaticResource TitleTextBlock}"/>
-
         <ScrollViewer 
-            t:StyleManager.Theme="Fluent"
             Grid.Row="0"
             Grid.Column="1" 
-            VerticalScrollBarVisibility="Hidden"
-            HorizontalScrollBarVisibility="Auto">
+            Style="{StaticResource HorizontalScrollViewer}">
             <TextBox 
                  Text="{Binding ServerName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
                  Style="{StaticResource EditTextBox}"/>
         </ScrollViewer>
-            
-       
 
         <TextBlock 
             Grid.Row="1" 
             Grid.Column="0" 
             Text="Имя базы данных" 
             Style="{StaticResource TitleTextBlock}"/>
-        <TextBox 
+        <ScrollViewer 
             Grid.Row="1"
             Grid.Column="1" 
-            Text="{Binding DbName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
-            Style="{StaticResource EditTextBox}"/>
+            Style="{StaticResource HorizontalScrollViewer}">
+            <TextBox             
+                Text="{Binding DbName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                Style="{StaticResource EditTextBox}"/>
+        </ScrollViewer>        
 
         <TextBlock 
             Grid.Row="2" 
             Grid.Column="0" 
             Text="Имя пользователя" 
             Style="{StaticResource TitleTextBlock}"/>
-        <TextBox 
+        <ScrollViewer 
             Grid.Row="2"
             Grid.Column="1" 
-            Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
-            Style="{StaticResource EditTextBox}"/>
+            Style="{StaticResource HorizontalScrollViewer}">
+            <TextBox                 
+                Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                Style="{StaticResource EditTextBox}"/>
+        </ScrollViewer>        
 
         <TextBlock 
             Grid.Row="3" 
             Grid.Column="0" 
             Text="Пароль" 
             Style="{StaticResource TitleTextBlock}"/>
-        <TextBox 
+        <ScrollViewer 
             Grid.Row="3"
             Grid.Column="1" 
-            Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
-            Style="{StaticResource EditTextBox}"/>
-      
+            Style="{StaticResource HorizontalScrollViewer}">
+            <TextBox             
+                Text="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                Style="{StaticResource EditTextBox}"/>
+        </ScrollViewer>
+       
         <StackPanel 
             Grid.Row="4"
             Grid.Column="0"
+            Margin="0"
             Grid.ColumnSpan="2"
             Orientation="Horizontal"
-            HorizontalAlignment="Right">
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom">
            
             <t:RadButton 
                 Content="Отмена"

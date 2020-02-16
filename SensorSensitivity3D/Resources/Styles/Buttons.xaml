@@ -205,7 +205,7 @@
         <Setter Property="Width" Value="100" />
         <Setter Property="CornerRadius" Value="4" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Margin" Value="10" />
+        <Setter Property="Margin" Value="15 15 0 0" />
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 

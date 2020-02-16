@@ -228,6 +228,7 @@
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="ViewModels\DbConnectViewModel.cs" />
     <Compile Include="ViewModels\DrawingViewModel.cs" />
+    <Compile Include="ViewModels\GeophoneAddingViewModel.cs" />
     <Compile Include="ViewModels\GeophoneViewModels\GeophonesViewModel.cs" />
     <Compile Include="ViewModels\GeophoneViewModels\GeophoneViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -237,6 +238,9 @@
     </Compile>
     <Compile Include="Views\Drawing.xaml.cs">
       <DependentUpon>Drawing.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GeophoneAddingWindow.xaml.cs">
+      <DependentUpon>GeophoneAddingWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GeophoneUserControls\Geophones.xaml.cs">
       <DependentUpon>Geophones.xaml</DependentUpon>
@@ -276,6 +280,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Resources\Styles\ScrollViewers.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\Styles\TextConrols.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -291,6 +299,10 @@
     <Page Include="Views\Drawing.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\GeophoneAddingWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\GeophoneUserControls\Geophones.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -61,9 +61,8 @@
             
         <ScrollViewer 
             Grid.Row="1"
-            Grid.Column="2" 
-            VerticalScrollBarVisibility="Hidden"
-            HorizontalScrollBarVisibility="Hidden">
+            Grid.Column="2"             
+            Style="{StaticResource HorizontalScrollViewer}">
             <TextBox 
                 Text="{Binding EditedGeophone.Name, UpdateSourceTrigger=PropertyChanged}" 
                 Style="{StaticResource EditTextBox}" />

@@ -74,7 +74,7 @@
         <Setter Property="Focusable" Value="False"/>
     </Style>
 
-    <Style TargetType="Label" x:Key="BaseLabel">
+    <Style TargetType="ScrollViewer" x:Key="BaseScrollViewer">
         <Setter Property="t:StyleManager.Theme" Value="{StaticResource Theme}"/>
         <Setter Property="Focusable" Value="False"/>
     </Style>
