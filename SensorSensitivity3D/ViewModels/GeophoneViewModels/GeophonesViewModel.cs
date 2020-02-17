@@ -312,33 +312,43 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
             var loadedGeophones = _geophoneService.LoadFromFile(openFileDialog.FileName);
 
-            string message;
-            if (loadedGeophones != null && loadedGeophones.Any())
+            var editorWindow = new GeophonesEditorWindow();
+            var editorViewModel = new GeophonesEditorViewModel(loadedGeophones, isFull: true);
+            editorViewModel.OnGeophonesAdding += (selectedGeophones) =>
             {
-                foreach (var g in loadedGeophones)
-                {
-                    g.InitEntities();
-                    if (_geophoneService.AddGeophone(g, _config.Id))
-                        GeophoneModels.Add(g);
-                }
-
-                AddEntities(loadedGeophones.SelectMany(g => g.Entities));
-                message = "Геофоны успешно загружены";                
-            }
-            else
-            {
-                message = "Ошибка при загрузке геофонов";
-            }
-
-            MessageBox.Show(message);
-
-            UpdateGeophonesColor();
-            UpdateVisibilityParams();
+                AddGeophones(selectedGeophones);
+            };
+                
+            editorWindow.DataContext = editorViewModel;
+            editorWindow.ShowDialog();            
         }
 
         #endregion
 
         #endregion
+
+        /// <summary>
+        /// Добавление нескольких геофонов в БД и обновление 
+        /// отображения геофонов
+        /// </summary>
+        /// <param name="geophones"></param>
+        private void AddGeophones(IEnumerable<GeophoneModel> geophones)
+        {
+            var before = GeophoneModels.Count;
+
+            foreach (var g in geophones)
+            {
+                g.InitEntities();
+                if (_geophoneService.AddGeophone(g, _config.Id))
+                    GeophoneModels.Add(g);
+            }            
+            
+            MessageBox.Show($"Успешно добавлено геофонов - {GeophoneModels.Count - before}");
+
+            AddEntities(geophones.SelectMany(g => g.Entities));
+            UpdateGeophonesColor();
+            UpdateVisibilityParams();
+        }
 
 
         /// <summary>

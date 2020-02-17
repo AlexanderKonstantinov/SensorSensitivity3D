@@ -4,8 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
-        xmlns:geophoneViewModels="clr-namespace:SensorSensitivity3D.ViewModels.GeophoneViewModels"
+        xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"        xmlns:geophoneViewModels="clr-namespace:SensorSensitivity3D.ViewModels.GeophoneViewModels"
         xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
         Title="Добавление геофонов"         
         Height="800" Width="600"
@@ -18,6 +17,10 @@
     
     <Window.Resources>
         <helpers:StringToColorConverter x:Key="StringToColorConverter" />
+        <helpers:BoolToVisibilityConverter 
+            x:Key="BoolToVisibilityConverter"
+            TrueValue="Collapsed"
+            FalseValue="Visible"/>
     </Window.Resources>
 
     <Grid Margin="15">
@@ -30,6 +33,7 @@
         </Grid.RowDefinitions>
 
         <Grid 
+            Visibility="{Binding IsFull, Mode=OneTime, Converter={StaticResource BoolToVisibilityConverter}}"
             Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -47,7 +51,7 @@
                 ToolTip="Установить общий цвет для всех загружаемых геофонов и их сфер чувствительности"
                 Style="{StaticResource TitleTextBlock}"/>
             <t:RadButton
-                Grid.Row="8"
+                Grid.Row="0"
                 Grid.Column="1"
                 Style="{StaticResource ColorButton}"
                 Click="ColorButton_Click"
@@ -76,7 +80,7 @@
             <TextBox 
                 Grid.Row="1"
                 Grid.Column="1"
-                Text="{Binding GeophonesSensitivityLimit, UpdateSourceTrigger=PropertyChanged}"  
+                Text="{Binding GeophonesSensitivityLimit, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"  
                 Style="{StaticResource EditTextBox}">
             </TextBox>
         </Grid>
@@ -86,31 +90,68 @@
             HorizontalAlignment="Center"
             Orientation="Horizontal" >
             <TextBlock
-                Text="{Binding TotalGeophoneCount, StringFormat=Всего загружено геофонов -  {0}}"
+                Text="{Binding TotalGeophoneCount, Mode=OneTime, StringFormat=Всего загружено геофонов - {0}\, выбрано -}"
                 FontSize="20"
-                FontStyle="Italic"
                 HorizontalAlignment="Center"
                 Style="{StaticResource TitleTextBlock}"/>
 
             <TextBlock
-                Text="{Binding SelectedGeophoneCount, StringFormat=\, выбрано -  {0}}"
+                x:Name="SelectedGeophoneCount"                
                 FontSize="20"
-                FontStyle="Italic"
                 HorizontalAlignment="Center"
                 Style="{StaticResource TitleTextBlock}"/>
         </WrapPanel>
             
-        <ListBox 
+        <t:RadListBox 
+            x:Name="GeophoneList"
             ItemsSource="{Binding Geophones}"
-            Grid.Row="2">
-            <ListBox.ItemTemplate>
+            SelectionMode="Multiple"
+            Background="Transparent" 
+            FontSize="14"
+            BorderThickness="1"
+            BorderBrush="#66b366"
+            Padding="5"
+            Grid.Row="2"
+            Style="{StaticResource ResourceKey=ScrolledListBox}"
+            SelectionChanged="RadListBox_SelectionChanged">
+            
+            <t:RadListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <CheckBox Content="{Binding d}" IsChecked="{Binding IsChanged}"/>
-                    </StackPanel>
+                    <TextBlock 
+                        Text="{Binding}" 
+                        Padding="5" />
                 </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+            </t:RadListBox.ItemTemplate>
+
+            <t:RadListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type t:RadListBoxItem}">
+
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True" >
+                            <Setter Property="Background" Value="#66b366" />
+                        </Trigger>
+                    </Style.Triggers>
+                    <Style.Resources>
+                        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                    </Style.Resources>
+
+                    <Setter Property="Margin" Value="0 5" />
+
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type t:RadListBoxItem}">
+                                <Border x:Name="GeophoneListItem" 
+                                        CornerRadius="10"
+                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                        Background="{TemplateBinding Background}" >
+                                    <ContentPresenter Margin="5"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </t:RadListBox.ItemContainerStyle>
+        </t:RadListBox>
 
         <StackPanel 
             Grid.Row="3"
@@ -121,14 +162,16 @@
 
             <t:RadButton 
                 Content="Отмена"
-                Command="{Binding CancelCommand}"
-                Style="{StaticResource AcceptDeclineButton}"/>
+                Style="{StaticResource AcceptDeclineButton}" 
+                Click="RadButton_Click"/>
 
             <t:RadButton 
+                x:Name="AddButton"
                 Content="Добавить"
                 ToolTip="Добавить выбранные геофоны"
                 Background="#66b366"
-                Command="{Binding ConnectDBCommand}"
+                Command="{Binding AddGeophonesCommand}"
+                CommandParameter="{Binding ElementName=GeophoneList, Path=}"
                 Style="{StaticResource AcceptDeclineButton}"/>
 
         </StackPanel>
