@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -111,5 +112,62 @@ namespace SensorSensitivity3D.Services
 
             return geophones;
         }
+
+        public IEnumerable<GeophoneModel> GetGeophonesFromGCSDb(string connectionString, out string errorMessage)
+        {
+            List<GeophoneModel> geophones = null;
+            errorMessage = String.Empty;
+
+            try
+            {
+                using (var cnn = new SqlConnection(connectionString))
+                {
+                    cnn.Open();
+
+                    using (var command = cnn.CreateCommand())
+                    {
+                        var sensorHoles = new Dictionary<int, int>();
+
+                        command.CommandText = @"
+SELECT Sensors.HWID, Holes.Name, Holes.X, Holes.Y, Holes.Z
+FROM SensorHole
+
+LEFT OUTER JOIN Sensors
+ON SensorHole.SensorID = Sensors.ID
+
+LEFT OUTER JOIN Holes
+ON SensorHole.HoleID = Holes.ID
+
+WHERE SensorHole.BeginTime IN (
+SELECT MAX(BeginTime) FROM SensorHole Where BeginTime IN (
+SELECT MAX(BeginTime) FROM SensorHole GROUP BY HoleID) GROUP BY SensorID)";
+
+                        geophones = new List<GeophoneModel>(sensorHoles.Count);
+
+                        using (var reader = command.ExecuteReader())
+                        {
+                            while (reader.Read())
+                                geophones.Add(new GeophoneModel
+                                {
+                                    Name = $"HWID {reader.GetInt32(0)}",
+                                    HoleNumber = reader.GetInt32(1),
+                                    X = reader.GetFloat(2),
+                                    Y = reader.GetFloat(3),
+                                    Z = reader.GetFloat(4),
+                                    IsGood = true
+                                });
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                errorMessage = e.Message;
+                return geophones;
+            }
+
+            return geophones;
+        }
     }
+    
 }

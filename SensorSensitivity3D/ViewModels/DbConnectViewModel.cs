@@ -10,21 +10,21 @@ namespace SensorSensitivity3D.ViewModels
 {
     public class DbConnectViewModel : BaseViewModel
     {
-        private GCSDbReadService _gcsDbReadService;
+        private GeophoneService _gcsDbReadService;
 
         public string ServerName { get; set; }
         public string  DbName { get; set; }
         public string  UserName { get; set; }
         public string  Password { get; set; }
 
-        public DbConnectViewModel()
+        public DbConnectViewModel(GeophoneService gcsDbReadService)
         {
+            _gcsDbReadService = gcsDbReadService;
+
             ServerName = "(local)";
             DbName = "Apatit";
             UserName = "sa";
             Password = "2006";
-
-            _gcsDbReadService = new GCSDbReadService();
         }
 
 

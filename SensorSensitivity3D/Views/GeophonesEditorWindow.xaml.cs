@@ -1,15 +1,14 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace SensorSensitivity3D.Views.GeophoneUserControls
+namespace SensorSensitivity3D.Views
 {
     /// <summary>
-    /// Логика взаимодействия для Geophone.xaml
+    /// Логика взаимодействия для GeophonesEditorWindow.xaml
     /// </summary>
-    public partial class Geophone : UserControl
+    public partial class GeophonesEditorWindow : Window
     {
-        public Geophone()
+        public GeophonesEditorWindow()
         {
             InitializeComponent();
         }

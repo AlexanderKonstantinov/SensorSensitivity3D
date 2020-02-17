@@ -1,0 +1,136 @@
+﻿<Window x:Class="SensorSensitivity3D.Views.GeophonesEditorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
+        xmlns:geophoneViewModels="clr-namespace:SensorSensitivity3D.ViewModels.GeophoneViewModels"
+        xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
+        Title="Добавление геофонов"         
+        Height="800" Width="600"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.DataContext>
+        <geophoneViewModels:GeophonesEditorViewModel />
+    </Window.DataContext>
+    
+    <Window.Resources>
+        <helpers:StringToColorConverter x:Key="StringToColorConverter" />
+    </Window.Resources>
+
+    <Grid Margin="15">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid 
+            Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock 
+                Grid.Row="0"
+                Grid.Column="0"
+                Text="Цвет геофонов и сфер чувствительности" 
+                ToolTip="Установить общий цвет для всех загружаемых геофонов и их сфер чувствительности"
+                Style="{StaticResource TitleTextBlock}"/>
+            <t:RadButton
+                Grid.Row="8"
+                Grid.Column="1"
+                Style="{StaticResource ColorButton}"
+                Click="ColorButton_Click"
+                Background="{Binding GeophonesColor, Mode=OneWay, Converter={StaticResource StringToColorConverter}}" />
+            <Popup     
+            Grid.Row="0"
+            Grid.Column="1"
+            x:Name="ColorEditorPopupGeophonePanel"             
+            Style="{StaticResource ColorEditorPopup}" >
+                <Grid MouseLeave="ColorEditor_MouseLeave">
+                    <t:RadColorEditor                         
+                        x:Name="ColorEditorGeophonePanel"   
+                        SelectedColor="{Binding GeophonesColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToColorConverter}}"
+                        InitialColor="{Binding GeophonesColor, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
+                        Style="{StaticResource ColorEditor}" >
+                    </t:RadColorEditor>
+                </Grid>
+            </Popup>
+
+            <TextBlock 
+                Grid.Row="1"
+                Grid.Column="0"
+                Text="Предел чувствительности геофонов, м" 
+                ToolTip="Установить общий предел чувствительности для загружаемых геофонов"
+                Style="{StaticResource TitleTextBlock}"/>
+            <TextBox 
+                Grid.Row="1"
+                Grid.Column="1"
+                Text="{Binding GeophonesSensitivityLimit, UpdateSourceTrigger=PropertyChanged}"  
+                Style="{StaticResource EditTextBox}">
+            </TextBox>
+        </Grid>
+
+        <WrapPanel 
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal" >
+            <TextBlock
+                Text="{Binding TotalGeophoneCount, StringFormat=Всего загружено геофонов -  {0}}"
+                FontSize="20"
+                FontStyle="Italic"
+                HorizontalAlignment="Center"
+                Style="{StaticResource TitleTextBlock}"/>
+
+            <TextBlock
+                Text="{Binding SelectedGeophoneCount, StringFormat=\, выбрано -  {0}}"
+                FontSize="20"
+                FontStyle="Italic"
+                HorizontalAlignment="Center"
+                Style="{StaticResource TitleTextBlock}"/>
+        </WrapPanel>
+            
+        <ListBox 
+            ItemsSource="{Binding Geophones}"
+            Grid.Row="2">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <CheckBox Content="{Binding d}" IsChecked="{Binding IsChanged}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <StackPanel 
+            Grid.Row="3"
+            Margin="0"
+            Orientation="Horizontal"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom">
+
+            <t:RadButton 
+                Content="Отмена"
+                Command="{Binding CancelCommand}"
+                Style="{StaticResource AcceptDeclineButton}"/>
+
+            <t:RadButton 
+                Content="Добавить"
+                ToolTip="Добавить выбранные геофоны"
+                Background="#66b366"
+                Command="{Binding ConnectDBCommand}"
+                Style="{StaticResource AcceptDeclineButton}"/>
+
+        </StackPanel>
+    </Grid>
+</Window>

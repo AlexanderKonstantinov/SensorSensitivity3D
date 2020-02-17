@@ -171,7 +171,7 @@ namespace SensorSensitivity3D.Domain.Models
             }
         }
 
-        private string _color = $"#000000";
+        private string _color = $"#808080"; // gray
         public string Color
         {
             get => _color;
