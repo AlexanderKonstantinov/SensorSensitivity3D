@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace SensorSensitivity3D.Views
@@ -8,11 +9,11 @@ namespace SensorSensitivity3D.Views
     /// </summary>
     public partial class GeophonesEditorWindow : Window
     {
-        public GeophonesEditorWindow()
+        public GeophonesEditorWindow(string title)
         {
             InitializeComponent();
 
-            SelectedGeophoneCount.Text = " 0";
+            this.Title = title;
         }
 
         private void ColorButton_Click(object sender, RoutedEventArgs e)
@@ -26,12 +27,24 @@ namespace SensorSensitivity3D.Views
             this.Close();
         }
 
-        private void RadListBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void SelectAllButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var count = GeophoneList.SelectedItems.Count;
+            if (SelectAllButton.IsChecked.Value)
+                GeophoneList.SelectionHelper.SelectItems(GeophoneList.Items);
+            else
+                GeophoneList.SelectionHelper.DeselectItems(GeophoneList.Items);
+        }
 
-            SelectedGeophoneCount.Text = $" {count}";
-            AddButton.IsEnabled = count > 0;
+        private void GeophoneList_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SelectAllButton.IsChecked = GeophoneList.SelectedItems.Count == GeophoneList.Items.Count;
+           
+            SelectAllButton.Content = SelectAllButton.IsChecked.Value ? "Сбросить все" : "Выбрать все";
+        }
+
+        private void GeophonesEditorWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            GeophoneList.SelectionHelper.SelectItems(GeophoneList.Items);
         }
     }
 }

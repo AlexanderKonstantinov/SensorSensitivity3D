@@ -9,9 +9,11 @@ using System.Linq;
 using System.Windows.Input;
 using SensorSensitivity3D.Domain.Enums;
 using System;
+using System.IO;
 using SensorSensitivity3D.ViewModels.Base;
 using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Shapes;
 using SensorSensitivity3D.Views;
 using static SensorSensitivity3D.Services.ModelInteractionService;
 
@@ -263,22 +265,34 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteSaveToFileCommand(object obj)
         {
+            var resourcesPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Resources", _config.Name);
+
             var saveFileDialog = new SaveFileDialog
             {
-                FileName = $"{_config.Name}.xml",
-                InitialDirectory = Environment.CurrentDirectory,
+                FileName = $"Геофоны. {_config.Name}.xml",
+                InitialDirectory = Directory.Exists(resourcesPath) ? resourcesPath : Environment.CurrentDirectory,
                 AddExtension = true,
                 Title = "Выберите файл для сохранения",
                 Filter = "XML Format (*.xml)|*.xml"
             };
 
             if (saveFileDialog.ShowDialog() != true) return;
+            
+            var editorWindow = new GeophonesEditorWindow("Сохранение геофонов в файл");
+            var editorViewModel = new GeophonesEditorViewModel(GeophoneModels, isFull: true);
+            editorViewModel.OnSelectionGeophones += (selectedGeophones) =>
+            {
+                editorWindow.Close();
 
-            var message = _geophoneService.SaveToFile(GeophoneModels, saveFileDialog.FileName)
-                ? "Геофоны успешно сохранены"
-                : "Ошибка при сохранении геофонов";
+                var message = _geophoneService.SaveToFile(selectedGeophones, saveFileDialog.FileName)
+                    ? "Геофоны успешно сохранены"
+                    : "Ошибка при сохранении геофонов";
 
-            MessageBox.Show(message);
+                MessageBox.Show(message);
+            };
+
+            editorWindow.DataContext = editorViewModel;
+            editorWindow.ShowDialog();
         }
 
         private bool CanExecuteSaveToFileCommand(object obj)
@@ -291,7 +305,45 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteLoadFromDbCommand(object obj)
         {
-            new DbConnectWindow().ShowDialog();
+            var connectionViewModel = new DbConnectViewModel();
+
+            var connectionWindow = new DbConnectWindow
+            {
+                DataContext = connectionViewModel
+            };
+
+            connectionViewModel.OnSuccessConnection += connectionString =>
+                {
+                    var loadedGeophones = _geophoneService.GetGeophonesFromGCSDb(connectionString, out string errorMessage);
+                    
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        MessageBox.Show(errorMessage, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+                    if (!loadedGeophones.Any())
+                    {
+                        MessageBox.Show(
+                            "В выбранной базе данных не обнаружено установленных геофонов",
+                            "Сообщение", MessageBoxButton.OK);
+                        return;
+                    }
+
+                    connectionWindow.Close();
+
+                    var editorWindow = new GeophonesEditorWindow("Загрузка геофонов из базы данных Geoacoustics");
+                    var editorViewModel = new GeophonesEditorViewModel(loadedGeophones, isFull: false);
+                    editorViewModel.OnSelectionGeophones += selectedGeophones =>
+                    {
+                        AddGeophones(selectedGeophones);
+                        editorWindow.Close();
+                    };
+
+                    editorWindow.DataContext = editorViewModel;
+                    editorWindow.ShowDialog();
+                };
+
+            connectionWindow.ShowDialog();
         }
 
 
@@ -301,9 +353,11 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteLoadFromFileCommand(object obj)
         {
+            var resourcesPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Resources", _config.Name);
+
             var openFileDialog = new OpenFileDialog
             {
-                InitialDirectory = Environment.CurrentDirectory,
+                InitialDirectory = Directory.Exists(resourcesPath) ? resourcesPath : Environment.CurrentDirectory,
                 Title = "Выберите файл для загрузки",
                 Filter = "XML Format (*.xml)|*.xml"
             };
@@ -312,11 +366,12 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
             var loadedGeophones = _geophoneService.LoadFromFile(openFileDialog.FileName);
 
-            var editorWindow = new GeophonesEditorWindow();
+            var editorWindow = new GeophonesEditorWindow("Загрузка геофонов из файла");
             var editorViewModel = new GeophonesEditorViewModel(loadedGeophones, isFull: true);
-            editorViewModel.OnGeophonesAdding += (selectedGeophones) =>
+            editorViewModel.OnSelectionGeophones += (selectedGeophones) =>
             {
                 AddGeophones(selectedGeophones);
+                editorWindow.Close();
             };
                 
             editorWindow.DataContext = editorViewModel;

@@ -62,6 +62,7 @@
     <Compile Include="Models\CustomModel.cs" />
     <Compile Include="Models\Drawing.cs" />
     <Compile Include="Models\GeophoneModel.cs" />
+    <Compile Include="Models\SelectableGeophone.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

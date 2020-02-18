@@ -151,9 +151,11 @@ SELECT MAX(BeginTime) FROM SensorHole GROUP BY HoleID) GROUP BY SensorID)";
                                 {
                                     Name = $"HWID {reader.GetInt32(0)}",
                                     HoleNumber = reader.GetInt32(1),
-                                    X = reader.GetFloat(2),
-                                    Y = reader.GetFloat(3),
-                                    Z = reader.GetFloat(4),
+                                    X = reader.GetDouble(2),
+                                    Y = reader.GetDouble(3),
+                                    Z = reader.GetDouble(4),
+                                    GIsVisible = true,
+                                    SIsVisible = true,
                                     IsGood = true
                                 });
                         }

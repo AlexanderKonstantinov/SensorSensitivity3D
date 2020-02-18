@@ -9,7 +9,7 @@
         Title="Подключение к базе данных Geoacoustics"
         Height="350" Width="320"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize" >
 
     <Window.DataContext>
         <viewModels:DbConnectViewModel />
@@ -98,11 +98,11 @@
             <t:RadButton 
                 Content="Отмена"
                 Command="{Binding CancelCommand}"
-                Style="{StaticResource AcceptDeclineButton}"/>
+                Style="{StaticResource AcceptDeclineButton}" Click="RadButton_Click"/>
 
             <t:RadButton 
-                Content="Подключиться"
-                ToolTip="Установить подключение к базе данных"
+                Content="Подключение"
+                ToolTip="Установить соединение с базой данных"
                 Background="#66b366"
                 Command="{Binding ConnectDBCommand}"
                 Style="{StaticResource AcceptDeclineButton}"/>

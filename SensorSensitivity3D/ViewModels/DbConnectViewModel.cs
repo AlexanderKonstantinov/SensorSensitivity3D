@@ -3,24 +3,27 @@ using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Input;
 using SensorSensitivity3D.Infrastructure;
-using SensorSensitivity3D.Services;
 using SensorSensitivity3D.ViewModels.Base;
 
 namespace SensorSensitivity3D.ViewModels
 {
     public class DbConnectViewModel : BaseViewModel
     {
-        private GeophoneService _gcsDbReadService;
+        /// <summary>
+        /// Вызывается при успешном подключении к базе данных
+        /// </summary>
+        public Action<string> OnSuccessConnection;
+
+        private string ConnectionString 
+            => $@"Data Source={ServerName};Initial Catalog={DbName};User ID={UserName};Password={Password}";
 
         public string ServerName { get; set; }
         public string  DbName { get; set; }
         public string  UserName { get; set; }
         public string  Password { get; set; }
-
-        public DbConnectViewModel(GeophoneService gcsDbReadService)
+        
+        public DbConnectViewModel()
         {
-            _gcsDbReadService = gcsDbReadService;
-
             ServerName = "(local)";
             DbName = "Apatit";
             UserName = "sa";
@@ -32,27 +35,33 @@ namespace SensorSensitivity3D.ViewModels
         public ICommand ConnectDBCommand
             => _connectDBCommand ??= new RelayCommand(ExecuteConnectDBCommand, CanExecuteConnectDBCommand);
 
+        /// <summary>
+        /// Попытка установления соединения с БД
+        /// </summary>
+        /// <param name="obj"></param>
         private void ExecuteConnectDBCommand(object obj)
         {
-            string connectionString = $@"Data Source={ServerName};Initial Catalog={DbName};User ID={UserName};Password={Password}";
-
-            var geophones = _gcsDbReadService.GetGeophonesFromGCSDb(connectionString, out string errorMessage);
-
-            if (!string.IsNullOrEmpty(errorMessage))
+            using (SqlConnection connection = new SqlConnection(ConnectionString))
             {
-                MessageBox.Show(
-                    "Подключение к базе данных не выполнено. Проверьте достоверность введенных данных.",
-                    "Ошибка подключения",
-                    MessageBoxButton.OK, 
-                    MessageBoxImage.Error);
-                return;
+                try
+                {
+                    connection.Open();
+                    OnSuccessConnection?.Invoke(ConnectionString);
+                }
+                catch (SqlException)
+                {
+                    MessageBox.Show(
+                        "Подключение к базе данных не выполнено. Проверьте достоверность введенных данных.",
+                        "Ошибка подключения",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
             }
-
-
         }
 
         private bool CanExecuteConnectDBCommand(object obj)
-            => true;
+            => !(string.IsNullOrEmpty(ServerName)
+               || string.IsNullOrEmpty(DbName));
 
         protected override void OnDispose()
         {

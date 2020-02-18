@@ -23,5 +23,10 @@ namespace SensorSensitivity3D.Views
         {
             InitializeComponent();
         }
+
+        private void RadButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
     }
 }
