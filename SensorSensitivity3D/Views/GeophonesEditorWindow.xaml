@@ -130,12 +130,12 @@
             Grid.Row="3"
             Style="{StaticResource ResourceKey=ScrolledListBox}">
 
-            <i:Interaction.Triggers>
+            <!--<i:Interaction.Triggers>
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction 
-                        Command="{Binding DataContext.SelectGeophoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"/>
+                        Command="{Binding DataContext.SelectGeophoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}" />
                 </i:EventTrigger>
-            </i:Interaction.Triggers>
+            </i:Interaction.Triggers>-->
 
             <t:RadListBox.ItemTemplate>
                 <DataTemplate>
@@ -163,8 +163,6 @@
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
                     </Style.Resources>
 
-                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-
                     <Setter Property="Margin" Value="0 5" />
 
                     <Setter Property="Template">
@@ -175,6 +173,15 @@
                                         BorderBrush="{TemplateBinding BorderBrush}" 
                                         Background="{TemplateBinding Background}" >
                                     <ContentPresenter Margin="5"/>
+
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseDown">
+                                            <i:InvokeCommandAction 
+                                                    Command="{Binding DataContext.SelectGeophoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                                    CommandParameter="{Binding}"/>
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+
                                 </Border>
                             </ControlTemplate>
                         </Setter.Value>
@@ -182,7 +189,7 @@
                 </Style>
             </t:RadListBox.ItemContainerStyle>
         </t:RadListBox>
-
+        
         <Border 
             Grid.Row="4" 
             BorderBrush="Gray" 
@@ -208,7 +215,9 @@
                 CornerRadius="4"
                 Style="{StaticResource BaseRadToggleButton}"
                 HorizontalAlignment="Left"
-                Click="SelectAllButton_OnClick">
+                Click="SelectAllButton_OnClick"
+                Command="{Binding SelectAllGeophoneCommand}"
+                CommandParameter="{Binding ElementName=SelectAllButton, Path=IsChecked}">
             </t:RadToggleButton>
 
             <t:RadButton 

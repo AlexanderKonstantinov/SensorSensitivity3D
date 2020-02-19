@@ -20,6 +20,22 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         public int TotalGeophoneCount { get; }
         public int SelectedGeophoneCount => Geophones?.Count(g => g.IsSelected) ?? 0;
 
+        private SelectableGeophone _lastSelectedGeophone;
+        public SelectableGeophone LastSelectedGeophone
+        {
+            get => _lastSelectedGeophone;
+            set
+            {
+                if (value is null)
+                    _lastSelectedGeophone.IsSelected = false;
+                else
+                {
+                    _lastSelectedGeophone = value;
+                    _lastSelectedGeophone.IsSelected = true;
+                }
+                OnPropertyChanged(nameof(SelectedGeophoneCount));
+            }
+        }
         public ObservableCollection<SelectableGeophone> Geophones { get; set; }
         
         public GeophonesEditorViewModel() { }
@@ -49,11 +65,14 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                 .Where(g => g.IsSelected)
                 .Select(g => g.GeophoneModel);
 
-            foreach (var g in selectedGeophones)
+            if (!IsFull)
             {
-                g.Color = GeophonesColor;
-                g.R = GeophonesSensitivityLimit;
-            }
+                foreach (var g in selectedGeophones)
+                {
+                    g.Color = GeophonesColor;
+                    g.R = GeophonesSensitivityLimit;
+                }
+            }            
 
             OnSelectionGeophones?.Invoke(selectedGeophones);
         }
@@ -68,6 +87,23 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteSelectGeophoneCommand(object obj)
         {
+            var geophone = obj as SelectableGeophone;
+            geophone.IsSelected = !geophone.IsSelected;
+
+            OnPropertyChanged(nameof(SelectedGeophoneCount));
+        }
+
+        private RelayCommand _selectAllGeophoneCommand;
+        public ICommand SelectAllGeophoneCommand
+            => _selectAllGeophoneCommand ??= new RelayCommand(ExecuteAllSelectGeophoneCommand);
+
+        private void ExecuteAllSelectGeophoneCommand(object obj)
+        {
+            var isSelected = (bool) obj;
+
+            foreach (var g in Geophones)
+                g.IsSelected = isSelected;
+
             OnPropertyChanged(nameof(SelectedGeophoneCount));
         }
 
