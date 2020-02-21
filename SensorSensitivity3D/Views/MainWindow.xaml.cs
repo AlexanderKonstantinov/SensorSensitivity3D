@@ -1,10 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using devDept.Eyeshot;
 using SensorSensitivity3D.DAL;
 using SensorSensitivity3D.ViewModels;
+using Telerik.Windows;
 using Telerik.Windows.Controls;
+using Environment = devDept.Eyeshot.Environment;
+using ToolBar = devDept.Eyeshot.ToolBar;
 
 namespace SensorSensitivity3D.Views
 {
@@ -14,11 +22,23 @@ namespace SensorSensitivity3D.Views
     public partial class MainWindow : Window
     {
         private MainViewModel _viewModel;
-
+        
         public MainWindow()
         {
-            
             InitializeComponent();
+
+            // performance settings
+            Model.DisplayMode = displayType.Rendered;
+            Model.Renderer = rendererType.Native;
+            Model.ShowFps = true;
+            Model.DisplayMode = displayType.Shaded;
+            Model.Shaded.ShowEdges = false;
+            Model.Shaded.ShowInternalWires = false;
+            Model.Shaded.ShadowMode = devDept.Graphics.shadowType.None;
+            Model.Rendered.ShowEdges = false;
+            Model.Rendered.RealisticShadowQuality = devDept.Graphics.realisticShadowQualityType.Low;
+            Model.Rendered.ShadowMode = devDept.Graphics.shadowType.None;
+            Model.AskForAntiAliasing = true;
             
             // Указание на путь к БД или создание файла БД
             var resDir = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
@@ -34,7 +54,9 @@ namespace SensorSensitivity3D.Views
             _viewModel = new MainViewModel(Model);
 
             DataContext = _viewModel;
-            
+
+            InitializeToolbarButtons();
+
             //GeophoneTabItem.Content = new Geophones();
 
             //var factory = new Context.ContextFactory();
@@ -56,12 +78,64 @@ namespace SensorSensitivity3D.Views
             //}
         }
 
+        private void InitializeToolbarButtons()
+        {
+            
+            // removes some of the standard Eyeshot buttons
+            var buttons = new List<ToolBarButton>();
+
+            var separatorButton = new devDept.Eyeshot.ToolBarButton(
+                null,
+                "Separator",
+                "",
+                devDept.Eyeshot.ToolBarButton.styleType.Separator,
+                true);
+            
+            var settingsButton = new devDept.Eyeshot.ToolBarButton(
+                new BitmapImage(GetUriFromResource("rightPanel.png")),
+                "RightPanelButton",
+                "Показать меню объектов",
+                devDept.Eyeshot.ToolBarButton.styleType.PushButton,
+                true);
+
+
+            //// Add a separator button            
+            //buttons.Add(new devDept.Eyeshot.ToolBarButton(null, "Separator", "", devDept.Eyeshot.ToolBarButton.styleType.Separator, true));
+
+            //buttons.Add(model1.GetToolBar().Buttons[0]);
+            //buttons.Add(model1.GetToolBar().Buttons[1]);
+
+            //// Add a separator button            
+            //buttons.Add(new devDept.Eyeshot.ToolBarButton(null, "Separator", "", devDept.Eyeshot.ToolBarButton.styleType.Separator, true));
+
+            //BitmapImage usersBmp = new BitmapImage(GetUriFromResource("users.png"));
+            //buttons.Add(new devDept.Eyeshot.ToolBarButton(usersBmp, "MyPushButton", "MyPushButton", devDept.Eyeshot.ToolBarButton.styleType.PushButton, true));
+
+            //BitmapImage gearsBmp = new BitmapImage(GetUriFromResource("gears.png"));
+            //buttons.Add(new devDept.Eyeshot.ToolBarButton(gearsBmp, "MyToggleButton", "MyToggleButton", devDept.Eyeshot.ToolBarButton.styleType.ToggleButton, true));
+
+            //Model.GetToolBar().Buttons = new ToolBarButtonList(Model.GetToolBar(), buttons);
+
+            //var leftToolbar = new devDept.Eyeshot.ToolBar();
+            //leftToolbar.Position = ToolBar.positionType.HorizontalTopLeft;
+            //leftToolbar.Buttons.Add(settingsButton);
+
+            var rightToolbar = new ToolBar();
+            rightToolbar.Position = ToolBar.positionType.HorizontalTopRight;
+
+        }
+
+        private static Uri GetUriFromResource(string resourceFilename)
+        {
+            return new Uri(@"pack://application:,,,/Resources/Icons/" + resourceFilename);
+        }
+
         private void RightPanel_PreviewMouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             IInputElement focusableElement = FocusManagerHelper.GetFocusedElement(this);
 
-            if (focusableElement is RadSplitButton)
-                RightPanel.Focus();
+            //if (focusableElement is RadSplitButton)
+                //RightPanel.Focus();
         }
 
         private void NewConfigurationButton_Click(object sender, RoutedEventArgs e)
@@ -111,6 +185,43 @@ namespace SensorSensitivity3D.Views
         {
             EntityPopup.IsOpen = false;
             EntityPopup.IsOpen = !string.IsNullOrEmpty(EntityInfo.Text);
+        }
+
+
+        private void ShowHideRightPanel_OnClick(object sender, EventArgs e)
+        {
+            RightPanel.Visibility = RightPanel.Visibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        private void SettingsClick(object sender, EventArgs e)
+        {
+            SettingsPopup.IsOpen = true;
+        }
+
+        private void SaveConfig(object sender, EventArgs e)
+        {
+            _viewModel.SaveConfig(false);
+        }
+
+        private void LoadConfig(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void CloseApp(object sender, CancelEventArgs e)
+        {
+            _viewModel.SaveConfig(false);
+            this.Close();
+        }
+
+        private void HideSettingsPopup(object sender, MouseButtonEventArgs e)
+        {
+            SettingsPopup.IsOpen = false;
+        }
+
+        private void HideSettingsPopup(object sender, RadRoutedEventArgs e)
+        {
+            SettingsPopup.IsOpen = false;
         }
     }
 }

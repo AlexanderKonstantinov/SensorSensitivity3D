@@ -15,7 +15,7 @@ namespace SensorSensitivity3D.ViewModels
         public Action<string> OnSuccessConnection;
 
         private string ConnectionString 
-            => $@"Data Source={ServerName};Initial Catalog={DbName};User ID={UserName};Password={Password}";
+            => $@"Data Source={ServerName};Initial Catalog={DbName};User ID={UserName};Password={Password};Connection Timeout=5";
 
         public string ServerName { get; set; }
         public string  DbName { get; set; }

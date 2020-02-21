@@ -41,6 +41,9 @@ namespace SensorSensitivity3D.ViewModels
             _configService = configService;
             _config = config;
 
+            if (string.IsNullOrEmpty(_config.SubstrateName))
+                return;
+
             _substratesDir = Path.Combine(Directory.GetCurrentDirectory(), "Resources", _config.Name);
 
             UpdateSubstrate(Path.Combine(_substratesDir, _config.SubstrateName), _config.DrawingIsVisible, ref _drawing);
@@ -116,7 +119,9 @@ namespace SensorSensitivity3D.ViewModels
         }
 
         public void Drop(IDropInfo dropInfo)
-            => throw new NotImplementedException();
+        {
+
+        }
 
         protected override void OnDispose()
         {

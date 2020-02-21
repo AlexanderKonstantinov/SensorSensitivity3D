@@ -43,17 +43,6 @@
                 </Style>
             </ListBox.ItemContainerStyle>
 
-            <StackPanel>
-
-                <telerik:RadButton
-                    Style="{StaticResource RightPanelIconButton}"
-                    Width="Auto"
-                    VerticalAlignment="Center"
-                    Content="Загрузить модель из файла"
-                    Command="{Binding LoadDrawingCommand}"/>
-
-
-            </StackPanel>
             <Grid 
                 Visibility="{Binding Drawing, Converter={StaticResource NullToVisibilityConverter}}"
                 Margin="10">
@@ -129,6 +118,13 @@
                     Style="{StaticResource BoundaryTextBox}"/>
 
             </Grid>
+
+            <telerik:RadButton
+                Style="{StaticResource RightPanelIconButton}"
+                Width="Auto"
+                VerticalAlignment="Center"
+                Content="Загрузить модель из файла"
+                Command="{Binding LoadDrawingCommand}"/>
         </ListBox>
     </Grid>
 </UserControl>

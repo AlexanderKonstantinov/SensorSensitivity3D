@@ -209,4 +209,11 @@
         <Setter Property="HorizontalAlignment" Value="Stretch" />
     </Style>
 
+    <Style
+        x:Key="SettingsMenuItem"
+        TargetType="{x:Type t:RadMenuItem}"
+        BasedOn="{StaticResource BaseMenuItem}">
+        <Setter Property="Padding" Value="10 5"/>
+    </Style>
+
 </ResourceDictionary>

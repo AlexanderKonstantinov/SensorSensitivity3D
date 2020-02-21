@@ -20,7 +20,10 @@
     d:DesignHeight="650" d:DesignWidth="900"
     MinWidth="850" MinHeight="650" 
     Icon="pack://application:,,,/Resources/Icons/main_icon.png" 
-    PreviewMouseLeftButtonDown="Window_MouseDown" >
+    MouseDown="HideSettingsPopup"
+    PreviewMouseLeftButtonDown="Window_MouseDown"
+    Closing="CloseApp"
+    >
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
@@ -31,18 +34,6 @@
     <Window.DataContext>
         <viewModels:MainViewModel />
     </Window.DataContext>
-
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closing">
-            <i:InvokeCommandAction 
-                Command="{Binding ExecuteBackToConfigsCommand}"/>
-        </i:EventTrigger>
-
-        <i:EventTrigger EventName="MouseDoubleClick">
-            <i:InvokeCommandAction 
-                Command="{Binding ZoomFitEntityCommand}" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
 
     <Grid>
         <StackPanel 
@@ -188,7 +179,7 @@
                 x:Name="NewConfigurationPanel"
                 Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 
@@ -241,12 +232,14 @@
             </Grid>
             
         </StackPanel>
+        
+        <DockPanel
+            LastChildFill="True"
+            x:Name="ModelContainer"
+            Visibility="Visible">
 
-        <Grid 
-            x:Name="ModelContainer" >
-
-            <Grid.Style>
-                <Style TargetType="Grid" >
+            <DockPanel.Style>
+                <Style TargetType="DockPanel" >
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding Visibility, ElementName=ConfigPanel}"
                                          Value="Collapsed">
@@ -258,124 +251,33 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Grid.Style>
-            
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+            </DockPanel.Style>
 
-            <Border
-                Background="Transparent"
-                Panel.ZIndex="1000"
-                Grid.Column="3"
-                Width="350"
-                BorderThickness="1 0 0 0"
-                Visibility="{Binding RightPanelVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+            <t:RadTabControl
+                x:Name="RightPanel"
+                DockPanel.Dock="Right"
+                MinWidth="350"
+                Background="#FF5E6770"
+                UIElement.PreviewMouseUp="RightPanel_PreviewMouseUp"
+                FontSize="16"
+                t:StyleManager.Theme="Green" 
+                DisplayMemberPath="Content" 
+                ScrollMode="Viewport" 
+                SelectedIndex="1"
+                BorderThickness="0"  >
+                <t:RadTabItem Header="Модель" BorderThickness="0">
+                    <views:Drawing DataContext="{Binding DrawingViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </t:RadTabItem>
                 
+                <t:RadTabItem
+                    x:Name="GeophoneTabItem"
+                    Header="Геофоны" >
+                    <geophoneUserControls:Geophones 
+                        DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </t:RadTabItem>
                 
-                <Border.Effect>
-                    <DropShadowEffect 
-                        BlurRadius="15" 
-                        ShadowDepth="5" />
-                </Border.Effect>
-
-                <t:RadTabControl
-                    Background="#FF5E6770"
-                    UIElement.PreviewMouseUp="RightPanel_PreviewMouseUp"
-                    x:Name="RightPanel"
-                    FontSize="16"
-                    t:StyleManager.Theme="Green" 
-                    DisplayMemberPath="Content" 
-                    ScrollMode="Viewport" 
-                    SelectedIndex="1"
-                    BorderThickness="0" >
-                    <t:RadTabItem Header="Модель" >
-                        <views:Drawing DataContext="{Binding DrawingViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    </t:RadTabItem>
-                    
-                    <t:RadTabItem
-                        x:Name="GeophoneTabItem"
-                        Header="Геофоны" >
-                        <geophoneUserControls:Geophones 
-                            DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </t:RadTabItem>
-                    
-                    <t:RadTabItem Header="Зоны локации" />
-                </t:RadTabControl>
-            </Border>
-
-            <t:RadButton                
-                Grid.Column="2"
-                HorizontalAlignment="Right"
-                Style="{StaticResource RightPanelIconButton}"
-                Panel.ZIndex="1000"
-                VerticalAlignment="Top"
-                Padding="3"
-                Margin="0 5" 
-                Command="{Binding PanelCollapseCommand}">
-                <Image Stretch="UniformToFill">
-                    <Image.Style>
-                        <Style TargetType="{x:Type Image}">
-                            <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"></Setter>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding RightPanelVisibility}" Value="True">
-                                    <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding RightPanelVisibility}" Value="False">
-                                    <Setter Property="Source" Value="pack://application:,,,/Resources/Icons/double_arrow_left.png"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Image.Style>
-                </Image>
-            </t:RadButton>
-
-            <Canvas 
-                ZIndex="1000"
-                Grid.Column="0"
-                Width="40" Height="40"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top">          
-
-                <t:RadMenu 
-                    Padding="0"
-                    Margin="0"
-                    Canvas.Top="5"
-                    Canvas.Left="5"
-                    Panel.ZIndex="1000"
-                    Background="Transparent" 
-                    t:StyleManager.Theme="Fluent">
-                    <t:RadMenuItem
-                        Width="30"
-                        Height="30"
-                        DropDownPlacement="Bottom">
-                        <t:RadMenuItem.Icon>
-                            <Image 
-                                Stretch="Fill"
-                                Source="pack://application:,,,/Resources/Icons/gears.png"
-                                HorizontalAlignment="Stretch"/>
-                        </t:RadMenuItem.Icon>
-                        <t:RadMenuItem  
-                            Header="Сохранить конфигурацию"
-                            Command="{Binding SaveConfigCommand}">
-                            <t:RadMenuItem.Icon>
-                                <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/floppy_disk.png" />
-                            </t:RadMenuItem.Icon>
-                        </t:RadMenuItem>
-                        <t:RadMenuItem  
-                            Header="Загрузить конфигурацию"
-                            Command="{Binding BackToConfigsCommand}">
-                            <t:RadMenuItem.Icon>
-                                <Image Width="15" Height="15" Source="pack://application:,,,/Resources/Icons/arrow_down.png" />
-                            </t:RadMenuItem.Icon>
-                        </t:RadMenuItem>
-                    </t:RadMenuItem>
-
-                </t:RadMenu>
-            </Canvas>
+                <t:RadTabItem Header="Зоны локации" />
+            </t:RadTabControl>
 
             <Popup 
                 x:Name="EntityPopup"
@@ -391,26 +293,57 @@
                     Text="{Binding SelectedEntityInfo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
             </Popup>
 
-            <models:CustomModel 
+            <Popup 
+                x:Name="SettingsPopup"
+                PopupAnimation="Fade"
+                Placement="Relative"
+                HorizontalOffset="6"
+                VerticalOffset="40"
+                StaysOpen="False"
+                Panel.ZIndex="5000"
+                
+                AllowsTransparency="True" >
+                <StackPanel
+                    
+                    Background="White">
+                    <t:RadMenuItem  
+                        Header="Начальное окно"
+                        Command="{Binding BackToHomepage}"
+                        Click="HideSettingsPopup"
+                        Style="{StaticResource SettingsMenuItem}">
+                        <t:RadMenuItem.Icon>
+                            <Image Width="30" Height="15" Source="pack://application:,,,/Resources/Icons/homepage.png" />
+                        </t:RadMenuItem.Icon>
+                    </t:RadMenuItem>
+                    <t:RadMenuItem  
+                        t:StyleManager.Theme="Fluent"
+                        Padding="10 5"
+                        Header="Сохранить конфигурацию"
+                        Command="{Binding SaveCommand}"
+                        Click="HideSettingsPopup">
+                        <t:RadMenuItem.Icon>
+                            <Image Width="30" Height="15" Source="pack://application:,,,/Resources/Icons/floppy_disk.png" />
+                        </t:RadMenuItem.Icon>
+                    </t:RadMenuItem>
+                </StackPanel>
+            </Popup>
+
+            <models:CustomModel
+                
+                Grid.Column ="0"
                 x:Name="Model"
                 SelectionChanged="Model_SelectionChanged"
                 CustomEntityList="{Binding EntityList}"
                 AutoRefresh="True"
                 SelectionColor="OrangeRed"
-                Margin="{Binding 
-                ElementName=RightPanel, 
-                Path=IsVisible, 
-                Converter={StaticResource MarginConverter},
-                Mode=OneWay,
-                UpdateSourceTrigger=PropertyChanged}"
-                VerticalAlignment="Top" Grid.Column="0" Grid.ColumnSpan="4"
+                VerticalAlignment="Top" 
                 MouseLeave="ModelSpaceLeave">
 
                 <models:CustomModel.ProgressBar>
                     <ddes:ProgressBar Lighting="False"/>
                 </models:CustomModel.ProgressBar>
                 <models:CustomModel.Viewports>
-                    <ddes:Viewport
+                    <ddes:Viewport 
                         DisplayMode="Rendered" >
                         
                         <ddes:Viewport.Background>
@@ -438,7 +371,23 @@
                             <ddes:RotateSettings Enabled="True"/>
                         </ddes:Viewport.Rotate>
                         <ddes:Viewport.ToolBars>
-                            <ddes:ToolBar Position="VerticalMiddleLeft">
+
+                            <ddes:ToolBar Position="VerticalTopLeft">
+                                <ddes:ToolBar.Buttons>
+                                    <ddes:ToolBarButton 
+                                        Image="pack://application:,,,/Resources/Icons/gears.png"
+                                        StyleMode="PushButton" 
+                                        Click="SettingsClick">
+                                        <ddes:ToolBarButton.Style>
+                                            <Style TargetType="{x:Type ddes:ToolBarButton}">
+                                                <Setter Property="ToolTipText" Value="Настройки" />
+                                            </Style>
+                                        </ddes:ToolBarButton.Style>
+                                    </ddes:ToolBarButton>
+                                </ddes:ToolBar.Buttons>
+                            </ddes:ToolBar>
+
+                            <ddes:ToolBar Position="HorizontalTopCenter">
                                 <ddes:ToolBar.Buttons>
                                     <!--<ddes:HomeToolBarButton/>
                                     <ddes:MagnifyingGlassToolBarButton/>-->
@@ -449,10 +398,37 @@
                                     <ddes:ZoomFitToolBarButton x:Name="btnZoomFit" />
                                 </ddes:ToolBar.Buttons>
                             </ddes:ToolBar>
+
+                            <ddes:ToolBar Position="HorizontalTopRight">
+                                <ddes:ToolBar.Buttons>
+                                    <ddes:ToolBarButton 
+                                        Click="ShowHideRightPanel_OnClick"
+                                        StyleMode="PushButton">
+
+                                        <ddes:ToolBarButton.Style>
+                                            <Style TargetType="{x:Type ddes:ToolBarButton}">
+                                                
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ElementName=RightPanel, Path=Visibility}" Value="Visible">
+                                                        <Setter Property="Image" Value="pack://application:,,,/Resources/Icons/double_arrow_right.png"/>
+                                                        <Setter Property="ToolTipText" Value="Скрыть панель объектов" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ElementName=RightPanel, Path=Visibility}" Value="Collapsed">
+                                                        <Setter Property="Image" Value="pack://application:,,,/Resources/Icons/double_arrow_left.png"/>
+                                                        <Setter Property="ToolTipText" Value="Показать панель объектов" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ddes:ToolBarButton.Style>
+                                        
+                                    </ddes:ToolBarButton>
+
+                                </ddes:ToolBar.Buttons>
+                            </ddes:ToolBar>
                         </ddes:Viewport.ToolBars>
                         <ddes:Viewport.ViewCubeIcon>
                             <ddes:ViewCubeIcon Lighting="True" 
-                                               Position="BottomLeft" 
+                                               Position="BottomRight" 
                                                ShowRing="False"
                                                EdgeColor="Black"
                                                FrontColor="#ed6856"
@@ -466,6 +442,6 @@
                     </ddes:Viewport>
                 </models:CustomModel.Viewports>
             </models:CustomModel>
-        </Grid>
+        </DockPanel>
     </Grid>
 </Window>
