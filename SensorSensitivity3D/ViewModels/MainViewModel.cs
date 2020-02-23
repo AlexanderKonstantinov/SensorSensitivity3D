@@ -61,28 +61,88 @@ namespace SensorSensitivity3D.ViewModels
 
         private RelayCommand _loadConfigCommand;
         public ICommand LoadConfigCommand
-            => _loadConfigCommand ??= new RelayCommand(ExecuteLoadConfigCommand, null);
-        
+            => _loadConfigCommand ??= new RelayCommand(ExecuteLoadConfigCommand);
+
         private void ExecuteLoadConfigCommand(object obj)
         {
-            MessageBox.Show("Success");
-
             SelectedConfig = obj as Configuration;
-                
+
             DrawingViewModel = new DrawingViewModel(_configService, SelectedConfig);
 
             GeophonesViewModel = new GeophonesViewModel(_geophoneService, SelectedConfig);
-                       
 
-            GeophonesViewModel.SelectionEntities += entities 
+            GeophonesViewModel.SelectionEntities += entities
                 => OnSelectionEntities(entities);
-                        
+
             ConfigPanelVisibility = false;
 
             Focus();
             ZoomFit();
         }
 
+        private RelayCommand _backToHomepageCommand;
+        public ICommand BackToHomepageCommand
+            => _backToHomepageCommand ??= new RelayCommand(ExecuteBackToHomepageCommand, CanExecuteBackToHomepageCommand);
+
+        private void ExecuteBackToHomepageCommand(object obj)
+        {
+            if (CanExecuteSaveConfigCommand(null))
+            {
+                var result = MessageBox.Show("Желаете сохранить внесенные изменения", "Геофоны были изменены", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
+                
+                if (result == MessageBoxResult.Cancel)
+                    return;
+
+                if (result == MessageBoxResult.Yes)
+                    ExecuteSaveConfigCommand(null);
+            }
+
+            ModelClear();
+            ConfigPanelVisibility = true;
+            ExecuteSelectConfigCommand(null);
+        }
+
+        private bool CanExecuteBackToHomepageCommand(object obj)
+            => !ConfigPanelVisibility;
+
+
+        private RelayCommand _saveConfigCommand;
+        public ICommand SaveConfigCommand
+            => _saveConfigCommand ??= new RelayCommand(ExecuteSaveConfigCommand, CanExecuteSaveConfigCommand);
+
+        private void ExecuteSaveConfigCommand(object obj)
+            => _geophoneService.SaveGeophones(GeophonesViewModel.GeophoneModels);
+
+        private bool CanExecuteSaveConfigCommand(object obj)
+            => GeophonesViewModel?.GeophoneModels?.Any(g => g.IsChanged) ?? false;
+
+
+        private RelayCommand _closeAppCommand;
+        public ICommand CloseAppCommand
+            => _closeAppCommand ??= new RelayCommand(ExecuteCloseAppCommand);
+
+        private void ExecuteCloseAppCommand(object obj)
+        {
+            if (!CanExecuteSaveConfigCommand(null))
+                return;
+
+            var result = MessageBox.Show("Желаете сохранить внесенные изменения", "Геофоны были изменены", MessageBoxButton.YesNo, MessageBoxImage.Exclamation);
+            if (result == MessageBoxResult.Yes)
+                ExecuteSaveConfigCommand(null);
+        }
+        
+
+        private RelayCommand _zoomFitEntityCommand;
+        public ICommand ZoomFitEntityCommand
+            => _zoomFitEntityCommand ??= new RelayCommand(ExecuteZoomFitEntityCommand);
+
+        private void ExecuteZoomFitEntityCommand(object obj)
+        {
+            ZoomFitEntities();
+        }              
+                     
+
+        #region edit configs
 
         private RelayCommand _selectConfigCommand;
         public ICommand SelectConfigCommand
@@ -93,43 +153,6 @@ namespace SensorSensitivity3D.ViewModels
             SelectedConfig = obj as Configuration;
             OnPropertyChanged(nameof(SelectedConfig));
         }
-
-
-        private RelayCommand _zoomFitEntityCommand;
-        public ICommand ZoomFitEntityCommand
-            => _zoomFitEntityCommand ??= new RelayCommand(ExecuteZoomFitEntityCommand);
-
-        private void ExecuteZoomFitEntityCommand(object obj)
-        {
-            ZoomFitEntities();
-        }              
-
-
-        public void SaveConfig(bool isShowWarning)
-        {
-            if (GeophonesViewModel.GeophoneModels.Any(g => g.IsChanged))
-            {
-                if (isShowWarning)
-                {
-                    var result = MessageBox.Show("Желаете сохранить внесенные изменения", "Геофоны были изменены", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
-                    
-                    if (result == MessageBoxResult.Cancel)
-                        return;
-                    
-                    if (result == MessageBoxResult.No)
-                    {
-                        ModelClear();
-                        ConfigPanelVisibility = true;
-                        ExecuteSelectConfigCommand(null);
-                    }
-                }
-
-                _geophoneService.SaveGeophones(GeophonesViewModel.GeophoneModels);
-            }
-        }
-
-
-        #region edit configs
 
         private RelayCommand _addConfigCommand;
         public ICommand AddConfigCommand

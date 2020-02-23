@@ -264,25 +264,25 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             => _saveToFileCommand ??= new RelayCommand(ExecuteSaveToFileCommand, CanExecuteSaveToFileCommand);
 
         private void ExecuteSaveToFileCommand(object obj)
-        {
-            var resourcesPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Resources", _config.Name);
-
-            var saveFileDialog = new SaveFileDialog
-            {
-                FileName = $"Геофоны. {_config.Name}.xml",
-                InitialDirectory = Directory.Exists(resourcesPath) ? resourcesPath : Environment.CurrentDirectory,
-                AddExtension = true,
-                Title = "Выберите файл для сохранения",
-                Filter = "XML Format (*.xml)|*.xml"
-            };
-
-            if (saveFileDialog.ShowDialog() != true) return;
-            
+        {           
             var editorWindow = new GeophonesEditorWindow("Сохранение геофонов в файл");
             var editorViewModel = new GeophonesEditorViewModel(GeophoneModels, isFull: true);
             editorViewModel.OnSelectionGeophones += (selectedGeophones) =>
             {
                 editorWindow.Close();
+
+                var resourcesPath = System.IO.Path.Combine(Environment.CurrentDirectory, "Resources", _config.Name);
+
+                var saveFileDialog = new SaveFileDialog
+                {
+                    FileName = $"Геофоны. {_config.Name}.xml",
+                    InitialDirectory = Directory.Exists(resourcesPath) ? resourcesPath : Environment.CurrentDirectory,
+                    AddExtension = true,
+                    Title = "Выберите файл для сохранения",
+                    Filter = "XML Format (*.xml)|*.xml"
+                };
+
+                if (saveFileDialog.ShowDialog() != true) return;
 
                 var message = _geophoneService.SaveToFile(selectedGeophones, saveFileDialog.FileName)
                     ? "Геофоны успешно сохранены"

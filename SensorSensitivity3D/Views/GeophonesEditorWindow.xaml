@@ -156,7 +156,7 @@
 
                     <Style.Triggers>
                         <Trigger Property="IsSelected" Value="True" >
-                            <Setter Property="Background" Value="#66b366" />
+                            <Setter Property="Background" Value="#5066B366" />
                         </Trigger>
                     </Style.Triggers>
                     <Style.Resources>

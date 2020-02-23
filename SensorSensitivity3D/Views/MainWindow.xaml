@@ -22,8 +22,19 @@
     Icon="pack://application:,,,/Resources/Icons/main_icon.png" 
     MouseDown="HideSettingsPopup"
     PreviewMouseLeftButtonDown="Window_MouseDown"
-    Closing="CloseApp"
     >
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closing">
+            <i:InvokeCommandAction 
+                Command="{Binding CloseAppCommand}" />
+        </i:EventTrigger>
+
+        <i:EventTrigger EventName="MouseDoubleClick">
+            <i:InvokeCommandAction 
+                Command="{Binding ZoomFitEntityCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
 
     <Window.Resources>
         <helpers:MarginConverter x:Key="MarginConverter" />
@@ -235,18 +246,17 @@
         
         <DockPanel
             LastChildFill="True"
-            x:Name="ModelContainer"
-            Visibility="Visible">
+            x:Name="ModelContainer">
 
             <DockPanel.Style>
                 <Style TargetType="DockPanel" >
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding Visibility, ElementName=ConfigPanel}"
-                                         Value="Collapsed">
+                                     Value="Collapsed">
                             <Setter Property="Visibility" Value="Visible" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding Visibility, ElementName=ConfigPanel}"
-                                         Value="Visible">
+                                     Value="Visible">
                             <Setter Property="Visibility" Value="Hidden" />
                         </DataTrigger>
                     </Style.Triggers>
@@ -299,16 +309,14 @@
                 Placement="Relative"
                 HorizontalOffset="6"
                 VerticalOffset="40"
-                StaysOpen="False"
-                Panel.ZIndex="5000"
-                
+                StaysOpen="True"
+                Panel.ZIndex="5000"                
                 AllowsTransparency="True" >
-                <StackPanel
-                    
+                <StackPanel                    
                     Background="White">
                     <t:RadMenuItem  
                         Header="Начальное окно"
-                        Command="{Binding BackToHomepage}"
+                        Command="{Binding BackToHomepageCommand}"
                         Click="HideSettingsPopup"
                         Style="{StaticResource SettingsMenuItem}">
                         <t:RadMenuItem.Icon>
@@ -319,7 +327,7 @@
                         t:StyleManager.Theme="Fluent"
                         Padding="10 5"
                         Header="Сохранить конфигурацию"
-                        Command="{Binding SaveCommand}"
+                        Command="{Binding SaveConfigCommand}"
                         Click="HideSettingsPopup">
                         <t:RadMenuItem.Icon>
                             <Image Width="30" Height="15" Source="pack://application:,,,/Resources/Icons/floppy_disk.png" />
@@ -337,13 +345,14 @@
                 AutoRefresh="True"
                 SelectionColor="OrangeRed"
                 VerticalAlignment="Top" 
-                MouseLeave="ModelSpaceLeave">
+                MouseLeave="ModelSpaceLeave"
+                MouseEnter="ModelMouseEnter">
 
                 <models:CustomModel.ProgressBar>
                     <ddes:ProgressBar Lighting="False"/>
                 </models:CustomModel.ProgressBar>
                 <models:CustomModel.Viewports>
-                    <ddes:Viewport 
+                    <ddes:Viewport
                         DisplayMode="Rendered" >
                         
                         <ddes:Viewport.Background>
@@ -381,7 +390,16 @@
                                         <ddes:ToolBarButton.Style>
                                             <Style TargetType="{x:Type ddes:ToolBarButton}">
                                                 <Setter Property="ToolTipText" Value="Настройки" />
-                                            </Style>
+
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ElementName=SettingsPopup, Path=IsOpen}" Value="True">
+                                                        <Setter Property="Enabled" Value="False" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding ElementName=SettingsPopup, Path=IsOpen}" Value="False">
+                                                        <Setter Property="Enabled" Value="True" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>                                            
                                         </ddes:ToolBarButton.Style>
                                     </ddes:ToolBarButton>
                                 </ddes:ToolBar.Buttons>

@@ -195,25 +195,14 @@ namespace SensorSensitivity3D.Views
 
         private void SettingsClick(object sender, EventArgs e)
         {
-            SettingsPopup.IsOpen = true;
+            SettingsPopup.IsOpen = !SettingsPopup.IsOpen;
         }
-
-        private void SaveConfig(object sender, EventArgs e)
-        {
-            _viewModel.SaveConfig(false);
-        }
-
+        
         private void LoadConfig(object sender, EventArgs e)
         {
             throw new NotImplementedException();
         }
-
-        private void CloseApp(object sender, CancelEventArgs e)
-        {
-            _viewModel.SaveConfig(false);
-            this.Close();
-        }
-
+        
         private void HideSettingsPopup(object sender, MouseButtonEventArgs e)
         {
             SettingsPopup.IsOpen = false;
@@ -222,6 +211,11 @@ namespace SensorSensitivity3D.Views
         private void HideSettingsPopup(object sender, RadRoutedEventArgs e)
         {
             SettingsPopup.IsOpen = false;
+        }
+
+        private void ModelMouseEnter(object sender, MouseEventArgs e)
+        {
+            Model.Focus();
         }
     }
 }
