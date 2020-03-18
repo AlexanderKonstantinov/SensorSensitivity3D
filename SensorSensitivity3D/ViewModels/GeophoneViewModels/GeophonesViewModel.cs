@@ -1,21 +1,21 @@
 ﻿using devDept.Eyeshot.Entities;
 using SensorSensitivity3D.Domain.Entities;
+using SensorSensitivity3D.Domain.Enums;
 using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
+using SensorSensitivity3D.ViewModels.Base;
+using SensorSensitivity3D.Views;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Windows.Input;
-using SensorSensitivity3D.Domain.Enums;
-using System;
 using System.IO;
-using SensorSensitivity3D.ViewModels.Base;
-using Microsoft.Win32;
+using System.Linq;
 using System.Windows;
-using System.Windows.Shapes;
-using SensorSensitivity3D.Views;
+using System.Windows.Input;
 using static SensorSensitivity3D.Services.ModelInteractionService;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
 
 namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 {
@@ -25,15 +25,31 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         public event Action<IEnumerable<Entity>> SelectionEntities;
 
-        private readonly GeophoneService _geophoneService; 
+        private readonly GeophoneService _geophoneService;
 
         public ObservableCollection<GeophoneModel> GeophoneModels { get; set; }
 
         public const string TRANSPARENT = "Transparent";
 
         public string GeophonesColor { get; set; }
+
+
+        public bool GeophonesIsVisible
+        {
+            get => GeophoneModels.Any(g => g.GIsVisible || g.SIsVisible);
+            set
+            {
+                foreach (var g in GeophoneModels)
+                    g.GIsVisible = g.SIsVisible = value;
+
+                UpdateVisibilityParams();
+            }
+        }
+
         public bool GeophoneCentersIsVisible { get; set; }
         public bool GeophoneSensitivitySpheresIsVisible { get; set; }
+
+
 
         public bool ColorEditorIsOpen { get; set; }
         public GeophoneModel SelectedGeophone { get; set; }
@@ -63,7 +79,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                 i += 2;
             }
 
-            AddEntities(entities);        
+            AddEntities(entities);
 
             GeophoneViewModel = new GeophoneViewModel();
             GeophoneViewModel.Back += ExecuteGeophoneOperation;
@@ -105,7 +121,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             if (_geophoneService.RemoveGeophone(SelectedGeophone))
             {
                 RemoveEntities(SelectedGeophone.Entities);
-                GeophoneModels.Remove(SelectedGeophone);                
+                GeophoneModels.Remove(SelectedGeophone);
             }
 
             UpdateGeophonesColor();
@@ -122,7 +138,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void ExecuteChangeGeophoneCenterVisibilityCommand(object o)
         {
-           if (SelectedGeophone is null)
+            if (SelectedGeophone is null)
             {
                 foreach (var g in GeophoneModels)
                     g.GIsVisible = GeophoneCentersIsVisible;
@@ -216,7 +232,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
                 SelectedGeophone.ResetGeophoneSettings();
 
-                newEntities = SelectedGeophone.Entities;                
+                newEntities = SelectedGeophone.Entities;
             }
 
             ReplaceEntities(oldEntities, newEntities);
@@ -244,7 +260,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
             SelectionEntities?.Invoke(SelectedGeophone?.Entities);
         }
-               
+
 
         private RelayCommand _goToGeophoneCommand;
         public ICommand GoToGeophoneCommand
@@ -264,7 +280,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             => _saveToFileCommand ??= new RelayCommand(ExecuteSaveToFileCommand, CanExecuteSaveToFileCommand);
 
         private void ExecuteSaveToFileCommand(object obj)
-        {           
+        {
             var editorWindow = new GeophonesEditorWindow("Сохранение геофонов в файл");
             var editorViewModel = new GeophonesEditorViewModel(GeophoneModels, isFull: true);
             editorViewModel.OnSelectionGeophones += (selectedGeophones) =>
@@ -288,7 +304,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                     ? "Геофоны успешно сохранены"
                     : "Ошибка при сохранении геофонов";
 
-                MessageBox.Show(message);
+                System.Windows.MessageBox.Show(message);
             };
 
             editorWindow.DataContext = editorViewModel;
@@ -315,7 +331,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             connectionViewModel.OnSuccessConnection += connectionString =>
                 {
                     var loadedGeophones = _geophoneService.GetGeophonesFromGCSDb(connectionString, out string errorMessage);
-                    
+
                     if (!string.IsNullOrEmpty(errorMessage))
                     {
                         MessageBox.Show(errorMessage, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -373,9 +389,9 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                 AddGeophones(selectedGeophones);
                 editorWindow.Close();
             };
-                
+
             editorWindow.DataContext = editorViewModel;
-            editorWindow.ShowDialog();            
+            editorWindow.ShowDialog();
         }
 
         #endregion
@@ -396,8 +412,8 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                 g.InitEntities();
                 if (_geophoneService.AddGeophone(g, _config.Id))
                     GeophoneModels.Add(g);
-            }            
-            
+            }
+
             MessageBox.Show($"Успешно добавлено геофонов - {GeophoneModels.Count - before}");
 
             AddEntities(geophones.SelectMany(g => g.Entities));
@@ -450,9 +466,14 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private void UpdateVisibilityParams()
         {
-            GeophoneCentersIsVisible = GeophoneModels.Any() && GeophoneModels.All(g => g.GIsVisible);
-            GeophoneSensitivitySpheresIsVisible = GeophoneModels.Any() && GeophoneModels.All(g => g.SIsVisible);
+            if (!GeophoneModels.Any())
+                return;
+
+            GeophoneCentersIsVisible = GeophoneModels.All(g => g.GIsVisible);
+            GeophoneSensitivitySpheresIsVisible = GeophoneModels.All(g => g.SIsVisible);
             UpdateVisibility();
+
+            OnPropertyChanged(nameof(GeophonesIsVisible));
         }
 
         public string TrySelectGeophone()

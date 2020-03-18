@@ -31,7 +31,6 @@ namespace SensorSensitivity3D.Views
             Model.DisplayMode = displayType.Rendered;
             Model.Renderer = rendererType.Native;
             Model.ShowFps = true;
-            Model.DisplayMode = displayType.Shaded;
             Model.Shaded.ShowEdges = false;
             Model.Shaded.ShowInternalWires = false;
             Model.Shaded.ShadowMode = devDept.Graphics.shadowType.None;
@@ -39,7 +38,11 @@ namespace SensorSensitivity3D.Views
             Model.Rendered.RealisticShadowQuality = devDept.Graphics.realisticShadowQualityType.Low;
             Model.Rendered.ShadowMode = devDept.Graphics.shadowType.None;
             Model.AskForAntiAliasing = true;
-            
+            Model.ObjectManipulator.Apply();
+
+            var sectionLayer = "Section";
+            Model.Layers.Add(new Layer(sectionLayer, System.Drawing.Color.Red, null, 3, true));
+
             // Указание на путь к БД или создание файла БД
             var resDir = Path.Combine(Directory.GetCurrentDirectory(), "Resources");
             Directory.CreateDirectory(resDir);

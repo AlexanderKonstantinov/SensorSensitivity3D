@@ -260,6 +260,9 @@
     <Compile Include="Views\Panels\PanelHeader.xaml.cs">
       <DependentUpon>PanelHeader.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Zones.xaml.cs">
+      <DependentUpon>Zones.xaml</DependentUpon>
+    </Compile>
     <Page Include="Resources\Styles\BaseStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -317,6 +320,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Panels\PanelHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Zones.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -421,6 +428,11 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Icons\homepage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\intersection.png" />
+    <Resource Include="Resources\Icons\pyramid.png" />
+    <Resource Include="Resources\Icons\sensors.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.0\build\Fody.targets')" />

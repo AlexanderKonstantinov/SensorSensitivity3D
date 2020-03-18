@@ -38,7 +38,7 @@
     </Style>
 
     <Style 
-        x:Key="GoToGeophoneButton" 
+        x:Key="GoToEntityButton" 
         TargetType="{x:Type t:RadButton}"
         BasedOn="{StaticResource ResourceKey=RightPanelIconButton}">
 
@@ -92,15 +92,15 @@
     </Style>
 
     <Style 
-        x:Key="GeophoneVisibilityButton"
+        x:Key="VisibilityButton"
         TargetType="{x:Type t:RadToggleButton}"
         BasedOn="{StaticResource ResourceKey=OnOffToggleButton}">
         <Style.Triggers>
             <Trigger Property="IsChecked" Value="False">
-                <Setter Property="ToolTip" Value="Показать геофон" />
+                <Setter Property="ToolTip" Value="Показать все" />
             </Trigger>
             <Trigger Property="IsChecked" Value="True">
-                <Setter Property="ToolTip" Value="Скрыть геофон" />
+                <Setter Property="ToolTip" Value="Скрыть все" />
             </Trigger>
         </Style.Triggers>
     </Style>

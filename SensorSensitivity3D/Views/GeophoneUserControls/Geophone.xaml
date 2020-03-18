@@ -185,7 +185,7 @@
                     InitialColor="{Binding EditedGeophone.Color, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
                     Style="{StaticResource ColorEditor}" >
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SelectedColorChanged">
+                        <i:EventTrigger EventName="SensitivityelectedColorChanged">
                             <i:InvokeCommandAction 
                                 Command="{Binding ChangeGeophoneCommand}" />
                         </i:EventTrigger>

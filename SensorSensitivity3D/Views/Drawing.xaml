@@ -10,9 +10,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <UserControl.DataContext>
+    <!--<UserControl.DataContext>
         <viewModels:DrawingViewModel />
-    </UserControl.DataContext>
+    </UserControl.DataContext>-->
 
     <UserControl.Resources>
         <helpers:NullToVisibilityConverter x:Key="NullToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
@@ -61,13 +61,10 @@
 
                 <CheckBox
                     Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-                    VerticalAlignment="Center"
                     HorizontalAlignment="Center"
-                    IsChecked="{Binding Drawing.IsVisible, Mode=TwoWay}"
+                    IsChecked="{Binding IsDrawingModel, Mode=TwoWay}"
                     Style="{DynamicResource SliderCheckBox}" 
-                    Content="{Binding Drawing.Name, Mode=OneWay}"
-                    Command="{Binding ShowDrawingCommand}" />
-
+                    Content="{Binding Drawing.Name, Mode=OneWay}" />
 
                 <TextBox 
                     Grid.Column="0"

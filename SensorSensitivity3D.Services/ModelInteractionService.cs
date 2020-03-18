@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Windows;
 using System.Windows.Threading;
 using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Eyeshot.Translators;
+using devDept.Geometry;
 using SensorSensitivity3D.Domain.Models;
+using Point = System.Windows.Point;
+using Region = devDept.Eyeshot.Entities.Region;
 
 namespace SensorSensitivity3D.Services
 {
     public static class ModelInteractionService
     {
-        private static CustomModel _model;
+        
+
+        public static CustomModel _model;
         private static ReadAutodesk _readAutodesk;
 
         private static HashSet<Entity> _selectedEntities;
@@ -109,7 +116,7 @@ namespace SensorSensitivity3D.Services
 
         /// <summary>
         /// Выделяет элементы, снимая выделение с прежних
-        /// Если entities == null, то просто снимает выделениеЫ
+        /// Если entities == null, то просто снимает выделение
         /// </summary>
         /// <param name="entities"></param>
         public static void SelectEntities(IEnumerable<Entity> entities)
@@ -144,6 +151,11 @@ namespace SensorSensitivity3D.Services
             }
 
             UpdateVisibility();
+        }
+
+        public static void TestMethod(System.Drawing.Point point)
+        {
+            _model.GetAllEntitiesUnderMouseCursor(point);
         }
 
         public static void SwitchEntitiesVisibility(IEnumerable<Entity> entities, bool visibility)
@@ -198,6 +210,171 @@ namespace SensorSensitivity3D.Services
             _model.ZoomFit();
             Invalidate();
         }
+
+
+        public static Plane _sectionPlane;
+        public static PlanarEntity _sectionEntity;
+
+        private static List<Entity> _zoneEntityBuffer;
+
+        public static void ClickOnViewport(IEnumerable<ZoneModel> zoneGroup)
+        {
+            // удаляем предыдущее сечение
+            _model.Entities.Remove(_sectionEntity);
+
+            if (zoneGroup == null)
+            {
+                _model.ObjectManipulator.Visible = _model.ObjectManipulator.RotateX.Visible =
+                    _model.ObjectManipulator.RotateY.Visible = _model.ObjectManipulator.RotateZ.Visible = false;
+
+
+                _model.ObjectManipulator.Cancel();
+                // восстанавливаем состояние зон
+
+            }
+            else
+            {
+                Entity biggestEntity = null;
+
+                foreach (var zone in zoneGroup)
+                {
+                    if (biggestEntity is null || biggestEntity.BoxSize.Max < zone.Body.BoxSize.Max)
+                        biggestEntity = zone.Body;
+                }
+
+                var leftBottomPoint = new Point3D(
+                    biggestEntity.BoxMin.X + biggestEntity.BoxSize.X / 2,
+                    biggestEntity.BoxMin.Y,
+                    biggestEntity.BoxMin.Z);
+
+                _sectionPlane = new Plane(leftBottomPoint, Vector3D.AxisX);
+
+                _sectionEntity = new PlanarEntity(_sectionPlane, (float)biggestEntity.BoxSize.Max);
+                
+                //_model.Entities.Add(_sectionEntity, Color.Magenta);
+                
+                Transformation initialTransformation = null;
+                bool center = true;
+                Point3D rotationPoint = (Point3D) _sectionEntity.EntityData;
+
+                if (_sectionEntity.EntityData is Point3D)
+                {
+                    center = false;
+                    rotationPoint = _sectionEntity.BoxMin;
+                }
+
+                if (rotationPoint != null)
+
+                    initialTransformation = new Translation(rotationPoint.X, rotationPoint.Y,
+                        rotationPoint.Z);
+                else
+
+                    initialTransformation = new Identity();
+
+                _sectionEntity.Selected = true;
+
+                _model.ObjectManipulator.Enable(initialTransformation, center);
+
+                _model.ObjectManipulator.Visible = _model.ObjectManipulator.RotateX.Visible =
+                    _model.ObjectManipulator.RotateY.Visible = _model.ObjectManipulator.RotateZ.Visible = true;
+
+                // определяем все объекты, которые на него попадают
+
+                // рассекаем эти объекты
+                
+                var plate = Solid.CreateBox(
+                    0.1,
+                    (float)biggestEntity.BoxSize.Max,
+                    (float)biggestEntity.BoxSize.Max);
+
+                plate.Translate(leftBottomPoint.X, leftBottomPoint.Y, leftBottomPoint.Z);
+
+                //_model.Entities.Add(plate, Color.Transparent);
+
+                _zoneEntityBuffer = zoneGroup.Select(e => e.Body).ToList();
+
+                var visibleEntities = new List<Entity>(zoneGroup.Count());
+
+                _model.Entities.Add(plate, Color.Transparent);
+
+                foreach (var zone in zoneGroup)
+                {
+                    var solid = (Solid) zone.Body;
+
+                    var t = Solid.Difference(solid, plate);
+
+                    if (t?.Length > 1)
+                    {
+                        _model.Entities.Remove(solid);
+
+                        var fstPart = t.ElementAt(0);
+                        var sndPart = t.ElementAt(1);
+
+                        var visibleEntity = fstPart.BoxMin.X < sndPart.BoxMin.X
+                            ? fstPart
+                            : sndPart;
+
+                        visibleEntities.Add(visibleEntity);
+
+                        zone.Body = visibleEntity;
+
+                        _model.Entities.Remove(solid);
+                    }
+                   
+
+                }
+
+                visibleEntities.Reverse();
+                AddEntities(visibleEntities);
+
+            }
+           
+            Invalidate();
+        }
+
+        public static BlockReference CreateBlockReference(ZoneModel zone)
+        {
+            var blockName = $"{zone.DisplayName} {zone.GroupNumber}";
+
+            ((Mesh)zone.Body).NormalAveragingMode = Mesh.normalAveragingType.Averaged;
+
+            Block bl = new Block(blockName, Point3D.Origin);
+
+            bl.Entities.Add(zone.Body);
+            _model.Blocks.Add(bl);
+
+            BlockReference br = new BlockReference(new Identity(), blockName);
+            br.ColorMethod = colorMethodType.byEntity;
+            br.Color = ColorTranslator.FromHtml(zone.Color);
+            
+            return br;
+        }
+
+        public static void ComputeSection(IEnumerable<Entity> entityGroup)
+        {
+            //var surfList = new List<Surface>();
+            //var sectionLayer = "Section";
+
+            //// explodes the block reference in the individual entities array
+            //Entity[] individualEntities = _model.Entities.Explode((BlockReference)entityGroup.First());
+
+            //// finally we fill the surface list
+            ////foreach (Entity entity in individualEntities)
+            ////{
+            ////    if (entity is Surface)
+            ////        surfList.Add((Surface)entity);
+            ////}
+
+            //_model.Layers.Empty(sectionLayer);
+
+            //// computes the section curves
+            //ICurve[] sCurves = Surface.Section(entityGroup, _sectionPlane, 0.01);
+
+            //// add them to on the proper layer
+            //foreach (Entity crv in sCurves)
+            //    _model.Entities.Add(crv, sectionLayer);
+        }
+
 
         public static void Focus()
         {

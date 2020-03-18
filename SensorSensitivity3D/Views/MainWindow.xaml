@@ -8,7 +8,6 @@
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:ddgr="http://schemas.devdept.com/winfx/2008/xaml/graphics"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-
     xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
     xmlns:views="clr-namespace:SensorSensitivity3D.Views"
     xmlns:geophoneUserControls="clr-namespace:SensorSensitivity3D.Views.GeophoneUserControls"
@@ -21,10 +20,10 @@
     MinWidth="850" MinHeight="650" 
     Icon="pack://application:,,,/Resources/Icons/main_icon.png" 
     MouseDown="HideSettingsPopup"
-    PreviewMouseLeftButtonDown="Window_MouseDown"
-    >
+    PreviewMouseLeftButtonDown="Window_MouseDown" >
 
     <i:Interaction.Triggers>
+
         <i:EventTrigger EventName="Closing">
             <i:InvokeCommandAction 
                 Command="{Binding CloseAppCommand}" />
@@ -42,9 +41,9 @@
         <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Window.Resources>
 
-    <Window.DataContext>
+    <!--<Window.DataContext>
         <viewModels:MainViewModel />
-    </Window.DataContext>
+    </Window.DataContext>-->
 
     <Grid>
         <StackPanel 
@@ -134,7 +133,7 @@
                                 BorderThickness="0"
                                 Padding="10 5"
                                 Background="Transparent"
-                                FontFamily="Segoe UI" 
+                                FontFamily="Sensitivityegoe UI" 
                                 FontSize="16" 
                                 Grid.Column="0" 
                                 VerticalAlignment="Bottom" 
@@ -199,7 +198,7 @@
                     Grid.Column="0" 
                     VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Right"
-                    FontFamily="Segoe UI" 
+                    FontFamily="Sensitivityegoe UI" 
                     FontSize="16" 
                     Height="28"
                     BorderThickness="1"
@@ -268,7 +267,7 @@
                 DockPanel.Dock="Right"
                 MinWidth="350"
                 Background="#FF5E6770"
-                UIElement.PreviewMouseUp="RightPanel_PreviewMouseUp"
+                PreviewMouseUp="RightPanel_PreviewMouseUp"
                 FontSize="16"
                 t:StyleManager.Theme="Green" 
                 DisplayMemberPath="Content" 
@@ -279,14 +278,14 @@
                     <views:Drawing DataContext="{Binding DrawingViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </t:RadTabItem>
                 
-                <t:RadTabItem
-                    x:Name="GeophoneTabItem"
-                    Header="Геофоны" >
+                <t:RadTabItem Header="Геофоны" >
                     <geophoneUserControls:Geophones 
                         DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </t:RadTabItem>
-                
-                <t:RadTabItem Header="Зоны локации" />
+
+                <t:RadTabItem Header="Зоны локации" >
+                    <views:Zones DataContext="{Binding ZonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </t:RadTabItem>    
             </t:RadTabControl>
 
             <Popup 
@@ -352,8 +351,7 @@
                     <ddes:ProgressBar Lighting="False"/>
                 </models:CustomModel.ProgressBar>
                 <models:CustomModel.Viewports>
-                    <ddes:Viewport
-                        DisplayMode="Rendered" >
+                    <ddes:Viewport >
                         
                         <ddes:Viewport.Background>
                             <ddgr:BackgroundSettings 
@@ -386,7 +384,7 @@
                                     <ddes:ToolBarButton 
                                         Image="pack://application:,,,/Resources/Icons/gears.png"
                                         StyleMode="PushButton" 
-                                        Click="SettingsClick">
+                                        Click="SettingsClick" >
                                         <ddes:ToolBarButton.Style>
                                             <Style TargetType="{x:Type ddes:ToolBarButton}">
                                                 <Setter Property="ToolTipText" Value="Настройки" />
@@ -414,6 +412,60 @@
                                     <ddes:PanToolBarButton/>
                                     <ddes:RotateToolBarButton/>
                                     <ddes:ZoomFitToolBarButton x:Name="btnZoomFit" />
+                                    <ddes:ToolBarSeparator/>
+                                    <ddes:ToolBarButton
+                                        Image="pack://application:,,,/Resources/Icons/pyramid.png"
+                                        StyleMode="ToggleButton"  
+                                        Pushed="{Binding Path=DrawingViewModel.IsDrawingModel, Mode=TwoWay}">
+                                        <ddes:ToolBarButton.Style>
+                                            <Style TargetType="{x:Type ddes:ToolBarButton}">
+
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Pushed, PresentationTraceSources.TraceLevel=High}" Value="True">
+                                                        <Setter Property="ToolTipText" Value="Скрыть 3D модель" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Pushed, PresentationTraceSources.TraceLevel=High}" Value="False">
+                                                        <Setter Property="ToolTipText" Value="Показать 3D модель" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ddes:ToolBarButton.Style>
+                                    </ddes:ToolBarButton>
+                                    <ddes:ToolBarButton
+                                        Image="pack://application:,,,/Resources/Icons/sensors.png"
+                                        StyleMode="ToggleButton"
+                                        Pushed="{Binding Path=GeophonesViewModel.GeophonesIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <ddes:ToolBarButton.Style>
+                                            <Style TargetType="{x:Type ddes:ToolBarButton}">
+
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Pushed, PresentationTraceSources.TraceLevel=High}" Value="True">
+                                                        <Setter Property="ToolTipText" Value="Скрыть геофоны" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Pushed, PresentationTraceSources.TraceLevel=High}" Value="False">
+                                                        <Setter Property="ToolTipText" Value="Показать геофоны" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ddes:ToolBarButton.Style>
+                                    </ddes:ToolBarButton>
+                                    <ddes:ToolBarButton
+                                        Image="pack://application:,,,/Resources/Icons/intersection.png"
+                                        StyleMode="ToggleButton" 
+                                        Pushed="{Binding Path=ZonesViewModel.ZonesVisibilityAny, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <ddes:ToolBarButton.Style>
+                                            <Style TargetType="{x:Type ddes:ToolBarButton}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Pushed, PresentationTraceSources.TraceLevel=High}" Value="True">
+                                                        <Setter Property="ToolTipText" Value="Скрыть зоны" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Pushed, PresentationTraceSources.TraceLevel=High}" Value="False">
+                                                        <Setter Property="ToolTipText" Value="Показать зоны" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ddes:ToolBarButton.Style>
+                                    </ddes:ToolBarButton>
                                 </ddes:ToolBar.Buttons>
                             </ddes:ToolBar>
 

@@ -22,6 +22,20 @@ namespace SensorSensitivity3D.ViewModels
         private readonly ConfigService _configService;
         private readonly Configuration _config;
 
+        public bool IsDrawingModel
+        {
+            get => Drawing?.IsVisible ?? false;
+            set
+            {
+                if (Drawing is null)
+                    return;
+
+                Drawing.IsVisible = value;
+                SwitchEntitiesVisibility(Drawing.Entities, Drawing.IsVisible);
+                OnPropertyChanged(nameof(IsDrawingModel));
+            }
+        }
+
         private Drawing _drawing;
         public Drawing Drawing
         {
@@ -91,18 +105,7 @@ namespace SensorSensitivity3D.ViewModels
             File.Copy(openFileDialog.FileName, Path.Combine(_substratesDir, _config.SubstrateName));
         }
 
-        private RelayCommand _showDrawingCommand;
-        public ICommand ShowDrawingCommand
-            => _showDrawingCommand ??= new RelayCommand(ExecuteShowDrawingCommand, CanExecuteShowDrawingCommand);
-
-        private void ExecuteShowDrawingCommand(object obj)
-            => SwitchEntitiesVisibility(Drawing.Entities, Drawing.IsVisible);
-        
-
-        private bool CanExecuteShowDrawingCommand(object obj)
-            => Drawing?.Entities.Length > 0;
-
-            #endregion
+        #endregion
 
 
         public void DragOver(IDropInfo dropInfo)

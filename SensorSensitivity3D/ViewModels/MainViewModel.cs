@@ -24,12 +24,11 @@ namespace SensorSensitivity3D.ViewModels
         public bool ConfigPanelVisibility { get; set; } = true;
 
         public string SelectedEntityInfo { get; set; }
-
-
+        
         public DrawingViewModel DrawingViewModel { get; set; }
         public GeophonesViewModel GeophonesViewModel { get; set; }
-
-
+        public ZonesViewModel ZonesViewModel { get; set; }
+        
         public ObservableCollection<Configuration> Configurations { get; set; }
         public Configuration SelectedConfig { get; set; }
         
@@ -53,7 +52,24 @@ namespace SensorSensitivity3D.ViewModels
                 
                 SelectEntity(selectedEntity);
 
-                SelectedEntityInfo = GeophonesViewModel?.TrySelectGeophone();                
+                SelectedEntityInfo = GeophonesViewModel?.TrySelectGeophone();       
+                
+                if (string.IsNullOrEmpty(SelectedEntityInfo))
+                    SelectedEntityInfo = ZonesViewModel?.TrySelectZone();                
+            };
+
+            model.MouseDown += (o, a) =>
+            {
+                if (ZonesViewModel?.SelectedZone?.Body is null)
+                {
+                    ClickOnViewport(null);
+                    return;
+                }
+
+                var zoneGroup = ZonesViewModel.Zones
+                        .Where(z => z.GroupNumber == ZonesViewModel.SelectedZone.GroupNumber);
+                
+                ClickOnViewport(zoneGroup);
             };
         }
 
@@ -68,11 +84,14 @@ namespace SensorSensitivity3D.ViewModels
             SelectedConfig = obj as Configuration;
 
             DrawingViewModel = new DrawingViewModel(_configService, SelectedConfig);
-
             GeophonesViewModel = new GeophonesViewModel(_geophoneService, SelectedConfig);
+            ZonesViewModel = new ZonesViewModel(GeophonesViewModel.GeophoneModels);
 
             GeophonesViewModel.SelectionEntities += entities
                 => OnSelectionEntities(entities);
+
+            ZonesViewModel.SelectionEntity += entity
+                => OnSelectionEntities(entity == null ? null : new [] {entity});
 
             ConfigPanelVisibility = false;
 
@@ -139,9 +158,8 @@ namespace SensorSensitivity3D.ViewModels
         private void ExecuteZoomFitEntityCommand(object obj)
         {
             ZoomFitEntities();
-        }              
-                     
-
+        }
+        
         #region edit configs
 
         private RelayCommand _selectConfigCommand;

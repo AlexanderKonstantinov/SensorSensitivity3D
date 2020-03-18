@@ -239,14 +239,16 @@ namespace SensorSensitivity3D.Domain.Models
         [OnSerialized()]
         public void InitEntities()
         {
-            var center = Mesh.CreateSphere(3, 20, 20, Mesh.natureType.Smooth);
+            //var center = Mesh.CreateSphere(3, 20, 20, Mesh.natureType.Smooth);
+            var center = Solid.CreateSphere(3, 20, 20);
             center.Color = ColorTranslator.FromHtml(Color);
             center.ColorMethod = colorMethodType.byEntity;
             center.Translate(X, Y, Z);
             center.Visible = GIsVisible;
             
             CenterSphere = center;
-            var sensitivitySphere = Mesh.CreateSphere(R > 0 ? R : 1, 30, 30, Mesh.natureType.Smooth);
+            var sensitivitySphere = Solid.CreateSphere(R > 0 ? R : 1, 30, 30);
+            //var sensitivitySphere = Mesh.CreateSphere(R > 0 ? R : 1, 30, 30, Mesh.natureType.Smooth);
             sensitivitySphere.Color = ColorTranslator.FromHtml(Color);
             sensitivitySphere.ColorMethod = colorMethodType.byEntity;
             sensitivitySphere.Translate(X, Y, Z);
