@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using SensorSensitivity3D.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +17,7 @@ namespace SensorSensitivity3D.DAL
 
         public DbSet<Configuration> Configurations { get; set; }
         public DbSet<Geophone> Geophones { get; set; }
+        public DbSet<ControlZone> ControlZones { get; set; }
 
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -61,6 +60,54 @@ namespace SensorSensitivity3D.DAL
 
             modelBuilder.Entity<Geophone>()
                 .Property(e => e.IsGood)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.Color)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.IsVisible)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.XMin)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.XMax)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.YMin)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.YMax)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.ZMin)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.ZMax)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.IsCalculated)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.SMin)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.SMax)
+                .IsRequired();
+
+            modelBuilder.Entity<ControlZone>()
+                .Property(e => e.K)
                 .IsRequired();
 
             Seed(modelBuilder);

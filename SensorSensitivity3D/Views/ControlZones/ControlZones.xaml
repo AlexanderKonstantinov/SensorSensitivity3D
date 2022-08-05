@@ -1,0 +1,358 @@
+﻿<UserControl x:Class="SensorSensitivity3D.Views.ControlZones.ControlZones"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
+             xmlns:views="clr-namespace:SensorSensitivity3D.Views.ControlZones"
+             xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels.ControlZones"
+             xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             mc:Ignorable="d" 
+             d:DesignHeight="650" d:DesignWidth="350"  Background="White">
+
+    <UserControl.DataContext>
+        <viewModels:ControlZonesViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" />
+        <helpers:BoolToVisibilityConverter x:Key="InvBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible" />
+    </UserControl.Resources>
+
+    <Grid 
+        Background="White">
+
+        <Grid>
+
+            <Popup     
+            x:Name="ZoneColorEditorPopup"             
+            Style="{StaticResource ColorEditorPopup}" 
+            IsOpen="{Binding ColorEditorIsOpen, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}">
+                <Grid MouseLeave="ZoneColorEditor_MouseLeave">
+                    <t:RadColorEditor                         
+                    x:Name="ZoneColorEditor"   
+                    Style="{StaticResource ColorEditor}" >
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectedColorChanged">
+                                <i:InvokeCommandAction 
+                                Command="{Binding ChangeControlZoneColorCommand}"
+                                CommandParameter="{Binding SelectedColor, ElementName=ZoneColorEditor}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </t:RadColorEditor>
+                </Grid>
+            </Popup>
+
+            <views:ControlZone
+                x:Name="ControlZoneEditor"            
+                DataContext="{Binding ControlZoneViewModel}"/>
+
+            <Grid 
+                x:Name="ControlZonesPanel"
+                Background="White"
+                Margin="10 10"   
+                Visibility="{Binding ControlZoneViewModel.IsControlZonePanel, Converter={StaticResource InvBoolToVisibilityConverter}}"
+                IsVisibleChanged="ControlZonePanel_IsVisibleChanged">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <t:RadButton
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Style="{StaticResource ResetModelButton}"                            
+                    Command="{Binding ResetControlZoneCommand}">
+                    <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />
+                </t:RadButton>
+
+                <t:RadToggleButton  
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Style="{StaticResource ResourceKey=VisibilityButton}"                
+                    IsChecked="{Binding ControlZonesIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
+                    Command="{Binding ChangeControlZoneVisibilityCommand}" />
+
+                <!--<t:RadButton
+                    Grid.Row="0"
+                    Grid.Column="2"
+                    Style="{StaticResource CalcZoneButton}"                            
+                    Command="{Binding CalcControlZoneCommand}">
+                    <Image Source="pack://application:,,,/Resources/Icons/sensors.png" />
+                </t:RadButton>-->
+
+                <t:RadButton
+                    Grid.Column="3"
+                    Style="{StaticResource ColorButton}"
+                    Click="ZoneColorButton_Click"
+                    Command="{Binding SelectControlZoneCommand}"
+                    Background="{Binding ControlZonesColor}"/>
+
+                <t:RadButton
+                    Grid.Column="4"
+                    Grid.ColumnSpan="2"
+                    Grid.Row="0"
+                    Style="{StaticResource ModelHeaderButton}"
+                    Command="{Binding LoadControlZonesFromDbCommand}" 
+                    ToolTip="Добавить геофоны из базы данных">
+                    <Image 
+                        Stretch="Uniform" 
+                        Source="pack://application:,,,/Resources/Icons/db_upload.png" />
+                </t:RadButton>
+
+                <t:RadButton                    
+                    Grid.Row="0"
+                    Grid.Column="6"
+                    Grid.ColumnSpan="2"
+                    Style="{StaticResource ModelHeaderButton}"
+                    Command="{Binding AddControlZoneCommand}" 
+                    ToolTip="Добавить зону контроля">
+                    <Image 
+                    Stretch="Uniform" 
+                    Source="pack://application:,,,/Resources/Icons/plus.png" />
+                </t:RadButton>
+
+                <Separator
+                    Grid.ColumnSpan="8"
+                    Grid.Column="0"
+                    Grid.Row="1"
+                    Margin="0 5"
+                    BorderBrush="#FF5E6770" />
+
+                <t:RadListBox              
+                    x:Name="ControlZoneListBox"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="8"
+                    Grid.Row="2"
+                    FontSize="15"
+                    SelectedItem="{Binding SelectedControlZone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    SelectionMode="Single"                
+                    ItemsSource="{Binding ControlZones, UpdateSourceTrigger=PropertyChanged}"
+                    BorderThickness="0"
+                    Background="Transparent" 
+                    Style="{StaticResource ScrolledListBox}">
+
+                    <t:RadListBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type t:RadListBoxItem}">
+
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True" >
+                                    <Setter Property="Background" Value="#FED1BF" />
+                                </Trigger>
+                            </Style.Triggers>
+                            <Style.Resources>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                            </Style.Resources>
+
+                            <Setter Property="Margin" Value="0 5" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type t:RadListBoxItem}">
+
+                                        <Border 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            Background="{TemplateBinding Background}" >
+                                            <ContentPresenter />
+
+                                            <i:Interaction.Triggers>
+                                                <i:EventTrigger EventName="MouseEnter">
+                                                    <i:InvokeCommandAction 
+                                                        Command="{Binding DataContext.SelectControlZoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                                        CommandParameter="{Binding}"/>
+                                                </i:EventTrigger>
+
+                                                <i:EventTrigger EventName="MouseLeave">
+                                                    <i:InvokeCommandAction 
+                                                        Command="{Binding DataContext.SelectControlZoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                                        CommandParameter="{x:Null}"/>
+                                                </i:EventTrigger>
+                                            </i:Interaction.Triggers>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </t:RadListBox.ItemContainerStyle>
+
+                    <t:RadListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical" />
+                        </ItemsPanelTemplate>
+                    </t:RadListBox.ItemsPanel>
+
+                    <t:RadListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Panel.ZIndex="1000" >
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="30"/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <t:RadButton
+                                    Grid.Column="0"
+                                    Grid.Row="0"
+                                    Style="{StaticResource ResetModelButton}"                            
+                                    Command="{Binding DataContext.ResetControlZoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}" 
+                                    CommandParameter="{Binding}">
+                                    <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />
+                                </t:RadButton>
+
+                                <t:RadToggleButton         
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Style="{StaticResource ResourceKey=VisibilityButton}"
+                                    IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    Command="{Binding DataContext.ChangeControlZoneVisibilityCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}" />
+
+                                <t:RadButton
+                                    Grid.Row="0"
+                                    Grid.Column="2"
+                                    Style="{StaticResource CalcZoneButton}"                            
+                                    Command="{Binding DataContext.CalcControlZoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}" 
+                                    CommandParameter="{Binding}">
+                                    <Image Source="pack://application:,,,/Resources/Icons/sensors.png" />
+                                </t:RadButton>
+
+                                <t:RadButton
+                                    Grid.Row="0"
+                                    Grid.Column="3"
+                                    Style="{StaticResource ColorButton}"
+                                    Click="ZoneColorButton_Click"
+                                    Command="{Binding DataContext.SelectControlZoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}"
+                                    CommandParameter="{Binding}"
+                                    Background="{Binding Color}"/>
+
+                                <TextBlock 
+                                    Grid.Row="0"
+                                    Grid.Column="5"
+                                    Padding="0 0 0 3"
+                                    Margin="5 0"
+                                    MaxWidth="110"
+                                    TextWrapping="WrapWithOverflow"
+                                    TextTrimming="CharacterEllipsis"
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Left"
+                                    Text="{Binding Name, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+
+                                <t:RadButton
+                                    Grid.Row="0"
+                                    Grid.Column="7"
+                                    Style="{StaticResource GoToEntityButton}" 
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                    AncestorType={x:Type UserControl}}, 
+                                    Path=DataContext.GoToControlZoneCommand}" >
+
+                                    <Image Source="pack://application:,,,/Resources/Icons/target.png" />
+                                </t:RadButton>
+
+                                <t:RadButton
+                                    Grid.Row="0"
+                                    Grid.Column="8"
+                                    Style="{StaticResource RightPanelIconButton}" 
+                                    ToolTip="Редактировать"
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                    AncestorType={x:Type UserControl}}, 
+                                    Path=DataContext.EditControlZoneCommand}" >
+                                    <Image Source="pack://application:,,,/Resources/Icons/edit.png" />
+                                </t:RadButton>
+
+                                <t:RadButton
+                                    Grid.Row="0"
+                                    Grid.Column="9"
+                                    Style="{StaticResource RightPanelIconButton}" 
+                                    ToolTip="Удалить"
+                                    HorizontalAlignment="Right"
+                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, 
+                                    AncestorType={x:Type UserControl}}, 
+                                    Path=DataContext.RemoveControlZoneCommand}" >
+                                    <Image Source="pack://application:,,,/Resources/Icons/trash.png" />
+                                </t:RadButton>
+
+                                <StackPanel
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Left"
+                                    Height="30"
+                                    Grid.Row="1"
+                                    Grid.Column="0"
+                                    Grid.ColumnSpan="10"
+                                    Visibility="{Binding IsCalculated, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                    
+
+                                    <t:Label
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource WarningLabel}"
+                                        Visibility="{Binding IsChanged, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+                                        <Image Source="pack://application:,,,/Resources/Icons/warning.png" />
+                                    </t:Label>
+
+
+                                    <t:Label Content="Min:"/>
+                                    <TextBlock 
+                                        Padding="0 0 0 3"
+                                        Margin="5 0"
+                                        MaxWidth="110"
+                                        VerticalAlignment="Center" 
+                                        Text="{Binding SMin, Mode=OneWay, StringFormat=N2}"/>
+
+                                    <t:Label Content="Max:"/>
+                                    <TextBlock 
+                                        Padding="0 0 0 3"
+                                        Margin="5 0"
+                                        MaxWidth="110"
+                                        VerticalAlignment="Center" 
+                                        Text="{Binding SMax, Mode=OneWay, StringFormat=N2}"/>
+
+                                    <t:Label Content="K:"/>
+                                    <TextBlock 
+                                        Padding="0 0 0 3"
+                                        Margin="5 0"
+                                        MaxWidth="110"
+                                        VerticalAlignment="Center" 
+                                        Text="{Binding K, Mode=OneWay, StringFormat=N2}"/>
+                                    <t:Label Content="%"/>
+
+                                </StackPanel>
+
+                            </Grid>
+                        </DataTemplate>
+                    </t:RadListBox.ItemTemplate>
+
+                </t:RadListBox>
+
+            </Grid>
+        </Grid>
+
+    </Grid>
+
+</UserControl>

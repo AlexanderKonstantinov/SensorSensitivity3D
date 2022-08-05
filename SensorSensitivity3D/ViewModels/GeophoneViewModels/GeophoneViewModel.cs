@@ -17,7 +17,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         /// Вызывается при возвращении к панели с геофонами
         /// Сообщает подписчику, стоит ли оставить геофон в коллекции
         /// </summary>
-        public event Action<GeophoneOperation, GeophoneModel> Back;
+        public event Action<ModelOperation, GeophoneModel> Back;
         public bool IsGeophonePanel { get; set; }
         public string PanelTitle { get; private set; }
         public bool IsEditedMode { get; set; }
@@ -84,7 +84,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
                 AddEntities(EditedGeophone.Entities);
             }
 
-            Back?.Invoke(GeophoneOperation.None, null);
+            Back?.Invoke(ModelOperation.None, null);
         }
 
 
@@ -96,7 +96,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         {
             IsGeophonePanel = false;
 
-            Back?.Invoke(GeophoneOperation.Edit, EditedGeophone);
+            Back?.Invoke(ModelOperation.Edit, EditedGeophone);
         }
 
         private bool CanExecuteSaveGeophoneCommand(object obj) 
@@ -126,8 +126,8 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             }
 
             Back?.Invoke(needToContinue 
-                ? GeophoneOperation.AddAndContinueAdding
-                : GeophoneOperation.Add, 
+                ? ModelOperation.AddAndContinueAdding
+                : ModelOperation.Add, 
                 EditedGeophone);
         }
 

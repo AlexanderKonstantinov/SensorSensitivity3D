@@ -55,15 +55,21 @@
     <Compile Include="Base\Interfaces\INamedEntity.cs" />
     <Compile Include="Base\NamedEntity.cs" />
     <Compile Include="Entities\Configuration.cs" />
+    <Compile Include="Entities\ControlZone.cs" />
     <Compile Include="Entities\Geophone.cs" />
     <Compile Include="Entities\Zone.cs" />
-    <Compile Include="Enums\GeophoneOperation.cs" />
+    <Compile Include="Enums\ModelOperation.cs" />
+    <Compile Include="Models\ControlZoneModel.cs" />
     <Compile Include="Models\CustomEntityList.cs" />
     <Compile Include="Models\CustomModel.cs" />
     <Compile Include="Models\DomainCub.cs" />
     <Compile Include="Models\Drawing.cs" />
+    <Compile Include="Models\GeometricZone.cs" />
     <Compile Include="Models\GeophoneModel.cs" />
+    <Compile Include="Models\SelectableControlZone.cs" />
     <Compile Include="Models\SelectableGeophone.cs" />
+    <Compile Include="Models\SensitivityDomain.cs" />
+    <Compile Include="Models\SensitivityZone.cs" />
     <Compile Include="Models\ZoneModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

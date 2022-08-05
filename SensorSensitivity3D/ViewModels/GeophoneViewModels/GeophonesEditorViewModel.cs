@@ -109,7 +109,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         protected override void OnDispose()
         {
-            throw new NotImplementedException();
+            Geophones?.Clear();
         }
     }
 }

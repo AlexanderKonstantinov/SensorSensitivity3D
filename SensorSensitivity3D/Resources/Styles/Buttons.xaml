@@ -14,7 +14,7 @@
     </Style>
 
     <Style 
-        x:Key="ResetGeophoneButton" 
+        x:Key="ResetModelButton" 
         TargetType="{x:Type t:RadButton}"
         BasedOn="{StaticResource ResourceKey=BaseRadButton}">
 
@@ -35,6 +35,20 @@
                 <Setter Property="Visibility" Value="Visible" />
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <Style 
+        x:Key="CalcZoneButton" 
+        TargetType="{x:Type t:RadButton}"
+        BasedOn="{StaticResource ResourceKey=BaseRadButton}">
+
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="ToolTip" Value="Рассчитать чувствительность"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
     </Style>
 
     <Style 
@@ -68,7 +82,7 @@
     </Style>
 
     <Style 
-        x:Key="GeophonesHeaderButton" 
+        x:Key="ModelHeaderButton" 
         TargetType="{x:Type t:RadButton}"
         BasedOn="{StaticResource ResourceKey=BaseRadButton}">
         <Setter Property="Background" Value="Transparent"/>
@@ -121,7 +135,7 @@
     </Style>
 
     <Style 
-        x:Key="GeophoneToggleButton" 
+        x:Key="ModelToggleButton" 
         TargetType="{x:Type t:RadToggleButton}"
         BasedOn="{StaticResource ResourceKey=BaseRadToggleButton}">
         <Setter Property="Background" Value="Transparent"/>
@@ -160,7 +174,7 @@
     <Style 
         x:Key="GeophoneGoodButton"
         TargetType="{x:Type t:RadToggleButton}"
-        BasedOn="{StaticResource ResourceKey=GeophoneToggleButton}">
+        BasedOn="{StaticResource ResourceKey=ModelToggleButton}">
         <Style.Triggers>
             <Trigger Property="IsChecked" Value="False">
                 <Setter Property="ToolTip" Value="Включить" />

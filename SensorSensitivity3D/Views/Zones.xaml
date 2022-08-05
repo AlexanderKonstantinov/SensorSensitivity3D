@@ -15,6 +15,16 @@
         <viewModels:ZonesViewModel/>
     </UserControl.DataContext>
 
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="TickTemplate">
+                <Grid>
+                    <t:Label Content="{Binding}" ContentStringFormat="{}{0:0.##}"/>
+                </Grid>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <Grid 
         Background="White"
         Margin="10 10" >
@@ -34,9 +44,27 @@
         <t:RadToggleButton    
             Grid.Row="0"
             Grid.Column="0"
+            VerticalAlignment="Bottom"
             Style="{StaticResource ResourceKey=VisibilityButton}"                
             IsChecked="{Binding ZonesVisibilityAll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"  
             Command="{Binding ChangeZonesVisibilityCommand}" />
+
+        <t:RadSlider
+            Grid.Row="0"
+            Grid.Column="1"
+            Grid.ColumnSpan="2"
+            Style="{StaticResource BaseSlider}"
+            VerticalAlignment="Bottom"
+            HandlesVisibility="Visible" 
+            TickPlacement="TopLeft"
+            TickFrequency="{Binding MaxSensitivityLevel}"
+            Minimum="0" 
+            Maximum="{Binding MaxSensitivityLevel}" 
+            Value="{Binding CurrentSensitivityLevel, UpdateSourceTrigger=PropertyChanged}"
+            TickTemplate="{StaticResource TickTemplate}"
+            Margin="5"
+            AutoToolTipPlacement="TopLeft"
+            ToolTip="Выберите уровень отображаемых зон"/>
 
         <Separator
             Grid.ColumnSpan="3"

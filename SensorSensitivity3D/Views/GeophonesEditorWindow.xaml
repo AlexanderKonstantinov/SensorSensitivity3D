@@ -70,8 +70,7 @@
             x:Name="ColorEditorPopupGeophonePanel"             
             Style="{StaticResource ColorEditorPopup}" >
                 <Grid MouseLeave="ColorEditor_MouseLeave">
-                    <t:RadColorEditor                         
-                        x:Name="ColorEditorGeophonePanel"   
+                    <t:RadColorEditor                        
                         SelectedColor="{Binding GeophonesColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToColorConverter}}"
                         InitialColor="{Binding GeophonesColor, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
                         Style="{StaticResource ColorEditor}" >
@@ -168,10 +167,10 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="{x:Type t:RadListBoxItem}">
-                                <Border x:Name="GeophoneListItem" 
-                                        CornerRadius="10"
-                                        BorderBrush="{TemplateBinding BorderBrush}" 
-                                        Background="{TemplateBinding Background}" >
+                                <Border 
+                                    CornerRadius="10"
+                                    BorderBrush="{TemplateBinding BorderBrush}" 
+                                    Background="{TemplateBinding Background}" >
                                     <ContentPresenter Margin="5"/>
 
                                     <i:Interaction.Triggers>

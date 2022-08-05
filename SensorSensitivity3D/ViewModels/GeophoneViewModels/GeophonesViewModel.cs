@@ -132,9 +132,9 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         #region change visibility parameters of geophones
 
-        private RelayCommand _changeGeophoneCenterVisibility;
+        private RelayCommand _changeGeophoneCenterVisibilityCommand;
         public ICommand ChangeGeophoneCenterVisibilityCommand
-            => _changeGeophoneCenterVisibility ??= new RelayCommand(ExecuteChangeGeophoneCenterVisibilityCommand);
+            => _changeGeophoneCenterVisibilityCommand ??= new RelayCommand(ExecuteChangeGeophoneCenterVisibilityCommand);
 
         private void ExecuteChangeGeophoneCenterVisibilityCommand(object o)
         {
@@ -194,7 +194,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
 
         private RelayCommand _resetGeophoneCommandCommand;
         public ICommand ResetGeophoneCommand
-            => _resetGeophoneCommandCommand ??= new RelayCommand(ExecuteResetGeophoneCommand, CanExecuteResetGeophoneCommandCommand);
+            => _resetGeophoneCommandCommand ??= new RelayCommand(ExecuteResetGeophoneCommand, CanExecuteResetGeophoneCommand);
 
         private void ExecuteResetGeophoneCommand(object obj)
         {
@@ -241,7 +241,7 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
             UpdateVisibilityParams();
         }
 
-        private bool CanExecuteResetGeophoneCommandCommand(object obj)
+        private bool CanExecuteResetGeophoneCommand(object obj)
             => obj is GeophoneModel geophoneModel
                 ? geophoneModel.IsChanged
                 : GeophoneModels?.Any(g => g.IsChanged) ?? false;
@@ -428,22 +428,22 @@ namespace SensorSensitivity3D.ViewModels.GeophoneViewModels
         /// обновление изображения
         /// </summary>
         /// <param name="editedGeophone"></param>
-        private void ExecuteGeophoneOperation(GeophoneOperation operation, GeophoneModel editedGeophone)
+        private void ExecuteGeophoneOperation(ModelOperation operation, GeophoneModel editedGeophone)
         {
             switch (operation)
             {
-                case GeophoneOperation.Add:
+                case ModelOperation.Add:
                     if (_geophoneService.AddGeophone(editedGeophone, _config.Id))
                         GeophoneModels.Add(editedGeophone);
                     break;
-                case GeophoneOperation.AddAndContinueAdding:
+                case ModelOperation.AddAndContinueAdding:
                     if (_geophoneService.AddGeophone(editedGeophone, _config.Id))
                     {
                         GeophoneModels.Add(editedGeophone);
                         GeophoneViewModel.ActivateGeophoneViewModel(editedGeophone);
                     }
                     break;
-                case GeophoneOperation.Edit:
+                case ModelOperation.Edit:
                     {
                         _geophoneService.SaveGeophone(editedGeophone);
                     }

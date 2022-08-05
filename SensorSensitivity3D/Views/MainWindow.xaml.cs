@@ -5,8 +5,10 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using devDept.Eyeshot;
+using devDept.Graphics;
 using SensorSensitivity3D.DAL;
 using SensorSensitivity3D.ViewModels;
 using Telerik.Windows;
@@ -27,17 +29,27 @@ namespace SensorSensitivity3D.Views
         {
             InitializeComponent();
 
+            Model.Renderer = rendererType.OpenGL;
+
             // performance settings
-            Model.DisplayMode = displayType.Rendered;
-            Model.Renderer = rendererType.Native;
-            Model.ShowFps = true;
+            Model.DisplayMode = displayType.Shaded;
             Model.Shaded.ShowEdges = false;
             Model.Shaded.ShowInternalWires = false;
-            Model.Shaded.ShadowMode = devDept.Graphics.shadowType.None;
+            Model.Shaded.ShadowMode = shadowType.None;
             Model.Rendered.ShowEdges = false;
-            Model.Rendered.RealisticShadowQuality = devDept.Graphics.realisticShadowQualityType.Low;
-            Model.Rendered.ShadowMode = devDept.Graphics.shadowType.None;
-            Model.AskForAntiAliasing = true;
+            Model.Rendered.RealisticShadowQuality = realisticShadowQualityType.Low;
+            Model.Rendered.ShadowMode = shadowType.None;
+            Model.AskForAntiAliasing = false;
+
+            Model.AutoRefresh = true;
+
+
+            Model.ShowFps = true;
+            //Model.Shaded.ShowEdges = false;
+            //Model.Shaded.ShowInternalWires = false;
+            //Model.Shaded.ShadowMode = devDept.Graphics.shadowType.None;
+            //Model.Rendered.RealisticShadowQuality = devDept.Graphics.realisticShadowQualityType.Low;
+            
             Model.ObjectManipulator.Apply();
 
             var sectionLayer = "Section";
@@ -59,26 +71,6 @@ namespace SensorSensitivity3D.Views
             DataContext = _viewModel;
 
             InitializeToolbarButtons();
-
-            //GeophoneTabItem.Content = new Geophones();
-
-            //var factory = new Context.ContextFactory();
-
-            //using (var dataContext = factory.CreateDbContext(null))
-            //{
-            //    //dataContext.Geophone.Add(new MyEntity { MyColumn = "aaa" });
-            //    //dataContext.MyTable.Add(new MyEntity { MyColumn = "bbb" });
-            //    //dataContext.MyTable.Add(new MyEntity { MyColumn = "ccc" });
-
-            //    //dataContext.SaveChanges();
-
-            //    //foreach (var cat in dataContext.MyTable.ToList())
-            //    //{
-            //    //    Console.WriteLine($@"CategoryId= {cat.MyColumn}, CategoryName = {cat.MyColumn}");
-            //    //}
-
-            //    Console.ReadLine();
-            //}
         }
 
         private void InitializeToolbarButtons()
@@ -199,11 +191,6 @@ namespace SensorSensitivity3D.Views
         private void SettingsClick(object sender, EventArgs e)
         {
             SettingsPopup.IsOpen = !SettingsPopup.IsOpen;
-        }
-        
-        private void LoadConfig(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
         
         private void HideSettingsPopup(object sender, MouseButtonEventArgs e)

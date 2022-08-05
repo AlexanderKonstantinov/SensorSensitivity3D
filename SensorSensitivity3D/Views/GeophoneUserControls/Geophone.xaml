@@ -30,8 +30,8 @@
         <s:Boolean x:Key="FalseValue">False</s:Boolean>
     </UserControl.Resources>
 
-    <Grid Grid.Row="1" Margin="20 10">
-            <Grid.RowDefinitions>
+    <Grid Margin="20 10">
+        <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -61,7 +61,7 @@
             
         <ScrollViewer 
             Grid.Row="1"
-            Grid.Column="2"             
+            Grid.Column="1"             
             Style="{StaticResource HorizontalScrollViewer}">
             <TextBox 
                 Text="{Binding EditedGeophone.Name, UpdateSourceTrigger=PropertyChanged}" 
@@ -143,7 +143,7 @@
         <t:RadToggleButton 
             Grid.Column="1"
             Grid.Row="6"
-            Style="{StaticResource ResourceKey=GeophoneToggleButton}"
+            Style="{StaticResource ResourceKey=ModelToggleButton}"
             IsChecked="{Binding EditedGeophone.GIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Content="{Binding EditedGeophone.GIsVisible, Converter={StaticResource BoolToDisplayConverter}}"
             Command="{Binding ChangeGeophoneCommand}"/>
@@ -156,7 +156,7 @@
         <t:RadToggleButton 
             Grid.Column="1"
             Grid.Row="7"
-            Style="{StaticResource ResourceKey=GeophoneToggleButton}"
+            Style="{StaticResource ResourceKey=ModelToggleButton}"
             IsChecked="{Binding EditedGeophone.SIsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Content="{Binding EditedGeophone.SIsVisible, Converter={StaticResource BoolToDisplayConverter}}"
             Command="{Binding ChangeGeophoneCommand}"/>
@@ -179,13 +179,12 @@
             x:Name="ColorEditorPopupGeophonePanel"             
             Style="{StaticResource ColorEditorPopup}" >
             <Grid MouseLeave="ColorEditor_MouseLeave">
-                <t:RadColorEditor                         
-                    x:Name="ColorEditorGeophonePanel"   
+                <t:RadColorEditor                      
                     SelectedColor="{Binding EditedGeophone.Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToColorConverter}}"
                     InitialColor="{Binding EditedGeophone.Color, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
                     Style="{StaticResource ColorEditor}" >
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SensitivityelectedColorChanged">
+                        <i:EventTrigger EventName="SelectedColorChanged">
                             <i:InvokeCommandAction 
                                 Command="{Binding ChangeGeophoneCommand}" />
                         </i:EventTrigger>
@@ -203,7 +202,7 @@
             Grid.Row="9"
             Grid.Column="1" 
             Panel.ZIndex="1"
-            Style="{StaticResource ResourceKey=GeophoneToggleButton}"
+            Style="{StaticResource ResourceKey=ModelToggleButton}"
             IsChecked="{Binding EditedGeophone.IsGood, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Content="{Binding EditedGeophone.IsGood, Converter={StaticResource BoolToStateConverter}}"/>
 
@@ -232,7 +231,7 @@
             Orientation="Horizontal" >
 
             <t:RadButton
-                Style="{StaticResource ResetGeophoneButton}"                            
+                Style="{StaticResource ResetModelButton}"                            
                 Command="{Binding ResetGeophoneCommand}" 
                 Margin="10 20 0 0" >
                 <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />

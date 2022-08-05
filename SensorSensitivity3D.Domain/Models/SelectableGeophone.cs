@@ -1,6 +1,4 @@
 ﻿
-using System.ComponentModel;
-
 namespace SensorSensitivity3D.Domain.Models
 {
     public class SelectableGeophone

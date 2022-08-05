@@ -10,9 +10,9 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels"
     xmlns:views="clr-namespace:SensorSensitivity3D.Views"
-    xmlns:geophoneUserControls="clr-namespace:SensorSensitivity3D.Views.GeophoneUserControls"
+    xmlns:geophoneViews="clr-namespace:SensorSensitivity3D.Views.GeophoneUserControls"
+    xmlns:controlZoneViews="clr-namespace:SensorSensitivity3D.Views.ControlZones"
     xmlns:models="clr-namespace:SensorSensitivity3D.Domain.Models;assembly=SensorSensitivity3D.Domain"
-    
     xmlns:ddes="http://schemas.devdept.com/winfx/2008/xaml/control"
     x:Class="SensorSensitivity3D.Views.MainWindow"
     mc:Ignorable="d" Title="Зоны локации"
@@ -20,7 +20,7 @@
     MinWidth="850" MinHeight="650" 
     Icon="pack://application:,,,/Resources/Icons/main_icon.png" 
     MouseDown="HideSettingsPopup"
-    PreviewMouseLeftButtonDown="Window_MouseDown" >
+    PreviewMouseLeftButtonDown="Window_MouseDown">
 
     <i:Interaction.Triggers>
 
@@ -46,6 +46,21 @@
     </Window.DataContext>-->
 
     <Grid>
+        <Grid 
+            x:Name="LoadingInfo"
+            Background="White"
+            Panel.ZIndex="1000"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" 
+            Visibility="{Binding LoadingInfoVisibility, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                TextAlignment="Center"
+                FontSize="50" 
+                Text="ЗАГРУЗКА"/>
+        </Grid>
+
         <StackPanel 
             x:Name="ConfigPanel"
             Panel.ZIndex="1000"
@@ -133,7 +148,7 @@
                                 BorderThickness="0"
                                 Padding="10 5"
                                 Background="Transparent"
-                                FontFamily="Sensitivityegoe UI" 
+                                FontFamily="Segoe UI" 
                                 FontSize="16" 
                                 Grid.Column="0" 
                                 VerticalAlignment="Bottom" 
@@ -187,6 +202,7 @@
 
             <Grid
                 x:Name="NewConfigurationPanel"
+                HorizontalAlignment="Center"
                 Visibility="Collapsed">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -198,12 +214,13 @@
                     Grid.Column="0" 
                     VerticalContentAlignment="Center"
                     HorizontalContentAlignment="Right"
-                    FontFamily="Sensitivityegoe UI" 
+                    FontFamily="Segoe UI" 
                     FontSize="16" 
                     Height="28"
+                    Width="200"
                     BorderThickness="1"
                     Padding="10 0 60 0"
-                    Margin="0 0 -40 0">
+                    Margin="0 0 -50 0">
                     <TextBox.Resources>
                         <Style TargetType="{x:Type Border}">
                             <Setter Property="CornerRadius" Value="15"/>
@@ -218,12 +235,12 @@
                     </TextBox.Resources>
                 </TextBox>
 
-                <Border 
-                    Width="50"
+                <!--<Border 
+                    Width="150"
                     Height="30"
                     Grid.Column="1"
                     Background="White"
-                    CornerRadius="15"/>
+                    CornerRadius="15"/>-->
                 
                 <t:RadButton   
                     x:Name="AddConfigButton"
@@ -268,7 +285,7 @@
                 MinWidth="350"
                 Background="#FF5E6770"
                 PreviewMouseUp="RightPanel_PreviewMouseUp"
-                FontSize="16"
+                FontSize="14"
                 t:StyleManager.Theme="Green" 
                 DisplayMemberPath="Content" 
                 ScrollMode="Viewport" 
@@ -279,11 +296,15 @@
                 </t:RadTabItem>
                 
                 <t:RadTabItem Header="Геофоны" >
-                    <geophoneUserControls:Geophones 
+                    <geophoneViews:Geophones 
                         DataContext="{Binding GeophonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </t:RadTabItem>
 
-                <t:RadTabItem Header="Зоны локации" >
+                <t:RadTabItem Header="Зоны контроля" >
+                    <controlZoneViews:ControlZones DataContext="{Binding ControlZonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </t:RadTabItem>
+
+                <t:RadTabItem Header="Зоны чувствительности" Visibility="Collapsed" >
                     <views:Zones DataContext="{Binding ZonesViewModel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </t:RadTabItem>    
             </t:RadTabControl>

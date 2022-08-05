@@ -1,0 +1,260 @@
+﻿<UserControl x:Class="SensorSensitivity3D.Views.ControlZones.ControlZone"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:t="http://schemas.telerik.com/2008/xaml/presentation"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             xmlns:local="clr-namespace:SensorSensitivity3D.Views.ControlZones"
+             xmlns:viewModels="clr-namespace:SensorSensitivity3D.ViewModels.ControlZones"
+             xmlns:panels="clr-namespace:SensorSensitivity3D.Views.Panels"
+             xmlns:helpers="clr-namespace:SensorSensitivity3D.Helpers"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             Background="White"
+             d:DesignHeight="650" d:DesignWidth="350">
+
+    <UserControl.DataContext>
+        <viewModels:ControlZoneViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.Resources>
+        <helpers:BoolToStringConverter x:Key="BoolToStateConverter" TrueValue="исправен" FalseValue="не исправен" />
+        <helpers:BoolToStringConverter x:Key="BoolToDisplayConverter" TrueValue="отображать" FalseValue="не отображать" />
+        <helpers:StringToColorConverter x:Key="StringToColorConverter" />
+        <helpers:DrawingColorToMediaColorConverter x:Key="DrawingColorToMediaColorConverter" />
+        <helpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed" />
+        <system:Boolean x:Key="TrueValue">True</system:Boolean>
+        <system:Boolean x:Key="FalseValue">False</system:Boolean>
+    </UserControl.Resources>
+
+    <Grid Margin="20 10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <panels:PanelHeader Grid.Row="0" Grid.ColumnSpan="2" />
+
+        <TextBlock 
+            Grid.Row="1"
+            Grid.Column="0"
+            Text="Наименование" 
+            Style="{StaticResource TitleTextBlock}"/>
+
+        <ScrollViewer 
+            Grid.Row="1"
+            Grid.Column="1"             
+            Style="{StaticResource HorizontalScrollViewer}">
+            <TextBox 
+                Text="{Binding EditedControlZone.Name, UpdateSourceTrigger=PropertyChanged}" 
+                Style="{StaticResource EditTextBox}" />
+        </ScrollViewer>
+
+        <TextBlock 
+            Grid.Row="2"
+            Grid.Column="0" 
+            Text="Xmin, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="2"
+            Grid.Column="1"             
+            Text="{Binding EditedControlZone.XMin, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding ChangeControlZoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+
+        <TextBlock 
+            Grid.Row="3"
+            Grid.Column="0" 
+            Text="Xmax, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="3"
+            Grid.Column="1"             
+            Text="{Binding EditedControlZone.XMax, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding ChangeControlZoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+
+        <TextBlock 
+            Grid.Row="4"
+            Grid.Column="0" 
+            Text="Ymin, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="4"
+            Grid.Column="1"             
+            Text="{Binding EditedControlZone.YMin, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding ChangeControlZoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+
+        <TextBlock 
+            Grid.Row="5"
+            Grid.Column="0" 
+            Text="Ymax, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="5"
+            Grid.Column="1"             
+            Text="{Binding EditedControlZone.YMax, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding ChangeControlZoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+
+        <TextBlock 
+            Grid.Row="6"
+            Grid.Column="0" 
+            Text="Zmin, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="6"
+            Grid.Column="1"             
+            Text="{Binding EditedControlZone.ZMin, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding ChangeControlZoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+
+        <TextBlock 
+            Grid.Row="7"
+            Grid.Column="0" 
+            Text="Zmax, м" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <TextBox  
+            Grid.Row="7"
+            Grid.Column="1"             
+            Text="{Binding EditedControlZone.ZMax, UpdateSourceTrigger=PropertyChanged}"  
+            Style="{StaticResource EditTextBox}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TextChanged">
+                    <i:InvokeCommandAction 
+                        Command="{Binding ChangeControlZoneCommand}" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </TextBox>
+
+        <TextBlock 
+            Grid.Row="8"
+            Grid.Column="0"
+            Text="Видимость зоны контроля" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <t:RadToggleButton 
+            Grid.Column="1"
+            Grid.Row="8"
+            Style="{StaticResource ResourceKey=ModelToggleButton}"
+            IsChecked="{Binding EditedControlZone.IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            Content="{Binding EditedControlZone.IsVisible, Converter={StaticResource BoolToDisplayConverter}}"
+            Command="{Binding ChangeControlZoneCommand}"/>
+
+        <TextBlock 
+            Grid.Row="9"
+            Grid.Column="0"
+            Text="Цвет зоны контроля" 
+            Style="{StaticResource TitleTextBlock}"/>
+        <t:RadButton
+            Grid.Row="9"
+            Grid.Column="1"
+            HorizontalAlignment="Right"
+            Style="{StaticResource ColorButton}"
+            Click="ColorButton_Click"
+            Background="{Binding EditedControlZone.Color, Mode=OneWay, Converter={StaticResource StringToColorConverter}}"
+        />
+        <Popup     
+            Grid.Row="9"
+            Grid.Column="1"
+            x:Name="ColorEditorPopupControlZonePanel"             
+            Style="{StaticResource ColorEditorPopup}" >
+            <Grid MouseLeave="ColorEditor_MouseLeave">
+                <t:RadColorEditor                         
+                    SelectedColor="{Binding EditedControlZone.Color, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource StringToColorConverter}}"
+                    InitialColor="{Binding EditedControlZone.Color, Mode=OneTime, Converter={StaticResource StringToColorConverter}}"
+                    Style="{StaticResource ColorEditor}" >
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectedColorChanged">
+                            <i:InvokeCommandAction 
+                                Command="{Binding ChangeControlZoneCommand}" />
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </t:RadColorEditor>
+            </Grid>
+        </Popup>
+
+        <StackPanel
+            Grid.Column="0"
+            Grid.ColumnSpan="2"
+            Grid.Row="11"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal" >
+
+            <t:RadButton
+                Style="{StaticResource ResetModelButton}"                            
+                Command="{Binding ResetControlZoneCommand}" 
+                Margin="10 20 0 0" >
+                <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />
+            </t:RadButton>
+
+            <t:RadButton 
+                Content="Добавить"
+                ToolTip="Добавить зону контроля"
+                Style="{StaticResource BackPanelAcceptButton}"
+                Command="{Binding AddControlZoneCommand}"
+                CommandParameter="{StaticResource FalseValue}"/>
+
+            <t:RadButton 
+                Content="Добавить +"
+                ToolTip="Добавить зону контроля и продолжить"
+                Style="{StaticResource BackPanelAcceptButton}"
+                Command="{Binding AddControlZoneCommand}"
+                CommandParameter="{StaticResource TrueValue}"/>
+
+            <t:RadButton 
+                Content="Сохранить"
+                ToolTip="Сохранить изменения"
+                Visibility="{Binding IsEditedMode, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource BoolToVisibilityConverter}}"
+                Command="{Binding SaveControlZoneCommand}"
+                Style="{StaticResource BackPanelAcceptButton}"/>
+
+        </StackPanel>
+</Grid>
+</UserControl>

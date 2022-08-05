@@ -10,8 +10,8 @@ using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.Services;
 using SensorSensitivity3D.ViewModels.Base;
+using SensorSensitivity3D.ViewModels.ControlZones;
 using SensorSensitivity3D.ViewModels.GeophoneViewModels;
-
 using static SensorSensitivity3D.Services.ModelInteractionService;
 
 namespace SensorSensitivity3D.ViewModels
@@ -20,13 +20,16 @@ namespace SensorSensitivity3D.ViewModels
     {
         private readonly ConfigService _configService;
         private readonly GeophoneService _geophoneService;
+        private readonly ControlZoneService _controlZoneService;
 
         public bool ConfigPanelVisibility { get; set; } = true;
+        public bool LoadingInfoVisibility { get; private set; } = false;
 
         public string SelectedEntityInfo { get; set; }
         
         public DrawingViewModel DrawingViewModel { get; set; }
         public GeophonesViewModel GeophonesViewModel { get; set; }
+        public ControlZonesViewModel ControlZonesViewModel { get; set; }
         public ZonesViewModel ZonesViewModel { get; set; }
         
         public ObservableCollection<Configuration> Configurations { get; set; }
@@ -39,6 +42,7 @@ namespace SensorSensitivity3D.ViewModels
         {
             _configService = new ConfigService();
             _geophoneService = new GeophoneService();
+            _controlZoneService = new ControlZoneService(_geophoneService);
 
             Configurations = _configService.GetConfigurations();
 
@@ -55,7 +59,10 @@ namespace SensorSensitivity3D.ViewModels
                 SelectedEntityInfo = GeophonesViewModel?.TrySelectGeophone();       
                 
                 if (string.IsNullOrEmpty(SelectedEntityInfo))
-                    SelectedEntityInfo = ZonesViewModel?.TrySelectZone();                
+                    SelectedEntityInfo = ZonesViewModel?.TrySelectZone();
+
+                if (string.IsNullOrEmpty(SelectedEntityInfo))
+                    SelectedEntityInfo = ControlZonesViewModel?.TrySelectControlZone();
             };
 
             model.MouseDown += (o, a) =>
@@ -81,19 +88,29 @@ namespace SensorSensitivity3D.ViewModels
 
         private void ExecuteLoadConfigCommand(object obj)
         {
+            LoadingInfoVisibility = true;
+            ConfigPanelVisibility = false;
+
             SelectedConfig = obj as Configuration;
 
             DrawingViewModel = new DrawingViewModel(_configService, SelectedConfig);
             GeophonesViewModel = new GeophonesViewModel(_geophoneService, SelectedConfig);
-            ZonesViewModel = new ZonesViewModel(GeophonesViewModel.GeophoneModels);
+            ControlZonesViewModel = new ControlZonesViewModel(
+                _controlZoneService,
+                SelectedConfig,
+                GeophonesViewModel.GeophoneModels);
+            ZonesViewModel = new ZonesViewModel();
 
             GeophonesViewModel.SelectionEntities += entities
                 => OnSelectionEntities(entities);
 
+            ControlZonesViewModel.SelectionEntity += entity
+                => OnSelectionEntities(entity == null ? null : new[] { entity });
+
             ZonesViewModel.SelectionEntity += entity
                 => OnSelectionEntities(entity == null ? null : new [] {entity});
-
-            ConfigPanelVisibility = false;
+            
+            LoadingInfoVisibility = false;
 
             Focus();
             ZoomFit();

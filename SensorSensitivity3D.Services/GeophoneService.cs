@@ -1,13 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Xml.Serialization;
-using devDept.Eyeshot.Entities;
 using SensorSensitivity3D.DAL.Repositories;
 using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Domain.Models;

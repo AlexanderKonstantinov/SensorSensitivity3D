@@ -9,7 +9,8 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style x:Key="SliderCheckBox" TargetType="{x:Type CheckBox}" BasedOn="{StaticResource BaseCheckBox}">
+    <Style x:Key="SliderCheckBox" TargetType="{x:Type CheckBox}" 
+           BasedOn="{StaticResource BaseCheckBox}">
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -69,7 +70,7 @@
                             <Setter TargetName="ForegroundPanel" Property="Background" Value="Green" />
                             <Trigger.EnterActions>
                                 <BeginStoryboard x:Name="BeginStoryboardCheckedTrue" Storyboard="{StaticResource StoryboardIsChecked}" />
-                                <RemoveStoryboard BeginStoryboardName="BeginSensitivitytoryboardCheckedFalse" />
+                                <RemoveStoryboard BeginStoryboardName="BeginStoryboardCheckedFalse" />
                             </Trigger.EnterActions>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="False">
@@ -77,7 +78,7 @@
                             <Setter TargetName="ForegroundPanel" Property="Background" Value="Gray" />
                             <Trigger.EnterActions>
                                 <BeginStoryboard x:Name="BeginStoryboardCheckedFalse" Storyboard="{StaticResource StoryboardIsCheckedOff}" />
-                                <RemoveStoryboard BeginStoryboardName="BeginSensitivitytoryboardCheckedTrue" />
+                                <RemoveStoryboard BeginStoryboardName="BeginStoryboardCheckedTrue" />
                             </Trigger.EnterActions>
                         </Trigger>
                     </ControlTemplate.Triggers>

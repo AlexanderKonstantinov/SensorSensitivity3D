@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-using System.Windows.Documents;
 using System.Windows.Input;
-using devDept.Eyeshot;
 using devDept.Eyeshot.Entities;
 using devDept.Geometry;
-using devDept.Graphics;
-using SensorSensitivity3D.Domain.Entities;
 using SensorSensitivity3D.Domain.Models;
 using SensorSensitivity3D.Infrastructure;
 using SensorSensitivity3D.ViewModels.Base;
@@ -20,6 +15,21 @@ namespace SensorSensitivity3D.ViewModels
 {
     public class ZonesViewModel : BaseViewModel
     {
+        private double _currentSensitivityLevel;
+
+        public double CurrentSensitivityLevel
+        {
+            get => _currentSensitivityLevel;
+            set
+            {
+                _currentSensitivityLevel = value;
+                UpdateZones();
+                UpdateVisibility();
+                OnPropertyChanged(nameof(CurrentSensitivityLevel));
+            }
+        }
+        public double MaxSensitivityLevel { get; set; }
+
         public event Action<Entity> SelectionEntity;
 
         public ObservableCollection<ZoneModel> Zones { get; set; }
@@ -29,9 +39,12 @@ namespace SensorSensitivity3D.ViewModels
 
         public bool ZonesVisibilityAny
         {
-            get => Zones.Any(z => z.Visible);
+            get => Zones?.Any(z => z.Visible) ?? false;
             set
             {
+                if (Zones == null || !Zones.Any())
+                    return;
+
                 foreach (var z in Zones)
                     z.Visible = value;
 
@@ -40,49 +53,24 @@ namespace SensorSensitivity3D.ViewModels
         }
 
 
-
         public ZonesViewModel() { }
 
-        public ZonesViewModel(IList<GeophoneModel> geophones)
+        public void CalcZones(IList<GeophoneModel> geophones)
         {
-            //foreach (var entity in entities)
-            //{
-            //    entity.Visible = true;
-            //}
-
-            List<ZoneModel> geophoneZones = geophones.Select(g => new ZoneModel
-            {
-                Geophones = new List<Geophone> { g.OriginalGeophone },
-                Body = (Solid)g.SensitivitySphere
-            }).ToList();
-
-            Zones = new ObservableCollection<ZoneModel>(geophoneZones.Where(z => z.Geophones.Count > 1));
-
-            var rnd = new Random();
-
-            //foreach (var z in Zones)
-            //{
-            //    z.Color = $"#{Color.FromArgb(70, rnd.Next(256), rnd.Next(256), rnd.Next(256)).Name}";
-            //    z.Body.ColorMethod = colorMethodType.byEntity;
-            //    z.Body.Color = ColorTranslator.FromHtml(z.Color);
-            //    z.Visible = true;
-            //}
-
-            //AddEntities(Zones.Select(z => z.Body));
-
-
+            if (!geophones.Any())
+                return;
 
             // Определяем количество доменов по измерениям для задания ёмкости
 
-            int maxSensitivityLimit = int.MinValue;
+            int maxSensitivityRadius = int.MinValue;
             double xMin, yMin, zMin, xMax, yMax, zMax;
             xMin = yMin = zMin = double.MaxValue;
             xMax = yMax = zMax = double.MinValue;
 
             foreach (var g in geophones)
             {
-                if (g.R > maxSensitivityLimit)
-                    maxSensitivityLimit = g.R;
+                if (g.R > maxSensitivityRadius)
+                    maxSensitivityRadius = g.R;
                 if (g.X < xMin)
                     xMin = g.X;
                 if (g.Y < yMin)
@@ -97,14 +85,14 @@ namespace SensorSensitivity3D.ViewModels
                     zMax = g.Z;
             }
 
-            xMin -= maxSensitivityLimit;
-            yMin -= maxSensitivityLimit;
-            zMin -= maxSensitivityLimit;
+            xMin -= maxSensitivityRadius;
+            yMin -= maxSensitivityRadius;
+            zMin -= maxSensitivityRadius;
 
-            xMax += maxSensitivityLimit;
-            yMax += maxSensitivityLimit;
-            zMax += maxSensitivityLimit;
-            
+            xMax += maxSensitivityRadius;
+            yMax += maxSensitivityRadius;
+            zMax += maxSensitivityRadius;
+
             var domainSize = 1;
             int xDomainNumbers, yDomainNumbers, zDomainNumbers;
 
@@ -116,13 +104,13 @@ namespace SensorSensitivity3D.ViewModels
                 yDomainNumbers = (int)((yMax - yMin) / domainSize + 1);
                 zDomainNumbers = (int)((zMax - zMin) / domainSize + 1);
             }
-            while (xDomainNumbers * yDomainNumbers * zDomainNumbers > 10000000) ;
+            while (xDomainNumbers * yDomainNumbers * zDomainNumbers > 10000000);
 
             if (xDomainNumbers * yDomainNumbers * zDomainNumbers > 10000000)
                 return;
 
             // Инициализация доменов
-            var domains = new Domain.Models.DomainCub[xDomainNumbers, yDomainNumbers, zDomainNumbers];
+            var domains = new DomainCub[xDomainNumbers, yDomainNumbers, zDomainNumbers];
 
             var curAxeX = xMin;
             for (var x = 0; x < xDomainNumbers; ++x)
@@ -153,7 +141,7 @@ namespace SensorSensitivity3D.ViewModels
 
             var gridStep = 1;
 
-            var maxSensitivity = double.MinValue;
+            MaxSensitivityLevel = double.MinValue;
 
             var domainsEntities = new List<DomainCub>(xDomainNumbers * yDomainNumbers * zDomainNumbers);
             for (var x = 0; x < xDomainNumbers; x += gridStep)
@@ -184,19 +172,21 @@ namespace SensorSensitivity3D.ViewModels
 
                         curDomain.Sensitivity *= curDomain.GeophoneCount;
 
-                        if (curDomain.Sensitivity > maxSensitivity)
-                            maxSensitivity = curDomain.Sensitivity;
+                        if (curDomain.Sensitivity > MaxSensitivityLevel)
+                            MaxSensitivityLevel = curDomain.Sensitivity;
 
                         domainsEntities.Add(curDomain);
                     }
                 }
             }
 
-            // Алгоритм заливки
-            Queue<DomainCub> q = new Queue<DomainCub>();
-
+            // Алгоритм заливки, инициализация зон
             var groupCount = -1;
-            var groups = new Dictionary<int, HashSet<DomainCub>>();
+            Zones = new ObservableCollection<ZoneModel>();
+
+            var rnd = new Random();
+
+            Queue<DomainCub> q = new Queue<DomainCub>();
 
             foreach (var d in domainsEntities)
             {
@@ -204,7 +194,12 @@ namespace SensorSensitivity3D.ViewModels
                     continue;
 
                 ++groupCount;
-                groups.Add(groupCount, new HashSet<DomainCub>( ));
+
+                var zone = new ZoneModel();
+                zone.Visible = true;
+                zone.GroupNumber = groupCount;
+                zone.Domains = new HashSet<DomainCub>();
+                Zones.Add(zone);
 
                 q.Enqueue(d);
 
@@ -215,7 +210,7 @@ namespace SensorSensitivity3D.ViewModels
                     if (n.Sensitivity > 0 && n.GroupNumber == -1)
                     {
                         n.GroupNumber = groupCount;
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
 
                     q.Dequeue();
@@ -229,7 +224,7 @@ namespace SensorSensitivity3D.ViewModels
                     {
                         neighbor.GroupNumber = groupCount;
                         q.Enqueue(neighbor);
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
 
                     neighbor = domains[xIndex + gridStep, yIndex, zIndex];
@@ -237,7 +232,7 @@ namespace SensorSensitivity3D.ViewModels
                     {
                         neighbor.GroupNumber = groupCount;
                         q.Enqueue(neighbor);
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
 
                     neighbor = domains[xIndex, yIndex - gridStep, zIndex];
@@ -245,7 +240,7 @@ namespace SensorSensitivity3D.ViewModels
                     {
                         neighbor.GroupNumber = groupCount;
                         q.Enqueue(neighbor);
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
 
                     neighbor = domains[xIndex, yIndex + gridStep, zIndex];
@@ -253,7 +248,7 @@ namespace SensorSensitivity3D.ViewModels
                     {
                         neighbor.GroupNumber = groupCount;
                         q.Enqueue(neighbor);
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
 
                     neighbor = domains[xIndex, yIndex, zIndex - gridStep];
@@ -261,7 +256,7 @@ namespace SensorSensitivity3D.ViewModels
                     {
                         neighbor.GroupNumber = groupCount;
                         q.Enqueue(neighbor);
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
 
                     neighbor = domains[xIndex, yIndex, zIndex + gridStep];
@@ -269,123 +264,16 @@ namespace SensorSensitivity3D.ViewModels
                     {
                         neighbor.GroupNumber = groupCount;
                         q.Enqueue(neighbor);
-                        groups[groupCount].Add(n);
+                        zone.Domains.Add(n);
                     }
                 }
             }
 
+            CurrentSensitivityLevel = MaxSensitivityLevel;
 
-            var levels = new List<double>(10);
-            var levelColors = new Dictionary<double, string>(10);
-            var subgroups = new Dictionary<IEnumerable<DomainCub>, double>(groups.Count * 10);
-
-            for (var s = maxSensitivity / 10; s <= maxSensitivity; s += maxSensitivity / 10)
-            {
-                levelColors.Add(s, $"#{Color.FromArgb(0, rnd.Next(256), rnd.Next(256), rnd.Next(256)).Name}");
-                levels.Add(s);
-            }
-
-            foreach (var g in groups)
-                foreach (var level in levels)
-                    subgroups.Add(g.Value.Where(d => d.Sensitivity <= level), level);
-
-            _model.Materials.Add(new Material("wood", new Bitmap("Wenge.jpg")));
-
-            foreach (var g in subgroups)
-            {
-                if (g.Key.Count() < 4)
-                    continue;
-                
-                var groupNumber = g.Key.First().GroupNumber;
-
-                var solid = UtilityEx.ConvexHull(g.Key.Select(d => new Point3D(d.X, d.Y, d.Z)).ToList()).ConvertToSolid();
-                
-                var z = new ZoneModel
-                {
-                    Body = solid,
-                    Geophones = new List<Geophone> { new Geophone { Name = $"Sensitivity = {g.Value}" } },
-                    Visible = true,
-                    Color = levelColors[g.Value],
-                    GroupNumber = groupNumber
-                };
-                
-                z.Body.ColorMethod = colorMethodType.byEntity;
-                z.Body.Color = ColorTranslator.FromHtml(z.Color);
-                
-                Zones.Add(z);
-            }
-
-            // Сортировка объектов по вложенности и создание
-            //Zones = new ObservableCollection<ZoneModel>(Zones
-            //    .OrderBy(z => z.GroupNumber));
-
-            //for (var i = 0; i < groupCount; ++i)
-            //{
-            //    var zoneGroup = Zones
-            //        .Where(z => z.GroupNumber == i).ToList();
-
-            //    for (var j = 1; j < zoneGroup.Count; ++j)
-            //    {
-            //        var difference = Solid.Difference((Solid) zoneGroup[j - 1].Body, (Solid) zoneGroup[j].Body);
-
-            //        zoneGroup[j].Body. = difference.FirstOrDefault();
-            //    }
-            //}
-
-            //foreach (var d in domainsEntities)
-            //{
-            //    if (d.GroupNumber == -1)
-            //        continue;
-
-            //    var mesh = Mesh.CreateSphere(1, 10, 10);
-            //    mesh.Translate(d.X, d.Y, d.Z);
-            //    mesh.ColorMethod = colorMethodType.byEntity;
-            //    mesh.Color = Color.Crimson;
-
-            //    Zones.Add(new ZoneModel
-            //    {
-            //        Body = mesh,
-            //        Visible = true
-            //    });
-            //}
-
-            AddEntities(Zones.Select(z => z.Body));
-
-            
-            
-            UpdateVisibility();
-            //var curAxeX = GeometricZone.Min.X;
-            //do
-            //{
-            //    var curAxeY = GeometricZone.Min.Y;
-            //    do
-            //    {
-            //        var curAxeZ = GeometricZone.Min.Z;
-            //        do
-            //        {
-            //            domains.Add(new SensitivityDomain
-            //            {
-            //                Axe1Min = curAxe1,
-            //                Axe1Max = curAxe1 + _parameters.DomainSize,
-            //                Axe2Min = curAxe2,
-            //                Axe2Max = curAxe2 + _parameters.DomainSize,
-            //                Axe1Center = curAxe1 + _parameters.DomainSize / 2d,
-            //                Axe2Center = curAxe2 + _parameters.DomainSize / 2d,
-            //                GeofonesNumber = 0,
-            //                Sensitivity = 0
-            //            });
-            //            curAxeZ += domainSize;
-            //        } while (curAxeZ < GeometricZone.Max.Z);
-            //        curAxeY += domainSize;
-            //    } while (curAxeY < GeometricZone.Max.Y);
-            //    curAxeX += domainSize;
-            //} while (curAxeX < GeometricZone.Max.X);
-
-
-
-
-            //UpdateVisibilityParams();
+            UpdateVisibilityParams();
         }
+        
 
         private RelayCommand _changeZonesVisibility;
         public ICommand ChangeZonesVisibilityCommand
@@ -399,6 +287,7 @@ namespace SensorSensitivity3D.ViewModels
                     g.Visible = ZonesVisibilityAll;
             }
 
+            UpdateZones();
             UpdateVisibilityParams();
         }
 
@@ -424,6 +313,32 @@ namespace SensorSensitivity3D.ViewModels
         }
 
 
+        private void UpdateZones()
+        {
+            RemoveEntities(Zones.Select(z => z.Body));
+            
+            foreach (var zone in Zones)
+            {
+                zone.Body = null;
+
+                var domains = zone.Domains
+                    .Where(d => d.Sensitivity <= CurrentSensitivityLevel);
+
+                if (!domains.Any())
+                    continue;
+
+                zone.Body = UtilityEx.ConvexHull(domains
+                    .Select(d => new Point3D(d.X, d.Y, d.Z))
+                    .ToList());
+                zone.Body.ColorMethod = colorMethodType.byEntity;
+                zone.Body.Color = Color.IndianRed;
+            }
+            
+            AddEntities(Zones
+                .Where(z => z.Body != null && z.Body.IsValid())
+                .Select(z => z.Body));
+        }
+
         private void UpdateVisibilityParams()
         {
             if (!Zones.Any())
@@ -438,7 +353,7 @@ namespace SensorSensitivity3D.ViewModels
 
         public string TrySelectZone()
         {
-            SelectedZone = Zones.FirstOrDefault(z => z.Body.Selected);
+            SelectedZone = Zones?.FirstOrDefault(z => z.Body.Selected);
             return SelectedZone?.ToString();
         }
 

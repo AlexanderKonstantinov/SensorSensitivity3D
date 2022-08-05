@@ -34,43 +34,13 @@ namespace SensorSensitivity3D.Services
             _tempEntities = new HashSet<Entity>(2);
         }
 
-        //TODO Нужно тестировать
-        public static bool UpdateSubstrate(string substratePath, bool isVisible, ref Drawing drawing)
+       
+
+        public static void AddEntity(Entity entity)
         {
-            if (!File.Exists(substratePath))
-                return false;
+            _model.Entities.Add(entity);
 
-            Application.Current.Dispatcher?.Invoke(DispatcherPriority.Background,
-                new Action(delegate { }));
-
-            _readAutodesk = new ReadAutodesk(substratePath);
-            _readAutodesk.DoWork();
-
-            if (drawing?.Entities != null)
-                RemoveEntities(drawing.Entities);
-
-            _readAutodesk.AddToScene(_model);
-
-            foreach (var e in _readAutodesk.Entities)
-            {
-                e.Selectable = false;
-                e.Visible = isVisible;
-            }
-
-            drawing = new Drawing
-            {
-                IsVisible = isVisible,
-                Name = new FileInfo(substratePath).Name,
-                XMin = _model.Entities.BoxMin.X,
-                XMax = _model.Entities.BoxMax.X,
-                YMin = _model.Entities.BoxMin.Y,
-                YMax = _model.Entities.BoxMax.Y,
-                ZMin = _model.Entities.BoxMin.Z,
-                ZMax = _model.Entities.BoxMax.Z,
-                Entities = _readAutodesk.Entities
-            };
-
-            return true;
+            Invalidate();
         }
 
         public static void AddEntities(IEnumerable<Entity> entities)
@@ -111,7 +81,7 @@ namespace SensorSensitivity3D.Services
                 _selectedEntities.Add(entity);
             }
 
-            UpdateVisibility();
+            //UpdateVisibility();
         }
 
         /// <summary>
@@ -160,10 +130,15 @@ namespace SensorSensitivity3D.Services
 
         public static void SwitchEntitiesVisibility(IEnumerable<Entity> entities, bool visibility)
         {
-            foreach (var e in entities)
-                e.Visible = visibility;
+            if (visibility)
+                AddEntities(entities);
+            else
+                RemoveEntities(entities);
 
-            UpdateVisibility();
+            //foreach (var e in entities)
+            //    e.Visible = visibility;
+
+            //UpdateVisibility();
         }
 
         /// <summary>
@@ -219,117 +194,117 @@ namespace SensorSensitivity3D.Services
 
         public static void ClickOnViewport(IEnumerable<ZoneModel> zoneGroup)
         {
-            // удаляем предыдущее сечение
-            _model.Entities.Remove(_sectionEntity);
+            //// удаляем предыдущее сечение
+            //_model.Entities.Remove(_sectionEntity);
 
-            if (zoneGroup == null)
-            {
-                _model.ObjectManipulator.Visible = _model.ObjectManipulator.RotateX.Visible =
-                    _model.ObjectManipulator.RotateY.Visible = _model.ObjectManipulator.RotateZ.Visible = false;
+            //if (zoneGroup == null)
+            //{
+            //    _model.ObjectManipulator.Visible = _model.ObjectManipulator.RotateX.Visible =
+            //        _model.ObjectManipulator.RotateY.Visible = _model.ObjectManipulator.RotateZ.Visible = false;
 
 
-                _model.ObjectManipulator.Cancel();
-                // восстанавливаем состояние зон
+            //    _model.ObjectManipulator.Cancel();
+            //    // восстанавливаем состояние зон
 
-            }
-            else
-            {
-                Entity biggestEntity = null;
+            //}
+            //else
+            //{
+            //    Entity biggestEntity = null;
 
-                foreach (var zone in zoneGroup)
-                {
-                    if (biggestEntity is null || biggestEntity.BoxSize.Max < zone.Body.BoxSize.Max)
-                        biggestEntity = zone.Body;
-                }
+            //    foreach (var zone in zoneGroup)
+            //    {
+            //        if (biggestEntity is null || biggestEntity.BoxSize.Max < zone.Body.BoxSize.Max)
+            //            biggestEntity = zone.Body;
+            //    }
 
-                var leftBottomPoint = new Point3D(
-                    biggestEntity.BoxMin.X + biggestEntity.BoxSize.X / 2,
-                    biggestEntity.BoxMin.Y,
-                    biggestEntity.BoxMin.Z);
+            //    var leftBottomPoint = new Point3D(
+            //        biggestEntity.BoxMin.X + biggestEntity.BoxSize.X / 2,
+            //        biggestEntity.BoxMin.Y,
+            //        biggestEntity.BoxMin.Z);
 
-                _sectionPlane = new Plane(leftBottomPoint, Vector3D.AxisX);
+            //    _sectionPlane = new Plane(leftBottomPoint, Vector3D.AxisX);
 
-                _sectionEntity = new PlanarEntity(_sectionPlane, (float)biggestEntity.BoxSize.Max);
+            //    _sectionEntity = new PlanarEntity(_sectionPlane, (float)biggestEntity.BoxSize.Max);
                 
-                //_model.Entities.Add(_sectionEntity, Color.Magenta);
+            //    //_model.Entities.Add(_sectionEntity, Color.Magenta);
                 
-                Transformation initialTransformation = null;
-                bool center = true;
-                Point3D rotationPoint = (Point3D) _sectionEntity.EntityData;
+            //    Transformation initialTransformation = null;
+            //    bool center = true;
+            //    Point3D rotationPoint = (Point3D) _sectionEntity.EntityData;
 
-                if (_sectionEntity.EntityData is Point3D)
-                {
-                    center = false;
-                    rotationPoint = _sectionEntity.BoxMin;
-                }
+            //    if (_sectionEntity.EntityData is Point3D)
+            //    {
+            //        center = false;
+            //        rotationPoint = _sectionEntity.BoxMin;
+            //    }
 
-                if (rotationPoint != null)
+            //    if (rotationPoint != null)
 
-                    initialTransformation = new Translation(rotationPoint.X, rotationPoint.Y,
-                        rotationPoint.Z);
-                else
+            //        initialTransformation = new Translation(rotationPoint.X, rotationPoint.Y,
+            //            rotationPoint.Z);
+            //    else
 
-                    initialTransformation = new Identity();
+            //        initialTransformation = new Identity();
 
-                _sectionEntity.Selected = true;
+            //    _sectionEntity.Selected = true;
 
-                _model.ObjectManipulator.Enable(initialTransformation, center);
+            //    _model.ObjectManipulator.Enable(initialTransformation, center);
 
-                _model.ObjectManipulator.Visible = _model.ObjectManipulator.RotateX.Visible =
-                    _model.ObjectManipulator.RotateY.Visible = _model.ObjectManipulator.RotateZ.Visible = true;
+            //    _model.ObjectManipulator.Visible = _model.ObjectManipulator.RotateX.Visible =
+            //        _model.ObjectManipulator.RotateY.Visible = _model.ObjectManipulator.RotateZ.Visible = true;
 
-                // определяем все объекты, которые на него попадают
+            //    // определяем все объекты, которые на него попадают
 
-                // рассекаем эти объекты
+            //    // рассекаем эти объекты
                 
-                var plate = Solid.CreateBox(
-                    0.1,
-                    (float)biggestEntity.BoxSize.Max,
-                    (float)biggestEntity.BoxSize.Max);
+            //    var plate = Solid.CreateBox(
+            //        0.1,
+            //        (float)biggestEntity.BoxSize.Max,
+            //        (float)biggestEntity.BoxSize.Max);
 
-                plate.Translate(leftBottomPoint.X, leftBottomPoint.Y, leftBottomPoint.Z);
+            //    plate.Translate(leftBottomPoint.X, leftBottomPoint.Y, leftBottomPoint.Z);
 
-                //_model.Entities.Add(plate, Color.Transparent);
+            //    //_model.Entities.Add(plate, Color.Transparent);
 
-                _zoneEntityBuffer = zoneGroup.Select(e => e.Body).ToList();
+            //    _zoneEntityBuffer = zoneGroup.Select(e => e.Body).ToList();
 
-                var visibleEntities = new List<Entity>(zoneGroup.Count());
+            //    var visibleEntities = new List<Entity>(zoneGroup.Count());
 
-                _model.Entities.Add(plate, Color.Transparent);
+            //    _model.Entities.Add(plate, Color.Transparent);
 
-                foreach (var zone in zoneGroup)
-                {
-                    var solid = (Solid) zone.Body;
+            //    foreach (var zone in zoneGroup)
+            //    {
+            //        var solid = (Solid) zone.Body;
 
-                    var t = Solid.Difference(solid, plate);
+            //        var t = Solid.Difference(solid, plate);
 
-                    if (t?.Length > 1)
-                    {
-                        _model.Entities.Remove(solid);
+            //        if (t?.Length > 1)
+            //        {
+            //            _model.Entities.Remove(solid);
 
-                        var fstPart = t.ElementAt(0);
-                        var sndPart = t.ElementAt(1);
+            //            var fstPart = t.ElementAt(0);
+            //            var sndPart = t.ElementAt(1);
 
-                        var visibleEntity = fstPart.BoxMin.X < sndPart.BoxMin.X
-                            ? fstPart
-                            : sndPart;
+            //            var visibleEntity = fstPart.BoxMin.X < sndPart.BoxMin.X
+            //                ? fstPart
+            //                : sndPart;
 
-                        visibleEntities.Add(visibleEntity);
+            //            visibleEntities.Add(visibleEntity);
 
-                        zone.Body = visibleEntity;
+            //            zone.Body = visibleEntity;
 
-                        _model.Entities.Remove(solid);
-                    }
+            //            _model.Entities.Remove(solid);
+            //        }
                    
 
-                }
+            //    }
 
-                visibleEntities.Reverse();
-                AddEntities(visibleEntities);
+            //    visibleEntities.Reverse();
+            //    AddEntities(visibleEntities);
 
-            }
+            //}
            
-            Invalidate();
+            //Invalidate();
         }
 
         public static BlockReference CreateBlockReference(ZoneModel zone)
@@ -402,5 +377,177 @@ namespace SensorSensitivity3D.Services
             _model.Clear();
             UpdateVisibility();
         }
+
+        //TODO Нужно тестировать
+        public static bool UpdateSubstrate(string substratePath, bool isVisible, ref Drawing drawing)
+        {
+            if (!File.Exists(substratePath))
+                return false;
+
+            Application.Current.Dispatcher?.Invoke(DispatcherPriority.Background,
+                new Action(delegate { }));
+
+            _readAutodesk = new ReadAutodesk(substratePath);
+            _readAutodesk.DoWork();
+
+            if (drawing?.Entities != null)
+                RemoveEntities(drawing.Entities);
+
+            _model.TextStyles = _readAutodesk.TextStyles;
+            _model.LineTypes = _readAutodesk.LineTypes;
+
+            foreach (var layer in _readAutodesk.Layers) 
+                _model.Layers.Add(layer.Name, layer.Color);
+
+            var entities = LayersToMeshes(_readAutodesk.Layers, _readAutodesk.Entities);
+            
+            AddEntities(entities);
+
+            //foreach (var e in _readAutodesk.Entities)
+            //{
+            //    e.Selectable = false;
+            //    e.Visible = isVisible;
+            //    e.Color = Color.Green;
+            //    e.ColorMethod = colorMethodType.byEntity;
+            //}
+
+            drawing = new Drawing
+            {
+                IsVisible = isVisible,
+                Name = new FileInfo(substratePath).Name,
+                XMin = _model.Entities.BoxMin.X,
+                XMax = _model.Entities.BoxMax.X,
+                YMin = _model.Entities.BoxMin.Y,
+                YMax = _model.Entities.BoxMax.Y,
+                ZMin = _model.Entities.BoxMin.Z,
+                ZMax = _model.Entities.BoxMax.Z,
+                Entities = _readAutodesk.Entities
+            };
+
+            return true;
+        }
+
+        private static IEnumerable<Entity> LayersToMeshes(IEnumerable<Layer> layers, IEnumerable<Entity> allEntities)
+        {
+            var entities = new List<Entity>();
+
+            var entitiesGroupedByLayer = allEntities.GroupBy(a => a.LayerName);
+            foreach (var entityLayer in entitiesGroupedByLayer)
+            {
+                var layer = layers.FirstOrDefault(l => l.Name == entityLayer.Key);
+
+                if (layer == null) continue;
+
+                var typeGroups = entityLayer.GroupBy(a => a.GetType());
+                foreach (var typeGroup in typeGroups)
+                {
+                    if (typeGroup.Key.Name == nameof(Triangle))
+                    {
+                        int count = typeGroup.Count();
+                        var meshBuilders = new List<PlainMeshBuilder>(10);
+                        foreach (Triangle t in typeGroup)
+                        {
+                            var color = t.ColorMethod == colorMethodType.byLayer ? layer.Color : t.Color;
+                            var m = meshBuilders.FirstOrDefault(a => a.Color == color);
+                            if (m == null)
+                            {
+                                m = new PlainMeshBuilder(color, count);
+                                meshBuilders.Add(m);
+                            }
+                            m.AddTriangle(t);
+                        }
+
+                        foreach (var m in meshBuilders) 
+                            entities.Add(m.Build());
+                    }
+                    else
+                    {
+                        foreach (Entity e in typeGroup)
+                        {
+                            if (e.ColorMethod == colorMethodType.byLayer)
+                            {
+                                e.Color = layer.Color;
+                                e.ColorMethod = colorMethodType.byEntity;
+                            }
+                            if (e.LineTypeMethod == colorMethodType.byLayer)
+                            {
+                                e.LineTypeName = layer.LineTypeName;
+                                e.LineTypeMethod = colorMethodType.byEntity;
+                            }
+                            if (e.LineWeightMethod == colorMethodType.byLayer)
+                            {
+                                e.LineWeight = layer.LineWeight;
+                                e.LineWeightMethod = colorMethodType.byEntity;
+                            }
+
+                            if (e is Text t) 
+                                t.Billboard = true;
+
+                            entities.Add(e);
+                        }
+                    }
+                }
+            }
+
+            return entities;
+        }
+    }
+
+    public class PlainMeshBuilder
+    {
+        public PlainMeshBuilder(Color color, int max_triangles_count)
+        {
+            Color = color;
+            int capacity = Math.Min(max_triangles_count, InitialCapacity);
+            Vertices = new List<Point3D>(capacity);
+            VertexIndices = new Dictionary<Point3D, int>(capacity);
+            Triangles = new List<IndexTriangle>(capacity);
+        }
+
+        #region public properties
+        public Color Color { get; }
+        #endregion
+
+        #region public functions
+        public void AddTriangle(Triangle t)
+        {
+            int v1 = IndexOf(t.Vertices[0]);
+            int v2 = IndexOf(t.Vertices[1]);
+            int v3 = IndexOf(t.Vertices[2]);
+            Triangles.Add(new IndexTriangle(v1, v2, v3));
+        }
+        public Mesh Build()
+        {
+            Mesh mesh = new Mesh(Vertices.ToArray(), Triangles.ToArray());
+            mesh.ColorMethod = colorMethodType.byEntity;
+            mesh.Color = Color;
+            mesh.EdgeStyle = Mesh.edgeStyleType.None;
+            mesh.LightWeight = true;
+            return mesh;
+        }
+        #endregion
+
+        #region private functions
+        int IndexOf(Point3D p)
+        {
+            if (VertexIndices.TryGetValue(p, out int index)) return index;
+
+            index = Vertices.Count;
+            Vertices.Add(p);
+            VertexIndices.Add(p, index);
+
+            return index;
+        }
+        #endregion
+
+        #region private members
+        List<Point3D> Vertices;
+        Dictionary<Point3D, int> VertexIndices;
+        List<IndexTriangle> Triangles;
+        #endregion
+
+        #region consts
+        const int InitialCapacity = 3000;
+        #endregion
     }
 }

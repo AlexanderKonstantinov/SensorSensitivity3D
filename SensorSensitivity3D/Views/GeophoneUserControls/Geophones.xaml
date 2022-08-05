@@ -32,7 +32,7 @@
                     Style="{StaticResource ColorEditor}" >
 
                     <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="SensitivityelectedColorChanged">
+                        <i:EventTrigger EventName="SelectedColorChanged">
                             <i:InvokeCommandAction 
                                 Command="{Binding ChangeColorCommand}"
                                 CommandParameter="{Binding SelectedColor, ElementName=ColorEditor}"/>
@@ -72,7 +72,7 @@
 
             <t:RadButton
                 Grid.Column="0"
-                Style="{StaticResource ResetGeophoneButton}"                            
+                Style="{StaticResource ResetModelButton}"                            
                 Command="{Binding ResetGeophoneCommand}">
                 <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />
             </t:RadButton>
@@ -99,7 +99,7 @@
             <t:RadButton
                 Grid.Column="4"
                 Grid.Row="0"
-                Style="{StaticResource GeophonesHeaderButton}"
+                Style="{StaticResource ModelHeaderButton}"
                 Command="{Binding LoadFromDbCommand}" 
                 ToolTip="Добавить геофоны из базы данных">
                 <Image 
@@ -110,7 +110,7 @@
             <t:RadButton                    
                 Grid.Row="0"
                 Grid.Column="5"
-                Style="{StaticResource GeophonesHeaderButton}"
+                Style="{StaticResource ModelHeaderButton}"
                 Command="{Binding AddGeophoneCommand}" 
                 ToolTip="Добавить геофон">
                 <Image 
@@ -121,7 +121,7 @@
             <t:RadButton
                 Grid.Row="0"
                 Grid.Column="6"
-                Style="{StaticResource GeophonesHeaderButton}"
+                Style="{StaticResource ModelHeaderButton}"
                 Command="{Binding LoadFromFileCommand}"
                 ToolTip="Добавить геофоны из файла">
                 <Image 
@@ -132,7 +132,7 @@
             <t:RadButton
                     Grid.Row="0"
                     Grid.Column="7"                        
-                    Style="{StaticResource GeophonesHeaderButton}"
+                    Style="{StaticResource ModelHeaderButton}"
                     Command="{Binding SaveToFileCommand}"
                     ToolTip="Сохранить геофоны в файл">
                 <Image 
@@ -175,7 +175,7 @@
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type t:RadListBoxItem}">
 
-                                    <Border x:Name="GeophoneListItem"  BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" >
+                                    <Border BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" >
                                         <ContentPresenter />
 
                                         <i:Interaction.Triggers>
@@ -221,7 +221,7 @@
                             </Grid.ColumnDefinitions>
 
                             <t:RadButton
-                                Style="{StaticResource ResetGeophoneButton}"                            
+                                Style="{StaticResource ResetModelButton}"                            
                                 Command="{Binding DataContext.ResetGeophoneCommand, RelativeSource={RelativeSource AncestorType=t:RadListBox}}" 
                                 CommandParameter="{Binding}">
                                 <Image Source="pack://application:,,,/Resources/Icons/rollback.png" />
@@ -253,8 +253,7 @@
                             <t:RadToggleButton                                     
                                 Grid.Column="4"
                                 Style="{StaticResource ResourceKey=GeophoneGoodButton}"
-                                IsChecked="{Binding IsVisible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                Command="{Binding }"
+                                IsChecked="{Binding IsGood, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                 MinWidth="20"
                                 Width="20"
                                 Height="20">
@@ -263,7 +262,7 @@
 
                             <TextBlock 
                                 Grid.Column="5"
-                                FontFamily="Sensitivityegoe UI" 
+                                FontFamily="Segoe UI" 
                                 Padding="0 0 0 3"
                                 Margin="5 0"
                                 MaxWidth="110"

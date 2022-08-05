@@ -22,5 +22,18 @@
         <Setter Property="TextAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
+
+    <Style
+        x:Key="WarningLabel"
+        TargetType="{x:Type Label}">
+
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="ToolTip" Value="Параметры были изменены. Расчет может быть некорректным"/>
+        <Setter Property="Background" Value="Transparent"/>
+
+    </Style>
     
 </ResourceDictionary>

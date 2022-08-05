@@ -57,7 +57,7 @@
     </Reference>
     <Reference Include="devDept.Eyeshot.Control.x86.Wpf.v12, Version=12.0.239.0, Culture=neutral, PublicKeyToken=c8a727666e3c0a09, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files\devDept Software\Eyeshot Ultimate 12\Bin\x86\devDept.Eyeshot.Control.x86.Wpf.v12.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Program Files\devDept Software\Eyeshot Ultimate 12\Bin\x86\devDept.Eyeshot.Control.x86.Wpf.v12.dll</HintPath>
     </Reference>
     <Reference Include="devDept.Geometry.v12, Version=12.0.239.0, Culture=neutral, PublicKeyToken=9440825e8b4733bc, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -226,6 +226,9 @@
     <Compile Include="Helpers\EventHandlers.cs" />
     <Compile Include="Helpers\ExtensionMethods.cs" />
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
+    <Compile Include="ViewModels\ControlZones\ControlZonesEditorViewModel.cs" />
+    <Compile Include="ViewModels\ControlZones\ControlZonesViewModel.cs" />
+    <Compile Include="ViewModels\ControlZones\ControlZoneViewModel.cs" />
     <Compile Include="ViewModels\DbConnectViewModel.cs" />
     <Compile Include="ViewModels\DrawingViewModel.cs" />
     <Compile Include="ViewModels\GeophoneViewModels\GeophonesEditorViewModel.cs" />
@@ -233,6 +236,15 @@
     <Compile Include="ViewModels\GeophoneViewModels\GeophoneViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\ZonesViewModel.cs" />
+    <Compile Include="Views\ControlZones\ControlZone.xaml.cs">
+      <DependentUpon>ControlZone.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ControlZones\ControlZones.xaml.cs">
+      <DependentUpon>ControlZones.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ControlZones\ControlZonesEditor.xaml.cs">
+      <DependentUpon>ControlZonesEditor.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DbConnectWindow.xaml.cs">
       <DependentUpon>DbConnectWindow.xaml</DependentUpon>
     </Compile>
@@ -295,6 +307,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Views\ControlZones\ControlZone.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ControlZones\ControlZones.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ControlZones\ControlZonesEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DbConnectWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -354,6 +378,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\Fonts\fontawesome-webfont.ttf" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -433,6 +458,9 @@
     <Resource Include="Resources\Icons\intersection.png" />
     <Resource Include="Resources\Icons\pyramid.png" />
     <Resource Include="Resources\Icons\sensors.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Icons\warning.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.0\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.0\build\Fody.targets')" />
